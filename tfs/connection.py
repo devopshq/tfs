@@ -11,8 +11,8 @@ def batch(iterable, n=1):
         yield iterable[ndx:min(ndx + n, l)]
 
 
-class TFSConnection:
-    def __init__(self, server_url, project='Development', user=None, password=None):
+class TFSAPI:
+    def __init__(self, server_url, project, user, password):
         if user is None or password is None:
             raise ValueError('User name and api-key must be specified!')
         self.rest_client = TFSClient(server_url, project=project, user=user, password=password)
@@ -20,14 +20,15 @@ class TFSConnection:
     def get_workitems(self, work_items_ids, fields=None):
         ids_string = ','.join(map(str, work_items_ids))
         fields_string = ('&fields=' + ','.join(fields)) if fields else ''
-        return self.rest_client.send_get(
+        workitems = self.rest_client.send_get(
             'wit/workitems?ids={ids}{fields}&api-version=1.0'.format(ids=ids_string, fields=fields_string))
+        return workitems['value']
 
     def get_workitems_value_batch(self, work_items_ids, fields=None, batch_size=50):
         value = []
         for work_items_batch in batch(list(work_items_ids), batch_size):
             work_items_batch_info = self.get_workitems(work_items_batch, fields=fields)
-            value += work_items_batch_info['value']
+            value += work_items_batch_info
         return value
 
     def update_workitem(self, work_item_id, update_data):

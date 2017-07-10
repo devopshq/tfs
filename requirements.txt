@@ -1,0 +1,5 @@
+requests
+pytest
+# mock
+HTTPretty
+pytest_httpretty
