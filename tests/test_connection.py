@@ -1,6 +1,6 @@
 import pytest
 
-from tfs import TFSAPI, TFSObject
+from tfs import *
 
 
 @pytest.fixture()
@@ -11,7 +11,7 @@ def tfsapi():
 
 @pytest.mark.httpretty
 def test_get_workitems(tfsapi):
-    workitems = tfsapi.get_workitems(work_items_ids=[1370, 1371])
+    workitems = tfsapi.get_workitems(work_items_ids=[100, 101])
 
     assert len(workitems) == 2
     assert workitems[0].id == 100
@@ -19,8 +19,16 @@ def test_get_workitems(tfsapi):
 
 
 @pytest.mark.httpretty
+def test_get_workitem(tfsapi):
+    workitem = tfsapi.get_workitem(100)
+
+    assert isinstance(workitem, Workitem)
+    assert workitem.id == 100
+
+
+@pytest.mark.httpretty
 def test_get_workitems_with_int(tfsapi):
-    workitems = tfsapi.get_workitems(work_items_ids=1370)
+    workitems = tfsapi.get_workitems(work_items_ids=100)
 
     assert len(workitems) == 2
     assert workitems[0].id == 100
@@ -29,7 +37,7 @@ def test_get_workitems_with_int(tfsapi):
 
 @pytest.mark.httpretty
 def test_get_changesets(tfsapi):
-    changesets = tfsapi.get_changesets(from_=10, to=14)
+    changesets = tfsapi.get_changesets(from_=10, to_=14)
 
     assert len(changesets) == 5
     assert changesets[0].id == 10
@@ -37,7 +45,7 @@ def test_get_changesets(tfsapi):
 
 @pytest.mark.httpretty
 def test_get_changesets_workitem(tfsapi):
-    changesets = tfsapi.get_changesets(from_=10, to=14)
+    changesets = tfsapi.get_changesets(from_=10, to_=14)
     changeset = changesets[0]
     workitems = changeset.workitems
 

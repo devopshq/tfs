@@ -3,6 +3,8 @@
 TFS API python 3 version
 """
 
+from requests.structures import CaseInsensitiveDict
+
 basestring = (str, bytes)
 
 
@@ -58,18 +60,24 @@ class TFSObject(object):
             return self._attrib_prefix + key
         return key
 
+        # def __getattribute__(self, item):
+        #     if item in self._data:
+        #         return self._data[item]
+        #
+        #     return object.__getattribute__(self, item)
+
 
 class Workitem(TFSObject):
     def __init__(self, data=None, tfs=None):
         super().__init__(data, tfs)
-        self._attrib = self._data['fields']
+        self._attrib = CaseInsensitiveDict(self._data['fields'])
         self._attrib_prefix = 'System.'
         self.id = self._data['id']
 
     def __setitem__(self, key, value):
         field_path = "/fields/{}{}".format(self._attrib_prefix, key)
         update_data = [dict(op="add", path=field_path, value=value)]
-        return self.tfs.update_workitem(self.id, update_data)
+        self = self.tfs.update_workitem(self.id, update_data)
 
     @property
     def history(self):

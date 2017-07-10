@@ -40,6 +40,9 @@ class TFSAPI:
             object_class=Workitem)
         return workitems
 
+    def get_workitem(self, id, fields=None):
+        return self.get_workitems(id, fields)[0]
+
     def get_workitems(self, work_items_ids, fields=None, batch_size=50):
         if isinstance(work_items_ids, int):
             work_items_ids = [work_items_ids]
@@ -52,8 +55,13 @@ class TFSAPI:
             workitems += work_items_batch_info
         return workitems
 
-    def get_changesets(self, from_, to, item_path=None, top=10000):
-        payload = {'searchCriteria.fromId': from_, 'searchCriteria.toId': to, '$top': top, }
+    def get_changesets(self, from_=None, to_=None, item_path=None, top=10000):
+        payload = {'$top': top}
+
+        if from_ and to_:
+            payload['searchCriteria.fromId'] = from_
+            payload['searchCriteria.toId'] = to_
+
         if item_path:
             payload['searchCriteria.itemPath'] = item_path
         changeset_raw = self.get_tfs_object('tfvc/changesets', payload=payload, object_class=Changeset)
