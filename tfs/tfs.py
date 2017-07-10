@@ -56,9 +56,10 @@ class TFSObject(object):
         self._attrib[key] = value
 
     def _add_prefix(self, key):
-        if self._attrib_prefix:
+        if key.startswith(self._attrib_prefix):
+            return key
+        else:
             return self._attrib_prefix + key
-        return key
 
         # def __getattribute__(self, item):
         #     if item in self._data:
@@ -91,10 +92,6 @@ class Changeset(TFSObject):
 
     @property
     def workitems(self):
-        """
-        :param changeset_id:
-        :return:
-        """
         wi_links = self.tfs.get_tfs_object('tfvc/changesets/{}/workItems'.format(self.id))
         ids = [x.id for x in wi_links]
         workitems = self.tfs.get_workitems(ids)

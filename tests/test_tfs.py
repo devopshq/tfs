@@ -42,3 +42,13 @@ def test_workitem_id(workitem):
 def test_workitem_fields(workitem):
     assert workitem['Reason'] == "New"
     assert workitem['AreaPath'] == "Test Agile"
+
+
+def test_workitem_fields_with_prefix(workitem):
+    assert workitem['System.Reason'] == "New"
+    assert workitem['System.AreaPath'] == "Test Agile"
+
+
+def test_workitem_fields_case_ins(workitem):
+    assert workitem['ReaSon'] == "New"
+    assert workitem['AREAPath'] == "Test Agile"
