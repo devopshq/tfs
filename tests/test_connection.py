@@ -1,6 +1,6 @@
 import pytest
 
-from tfs import TFSAPI
+from tfs import TFSAPI, TFSObject
 
 
 @pytest.fixture()
@@ -44,3 +44,19 @@ def test_get_changesets_workitem(tfsapi):
     assert len(workitems) == 2
     assert workitems[0].id == 100
     assert workitems[1].id == 101
+
+
+@pytest.mark.httpretty
+def test_get_projects(tfsapi):
+    projects = tfsapi.get_projects()
+
+    assert len(projects) == 1
+    assert projects[0]['name'] == 'ProjectName'
+
+
+@pytest.mark.httpretty
+def test_get_teams(tfsapi):
+    team = tfsapi.get_team('any-project-id')
+
+    assert isinstance(team, TFSObject)
+    assert team['name'] == 'ProjectName'
