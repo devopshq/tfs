@@ -14,17 +14,17 @@ def batch(iterable, n=1):
 
 
 class TFSAPI:
-    def __init__(self, server_url, project, user, password):
+    def __init__(self, server_url, project, user, password, verify=False):
         if user is None or password is None:
             raise ValueError('User name and api-key must be specified!')
-        self.rest_client = TFSClient(server_url, project=project, user=user, password=password)
+        self.rest_client = TFSClient(server_url, project=project, user=user, password=password, verify=verify)
 
     def _get_workitems(self, work_items_ids, fields=None):
         ids_string = ','.join(map(str, work_items_ids))
         fields_string = ('&fields=' + ','.join(fields)) if fields else "&$expand=all"
-        workitems_raw = self.rest_client.send_get(
-            'wit/workitems?ids={ids}{fields}&api-version=1.0'.format(ids=ids_string, fields=fields_string))
-        workitems = [Workitem(x, self) for x in workitems_raw['value']]
+        workitems = self.get_tfs_object(
+            'wit/workitems?ids={ids}{fields}&api-version=1.0'.format(ids=ids_string, fields=fields_string),
+            object_class=Workitem)
         return workitems
 
     def get_workitems(self, work_items_ids, fields=None, batch_size=50):
@@ -37,32 +37,19 @@ class TFSAPI:
             value += work_items_batch_info
         return value
 
-    # TODO: Устаревшая, можно удалить
-    # def get_workitems_expand_all(self, work_items_ids):
-    #     ids_string = ','.join(map(str, work_items_ids))
-    #     return self.rest_client.send_get(
-    #         'wit/workitems?ids={ids}&$expand=all&api-version=1.0'.format(ids=ids_string))
-
     def get_changesets(self, From, to, itemPath=None, top=10000):
-        if itemPath is None:
-            payload = {'searchCriteria.fromId': From, 'searchCriteria.toId': to, '$top': top, }
-        else:
-            payload = {'searchCriteria.fromId': From, 'searchCriteria.toId': to, '$top': top,
-                       'searchCriteria.itemPath': itemPath}
-        changeset_raw = self.rest_client.send_get('tfvc/changesets', payload=payload)['value']
+        payload = {'searchCriteria.fromId': From, 'searchCriteria.toId': to, '$top': top, }
+        if itemPath:
+            payload['searchCriteria.itemPath'] = itemPath
+        changeset_raw = self.get_tfs_object('tfvc/changesets', payload=payload, object_class=Changeset)
         changesets = [Changeset(x, self) for x in changeset_raw]
         return changesets
 
-    # TODO: Устаревшая, можно удалить
-    # def get_top_changesets(self, top):
-    #     return self.rest_client.send_get('tfvc/changesets', payload={
-    #         '$top': top,
-    #     })
-
     def update_workitem(self, work_item_id, update_data):
-        return self.rest_client.send_patch('wit/workitems/{id}?api-version=1.0'.format(id=work_item_id),
-                                           data=update_data,
-                                           headers={'Content-Type': 'application/json-patch+json'})
+        raw = self.rest_client.send_patch('wit/workitems/{id}?api-version=1.0'.format(id=work_item_id),
+                                          data=update_data,
+                                          headers={'Content-Type': 'application/json-patch+json'})
+        return Workitem(raw, self)
 
     def get_changeset_workitems(self, changeset_id):
         """
@@ -70,8 +57,8 @@ class TFSAPI:
         :param changeset_id:
         :return:
         """
-        raw = self.rest_client.send_get('tfvc/changesets/{}/workItems'.format(changeset_id))['value']
-        ids = [TFSObject(x, self).id for x in raw]
+        wi_links = self.get_tfs_object('tfvc/changesets/{}/workItems'.format(changeset_id))
+        ids = [x.id for x in wi_links]
         workitems = self.get_workitems(ids)
         return workitems
 
@@ -81,16 +68,16 @@ class TFSAPI:
     def get_team(self, project):
         return self.get_tfs_object('projects/{}/teams'.format(project))
 
-    def get_tfs_object(self, uri):
+    def get_tfs_object(self, uri, payload=None, object_class=TFSObject):
         """ Send requests and return any object in TFS """
-        raw = self.rest_client.send_get(uri)
+        raw = self.rest_client.send_get(uri=uri, payload=payload)
 
         # For list results
         if 'value' in raw:
             raw = raw['value']
-            objects = [TFSObject(x, self) for x in raw]
+            objects = [object_class(x, self) for x in raw]
         else:
-            objects = TFSObject(raw, self)
+            objects = object_class(raw, self)
 
         return objects
 
@@ -100,14 +87,19 @@ class TFSClientError(Exception):
 
 
 class TFSClient:
-    def __init__(self, base_url, project, user, password):
+    def __init__(self, base_url, project, user, password, verify=False):
         if not base_url.endswith('/'):
             base_url += '/'
         # Remove part after / in project-name, like Development/MyProject => Development
         # API responce only in Project, without subproject
         project = project.partition('/')[0]
-        self.__url = base_url + '%s/_apis/' % project
-        self.__auth = (user, password)
+        self._url = base_url + '%s/_apis/' % project
+        self._auth = (user, password)
+        self._verify = verify
+
+        if not self._verify:
+            from requests.packages.urllib3.exceptions import InsecureRequestWarning
+            requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     def send_get(self, uri, payload=None):
         return self.__send_request('GET', uri, None, payload=payload)
@@ -119,14 +111,15 @@ class TFSClient:
         return self.__send_request('PATCH', uri, data, headers)
 
     def __send_request(self, method, uri, data, headers=None, payload=None):
-        url = self.__url + uri
+        url = self._url + uri
         if method == 'POST':
-            response = requests.post(url, auth=self.__auth, json=data, verify=False, headers=headers)
+            response = requests.post(url, auth=self._auth, json=data, verify=self._verify, headers=headers)
         elif method == 'PATCH':
-            response = requests.patch(url, auth=self.__auth, json=data, verify=False, headers=headers)
+            response = requests.patch(url, auth=self._auth, json=data, verify=self._verify, headers=headers)
         else:
             headers = {'Content-Type': 'application/json'}
-            response = requests.get(url, auth=self.__auth, headers=headers, verify=False, params=payload)
+            response = requests.get(url, auth=self._auth, headers=headers, verify=self._verify, params=payload)
+            response.raise_for_status()
 
         try:
             result = response.json()
