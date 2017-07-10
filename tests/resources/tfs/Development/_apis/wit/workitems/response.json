@@ -2,7 +2,7 @@
   "count": 10,
   "value": [
     {
-      "id": 1370,
+      "id": 100,
       "rev": 1,
       "fields": {
         "System.AreaPath": "Test Agile",
@@ -25,7 +25,7 @@
       "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/1370"
     },
     {
-      "id": 1371,
+      "id": 101,
       "rev": 4,
       "fields": {
         "System.AreaPath": "TestProject",

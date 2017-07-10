@@ -2,4 +2,4 @@ requests
 pytest
 HTTPretty
 pytest_httpretty
-json
+pyjson

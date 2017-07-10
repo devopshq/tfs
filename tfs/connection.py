@@ -1,5 +1,5 @@
 import requests
-from tfs.tfs import Workitem
+from tfs.tfs import Workitem, Changeset, TFSObject
 
 
 def batch(iterable, n=1):
@@ -27,6 +27,9 @@ class TFSAPI:
         return workitems
 
     def get_workitems(self, work_items_ids, fields=None, batch_size=50):
+        if isinstance(work_items_ids, int):
+            work_items_ids = [work_items_ids]
+
         value = []
         for work_items_batch in batch(list(work_items_ids), batch_size):
             work_items_batch_info = self._get_workitems(work_items_batch, fields=fields)
@@ -50,13 +53,15 @@ class TFSAPI:
     def get_team(self, project):
         return self.rest_client.send_get('projects/{}/teams'.format(project))
 
-    def get_changesets(self, From, to, itemPath=None):
+    def get_changesets(self, From, to, itemPath=None, top=10000):
         if itemPath is None:
-            payload = {'searchCriteria.fromId': From, 'searchCriteria.toId': to, '$top': 10000, }
+            payload = {'searchCriteria.fromId': From, 'searchCriteria.toId': to, '$top': top, }
         else:
-            payload = {'searchCriteria.fromId': From, 'searchCriteria.toId': to, '$top': 10000,
+            payload = {'searchCriteria.fromId': From, 'searchCriteria.toId': to, '$top': top,
                        'searchCriteria.itemPath': itemPath}
-        return self.rest_client.send_get('tfvc/changesets', payload=payload)
+        changeset_raw = self.rest_client.send_get('tfvc/changesets', payload=payload)['value']
+        changesets = [Changeset(x, self) for x in changeset_raw]
+        return changesets
 
     def get_top_changesets(self, top):
         return self.rest_client.send_get('tfvc/changesets', payload={
@@ -64,7 +69,10 @@ class TFSAPI:
         })
 
     def get_changeset_workitems(self, changeset_id):
-        return self.rest_client.send_get('tfvc/changesets/{}/workItems'.format(changeset_id))
+        raw = self.rest_client.send_get('tfvc/changesets/{}/workItems'.format(changeset_id))['value']
+        ids = [TFSObject(x, self).id for x in raw]
+        workitems = self.get_workitems(ids)
+        return workitems
 
 
 class TFSClientError(Exception):

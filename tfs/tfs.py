@@ -20,10 +20,12 @@ def to_bytes(a):
 
 class TFSObject(object):
     def __init__(self, data=None, tfs=None):
+        # TODO: CaseInsensitive Dict
         self._data = data
         self._attrib = self._data
         self.tfs = tfs
         self._attrib_prefix = None
+        self.id = self._data.get('id', None)
 
     def __repr__(self):
         _repr = ''
@@ -67,3 +69,13 @@ class Workitem(TFSObject):
         self._attrib = self._data['fields']
         self._attrib_prefix = 'System.'
         self.id = self._data['id']
+
+
+class Changeset(TFSObject):
+    def __init__(self, data=None, tfs=None):
+        super().__init__(data, tfs)
+        self.id = self._data['changesetId']
+
+    def get_workitems(self):
+        return self.tfs.get_changeset_workitems(self.id)
+

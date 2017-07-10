@@ -16,7 +16,7 @@ def request_callback(request, uri, headers):
         response = open(response_file, mode='r', encoding="utf-8-sig").read()
     else:
         code = 404
-        response = ""
+        response = "{}"
 
     return code, headers, response
 
