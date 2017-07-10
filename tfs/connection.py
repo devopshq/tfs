@@ -19,52 +19,6 @@ class TFSAPI:
             raise ValueError('User name and api-key must be specified!')
         self.rest_client = TFSClient(server_url, project=project, user=user, password=password, verify=verify)
 
-    def __get_workitems(self, work_items_ids, fields=None):
-        ids_string = ','.join(map(str, work_items_ids))
-        fields_string = ('&fields=' + ','.join(fields)) if fields else "&$expand=all"
-        workitems = self.get_tfs_object(
-            'wit/workitems?ids={ids}{fields}&api-version=1.0'.format(ids=ids_string, fields=fields_string),
-            object_class=Workitem)
-        return workitems
-
-    def get_workitems(self, work_items_ids, fields=None, batch_size=50):
-        if isinstance(work_items_ids, int):
-            work_items_ids = [work_items_ids]
-
-        value = []
-        for work_items_batch in batch(list(work_items_ids), batch_size):
-            work_items_batch_info = self.__get_workitems(work_items_batch, fields=fields)
-            value += work_items_batch_info
-        return value
-
-    def get_changesets(self, From, to, itemPath=None, top=10000):
-        payload = {'searchCriteria.fromId': From, 'searchCriteria.toId': to, '$top': top, }
-        if itemPath:
-            payload['searchCriteria.itemPath'] = itemPath
-        changeset_raw = self.get_tfs_object('tfvc/changesets', payload=payload, object_class=Changeset)
-        changesets = [Changeset(x, self) for x in changeset_raw]
-        return changesets
-
-    def update_workitem(self, work_item_id, update_data):
-        raw = self.rest_client.send_patch('wit/workitems/{id}?api-version=1.0'.format(id=work_item_id),
-                                          data=update_data,
-                                          headers={'Content-Type': 'application/json-patch+json'})
-        return Workitem(raw, self)
-
-    def get_changeset_workitems(self, changeset_id):
-        """
-        Return Workitem object linked to Changeset
-        :param changeset_id:
-        :return:
-        """
-        wi_links = self.get_tfs_object('tfvc/changesets/{}/workItems'.format(changeset_id))
-        ids = [x.id for x in wi_links]
-        workitems = self.get_workitems(ids)
-        return workitems
-
-    def get_projects(self):
-        return self.get_tfs_object('projects', object_class=Projects)
-
     def get_tfs_object(self, uri, payload=None, object_class=TFSObject):
         """ Send requests and return any object in TFS """
         raw = self.rest_client.send_get(uri=uri, payload=payload)
@@ -77,6 +31,43 @@ class TFSAPI:
             objects = object_class(raw, self)
 
         return objects
+
+    def __get_workitems(self, work_items_ids, fields=None):
+        ids_string = ','.join(map(str, work_items_ids))
+        fields_string = ('&fields=' + ','.join(fields)) if fields else "&$expand=all"
+        workitems = self.get_tfs_object(
+            'wit/workitems?ids={ids}{fields}&api-version=1.0'.format(ids=ids_string, fields=fields_string),
+            object_class=Workitem)
+        return workitems
+
+    def get_workitems(self, work_items_ids, fields=None, batch_size=50):
+        if isinstance(work_items_ids, int):
+            work_items_ids = [work_items_ids]
+        if isinstance(work_items_ids, str):
+            work_items_ids = [work_items_ids]
+
+        workitems = []
+        for work_items_batch in batch(list(work_items_ids), batch_size):
+            work_items_batch_info = self.__get_workitems(work_items_batch, fields=fields)
+            workitems += work_items_batch_info
+        return workitems
+
+    def get_changesets(self, from_, to, item_path=None, top=10000):
+        payload = {'searchCriteria.fromId': from_, 'searchCriteria.toId': to, '$top': top, }
+        if item_path:
+            payload['searchCriteria.itemPath'] = item_path
+        changeset_raw = self.get_tfs_object('tfvc/changesets', payload=payload, object_class=Changeset)
+        changesets = [Changeset(x, self) for x in changeset_raw]
+        return changesets
+
+    def get_projects(self):
+        return self.get_tfs_object('projects', object_class=Projects)
+
+    def update_workitem(self, work_item_id, update_data):
+        raw = self.rest_client.send_patch('wit/workitems/{id}?api-version=1.0'.format(id=work_item_id),
+                                          data=update_data,
+                                          headers={'Content-Type': 'application/json-patch+json'})
+        return Workitem(raw, self)
 
 
 class TFSClientError(Exception):

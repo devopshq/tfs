@@ -29,7 +29,7 @@ def test_get_workitems_with_int(tfsapi):
 
 @pytest.mark.httpretty
 def test_get_changesets(tfsapi):
-    changesets = tfsapi.get_changesets(From=10, to=14)
+    changesets = tfsapi.get_changesets(from_=10, to=14)
 
     assert len(changesets) == 5
     assert changesets[0].id == 10
@@ -37,9 +37,9 @@ def test_get_changesets(tfsapi):
 
 @pytest.mark.httpretty
 def test_get_changesets_workitem(tfsapi):
-    changesets = tfsapi.get_changesets(From=10, to=14)
+    changesets = tfsapi.get_changesets(from_=10, to=14)
     changeset = changesets[0]
-    workitems = changeset.get_workitems()
+    workitems = changeset.workitems
 
     assert len(workitems) == 2
     assert workitems[0].id == 100

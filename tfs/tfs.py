@@ -66,8 +66,8 @@ class Workitem(TFSObject):
         self._attrib_prefix = 'System.'
         self.id = self._data['id']
 
-    def update_field(self, name, value):
-        field_path = "/fields/{}{}".format(self._attrib_prefix, name)
+    def __setitem__(self, key, value):
+        field_path = "/fields/{}{}".format(self._attrib_prefix, key)
         update_data = [dict(op="add", path=field_path, value=value)]
         return self.tfs.update_workitem(self.id, update_data)
 
@@ -81,8 +81,16 @@ class Changeset(TFSObject):
         super().__init__(data, tfs)
         self.id = self._data['changesetId']
 
-    def get_workitems(self):
-        return self.tfs.get_changeset_workitems(self.id)
+    @property
+    def workitems(self):
+        """
+        :param changeset_id:
+        :return:
+        """
+        wi_links = self.tfs.get_tfs_object('tfvc/changesets/{}/workItems'.format(self.id))
+        ids = [x.id for x in wi_links]
+        workitems = self.tfs.get_workitems(ids)
+        return workitems
 
 
 class Projects(TFSObject):
