@@ -83,3 +83,9 @@ class Changeset(TFSObject):
 
     def get_workitems(self):
         return self.tfs.get_changeset_workitems(self.id)
+
+
+class Projects(TFSObject):
+    @property
+    def team(self):
+        return self.tfs.get_tfs_object('projects/{}/teams'.format(self.id))

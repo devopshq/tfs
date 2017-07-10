@@ -1,6 +1,6 @@
 import requests
 
-from tfs.tfs import Workitem, Changeset, TFSObject
+from tfs.tfs import *
 
 
 def batch(iterable, n=1):
@@ -19,7 +19,7 @@ class TFSAPI:
             raise ValueError('User name and api-key must be specified!')
         self.rest_client = TFSClient(server_url, project=project, user=user, password=password, verify=verify)
 
-    def _get_workitems(self, work_items_ids, fields=None):
+    def __get_workitems(self, work_items_ids, fields=None):
         ids_string = ','.join(map(str, work_items_ids))
         fields_string = ('&fields=' + ','.join(fields)) if fields else "&$expand=all"
         workitems = self.get_tfs_object(
@@ -33,7 +33,7 @@ class TFSAPI:
 
         value = []
         for work_items_batch in batch(list(work_items_ids), batch_size):
-            work_items_batch_info = self._get_workitems(work_items_batch, fields=fields)
+            work_items_batch_info = self.__get_workitems(work_items_batch, fields=fields)
             value += work_items_batch_info
         return value
 
@@ -63,10 +63,7 @@ class TFSAPI:
         return workitems
 
     def get_projects(self):
-        return self.get_tfs_object('projects')
-
-    def get_team(self, project):
-        return self.get_tfs_object('projects/{}/teams'.format(project))
+        return self.get_tfs_object('projects', object_class=Projects)
 
     def get_tfs_object(self, uri, payload=None, object_class=TFSObject):
         """ Send requests and return any object in TFS """

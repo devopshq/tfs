@@ -56,7 +56,8 @@ def test_get_projects(tfsapi):
 
 @pytest.mark.httpretty
 def test_get_teams(tfsapi):
-    team = tfsapi.get_team('any-project-id')
+    projects = tfsapi.get_projects()
+    team = projects[0].team
 
     assert isinstance(team, TFSObject)
     assert team['name'] == 'ProjectName'
