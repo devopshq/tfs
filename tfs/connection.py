@@ -1,4 +1,5 @@
 import requests
+from tfs.tfs import Workitem
 
 
 def batch(iterable, n=1):
@@ -17,17 +18,18 @@ class TFSAPI:
             raise ValueError('User name and api-key must be specified!')
         self.rest_client = TFSClient(server_url, project=project, user=user, password=password)
 
-    def get_workitems(self, work_items_ids, fields=None):
+    def _get_workitems(self, work_items_ids, fields=None):
         ids_string = ','.join(map(str, work_items_ids))
-        fields_string = ('&fields=' + ','.join(fields)) if fields else ''
-        workitems = self.rest_client.send_get(
+        fields_string = ('&fields=' + ','.join(fields)) if fields else "&$expand=all"
+        workitems_raw = self.rest_client.send_get(
             'wit/workitems?ids={ids}{fields}&api-version=1.0'.format(ids=ids_string, fields=fields_string))
-        return workitems['value']
+        workitems = [Workitem(x, self) for x in workitems_raw['value']]
+        return workitems
 
-    def get_workitems_value_batch(self, work_items_ids, fields=None, batch_size=50):
+    def get_workitems(self, work_items_ids, fields=None, batch_size=50):
         value = []
         for work_items_batch in batch(list(work_items_ids), batch_size):
-            work_items_batch_info = self.get_workitems(work_items_batch, fields=fields)
+            work_items_batch_info = self._get_workitems(work_items_batch, fields=fields)
             value += work_items_batch_info
         return value
 
@@ -36,10 +38,11 @@ class TFSAPI:
                                            data=update_data,
                                            headers={'Content-Type': 'application/json-patch+json'})
 
-    def get_workitems_expand_all(self, work_items_ids):
-        ids_string = ','.join(map(str, work_items_ids))
-        return self.rest_client.send_get(
-            'wit/workitems?ids={ids}&$expand=all&api-version=1.0'.format(ids=ids_string))
+    # TODO: Устаревшая, можно удалить
+    # def get_workitems_expand_all(self, work_items_ids):
+    #     ids_string = ','.join(map(str, work_items_ids))
+    #     return self.rest_client.send_get(
+    #         'wit/workitems?ids={ids}&$expand=all&api-version=1.0'.format(ids=ids_string))
 
     def get_projects(self):
         return self.rest_client.send_get('projects')
