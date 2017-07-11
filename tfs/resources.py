@@ -79,7 +79,7 @@ class Workitem(TFSObject):
     def history(self):
         return self.tfs.get_tfs_object('wit/workitems/{}/history'.format(self.id))
 
-    def _find_in_relation(self, relation_type, return_list=True):
+    def _find_in_relation(self, relation_type, return_one=True):
         """
         Find relation type in relations and return one or list
         """
@@ -89,14 +89,14 @@ class Workitem(TFSObject):
                 id_ = relation['url'].split('/')[-1]
                 id_ = int(id_)
                 ids.append(id_)
-        if return_list:
-            return ids
-        else:
+        if return_one:
             return ids[0] if ids else None
+        else:
+            return ids
 
     @property
     def parent_id(self):
-        return self._find_in_relation('Hierarchy-Reverse', return_list=False)
+        return self._find_in_relation('Hierarchy-Reverse', return_one=True)
 
     @property
     def parent(self):
@@ -106,7 +106,7 @@ class Workitem(TFSObject):
 
     @property
     def child_ids(self):
-        return self._find_in_relation('Hierarchy-Forward', return_list=True)
+        return self._find_in_relation('Hierarchy-Forward', return_one=False)
 
     @property
     def childs(self):

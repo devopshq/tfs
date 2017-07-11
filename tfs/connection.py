@@ -41,8 +41,8 @@ class TFSAPI:
             object_class=Workitem)
         return workitems
 
-    def get_workitem(self, id, fields=None):
-        return self.get_workitems(id, fields)[0]
+    def get_workitem(self, id_, fields=None):
+        return self.get_workitems(id_, fields)[0]
 
     def get_workitems(self, work_items_ids, fields=None, batch_size=50):
         if isinstance(work_items_ids, int):
