@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 import httpretty
 import pytest
 
+from tfs import TFSAPI
+
 
 def request_callback(request, uri, headers):
     # Map path from url to a file
@@ -28,3 +30,9 @@ def tfs_server_mock():
     httpretty.register_uri(httpretty.GET, re.compile(r"http://tfs.tfs/tfs/(.*)"),
                            body=request_callback,
                            content_type="application/json")
+
+
+@pytest.fixture()
+def tfsapi():
+    client = TFSAPI("http://tfs.tfs/tfs", 'Development', 'username', 'password')
+    yield client
