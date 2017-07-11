@@ -1,4 +1,4 @@
-Simple Python Client to TFS API (tested with TFS 2015)
+TFS Python Library (TFS API Python client).
 # Quickstart
 ## Workitem get and update field
 ```python
@@ -47,13 +47,16 @@ pip install dohq-tfs
 ```
 
 # Guide
-Supported action:
+## Supported action:
 - **Workitem**:
   - Get info about **Workitem**
   - Set field
 - **Changeset**
   - Get info about **Changeset**
   - Get relation workitems
+
+## Tested Compability:
+- TFS 2015 
 
 # Development
 TODO:

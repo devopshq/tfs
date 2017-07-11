@@ -61,12 +61,6 @@ class TFSObject(object):
         else:
             return self._attrib_prefix + key
 
-        # def __getattribute__(self, item):
-        #     if item in self._data:
-        #         return self._data[item]
-        #
-        #     return object.__getattribute__(self, item)
-
 
 class Workitem(TFSObject):
     def __init__(self, data=None, tfs=None):
