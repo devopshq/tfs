@@ -1,6 +1,6 @@
 ### TFS Python Library (TFS API Python client).
 ## Quickstart
-### Workitem get and update field
+### Create connection
 ```python
 from tfs import TFSAPI
 
@@ -8,6 +8,11 @@ user="username"
 password="password"
 
 client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development", user=user, password=password)
+workitem = client.get_workitem(100) # Test connection with Workitem id
+
+```
+### Workitem
+```python
 workitem = client.get_workitem(100)
 
 # Case insensetive. Remove space in field name
@@ -17,7 +22,9 @@ print(workitem['assignedTo'])
 workitem['state'] = 'Complete' 
 
 # Add comment
+print(workitem.history)
 workitem['History'] = "Omg, it is goos issue!"
+print(workitem.history)
 
 # Workitem Parent Workitem
 parent = workitem.parent
@@ -28,29 +35,28 @@ if parent: # Parent is None if Workitem hasn't Parent link
 childs = workitem.childs
 if childs: # Child is empty list if Workitem hasn't Child link
     print("Workitem with id={} have Childs={}".format(workitem.id, ",".join([x.id for x in childs])))
-    
-
-
-print(workitem.history)
-
 ```
-### Changesets and relation Workitem
+
+### Changesets
 ```python
-from tfs import TFSAPI
-
-user="username"
-password="password"
-
-client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development", user=user, password=password)
-
 # Get changesets from 1000 to 1002
 changesets = client.get_changesets(from_=1000, to_=1002)
 
 # Get changesets and related Workitems
 changesets = client.get_changesets(top=1)
 linked_workitems = changesets[0].workitems
+```
 
+### Project & Team
+```python
+# Get all project
+all_projects = client.get_projects()
 
+# Get project
+project_name = client.get_project("MyProjectName")
+
+# Get project team
+project_team = project_name.team
 ```
 
 ## Installation
@@ -59,17 +65,7 @@ pip install dohq-tfs
 ```
 
 ## Guide
-### Supported action:
-- **Workitem**:
-  - Get info about **Workitem**
-  - Set field
-  - Get parent **Workitem**
-  - Get child **Workitem**
-- **Changeset**
-  - Get info about **Changeset**
-  - Get relation workitems
-
-### Tested Compability:
+### Tested compability:
 - TFS 2015 
 
 ## Development
