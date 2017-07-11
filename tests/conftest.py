@@ -20,7 +20,7 @@ def request_callback_get(request, uri, headers):
         response = open(response_file, mode='r', encoding="utf-8-sig").read()
     else:
         code = 404
-        response = "{}"
+        response = "Cannot find file {}".format(response_file)
 
     return code, headers, response
 
