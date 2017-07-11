@@ -4,7 +4,7 @@ import json
 import httpretty
 import pytest
 
-from tfs.tfs import *
+from tfs.resources import *
 
 
 class TestWorkitem(object):

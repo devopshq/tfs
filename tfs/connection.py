@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
 
-from tfs.tfs import *
+from tfs.resources import *
 
 
 def batch(iterable, n=1):
