@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
+import httpretty
 import pytest
 
 from tfs.tfs import *
@@ -8,9 +9,9 @@ from tfs.tfs import *
 
 class TestWorkitem(object):
     @pytest.fixture()
-    def workitem(self):
+    def workitem(self, tfsapi):
         data_str = r"""{
-            "id": 1370,
+            "id": 100,
             "rev": 1,
             "fields": {
                 "System.AreaPath": "Test Agile",
@@ -30,14 +31,14 @@ class TestWorkitem(object):
                 "Microsoft.VSTS.Common.Priority": 2,
                 "Microsoft.VSTS.Common.Severity": "3 - Medium"
             },
-            "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/1370"
+            "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/100"
         }"""
         data_ = json.loads(data_str)
-        wi = Workitem(data_)
+        wi = Workitem(data_, tfsapi)
         yield wi
 
     def test_workitem_id(self, workitem):
-        assert workitem.id == 1370
+        assert workitem.id == 100
 
     def test_workitem_fields(self, workitem):
         assert workitem['Reason'] == "New"
@@ -46,6 +47,11 @@ class TestWorkitem(object):
     def test_workitem_fields_with_prefix(self, workitem):
         assert workitem['System.Reason'] == "New"
         assert workitem['System.AreaPath'] == "Test Agile"
+
+    @pytest.mark.httpretty
+    def test_workitem_field_update(self, workitem):
+        workitem['Reason'] = "Canceled"
+        assert workitem['Reason'] == "Canceled"
 
     def test_workitem_fields_case_ins(self, workitem):
         assert workitem['ReaSon'] == "New"

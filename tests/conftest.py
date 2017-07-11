@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 from urllib.parse import urlparse
 
 import httpretty
@@ -8,7 +9,7 @@ import pytest
 from tfs import TFSAPI
 
 
-def request_callback(request, uri, headers):
+def request_callback_get(request, uri, headers):
     # Map path from url to a file
     parsed_url = urlparse(uri)
     response_file = os.path.normpath('tests/resources{}'.format(parsed_url.path))
@@ -26,13 +27,15 @@ def request_callback(request, uri, headers):
 
 @pytest.fixture(autouse=True)
 def tfs_server_mock():
-    import re
-    httpretty.register_uri(httpretty.GET, re.compile(r"http://tfs.tfs/tfs/(.*)"),
-                           body=request_callback,
+    httpretty.register_uri(httpretty.GET, re.compile(r"http://tfs.tfs.ru(.*)"),
+                           body=request_callback_get,
+                           content_type="application/json")
+    httpretty.register_uri(httpretty.PATCH, re.compile(r"http://tfs.tfs.ru(.*)"),
+                           body=request_callback_get,
                            content_type="application/json")
 
 
 @pytest.fixture()
 def tfsapi():
-    client = TFSAPI("http://tfs.tfs/tfs", 'Development', 'username', 'password')
+    client = TFSAPI("http://tfs.tfs.ru/tfs", 'Development', 'username', 'password')
     yield client

@@ -72,7 +72,8 @@ class Workitem(TFSObject):
     def __setitem__(self, key, value):
         field_path = "/fields/{}{}".format(self._attrib_prefix, key)
         update_data = [dict(op="add", path=field_path, value=value)]
-        self = self.tfs.update_workitem(self.id, update_data)
+        raw = self.tfs.update_workitem(self.id, update_data)
+        self.__init__(raw, self.tfs)
 
     @property
     def history(self):

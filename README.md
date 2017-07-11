@@ -1,6 +1,6 @@
-TFS Python Library (TFS API Python client).
-# Quickstart
-## Workitem get and update field
+### TFS Python Library (TFS API Python client).
+## Quickstart
+### Workitem get and update field
 ```python
 from tfs import TFSAPI
 
@@ -22,7 +22,7 @@ workitem['History'] = "Omg, it is goos issue!"
 print(workitem.history)
 
 ```
-## Changesets and relation Workitem
+### Changesets and relation Workitem
 ```python
 from tfs import TFSAPI
 
@@ -41,13 +41,13 @@ linked_workitems = changesets[0].workitems
 
 ```
 
-# Installation
+## Installation
 ```
 pip install dohq-tfs
 ```
 
-# Guide
-## Supported action:
+## Guide
+### Supported action:
 - **Workitem**:
   - Get info about **Workitem**
   - Set field
@@ -55,9 +55,14 @@ pip install dohq-tfs
   - Get info about **Changeset**
   - Get relation workitems
 
-## Tested Compability:
+### Tested Compability:
 - TFS 2015 
 
-# Development
-TODO:
+## Development
+### Tests
+We use HTTPPrety. For GET-response locate you response.json to folder by URL. E.g:
+- http://tfs.tfs.rutfs/Development/_apis/wit/workitems?ids=anyid&anyflag => **tests/resources/tfs/Development/_apis/wit/workitems/response.json**
+- http://tfs.tfs.rutfs/Development/_apis/tfvc/changesets/10/workItems => **tests/resources/tfs/Development/_apis/tfvc/changesets/10/workItems/response.json**
+
+### TODO
 - Implemented Resources-API (like https://github.com/pycontribs/jira)

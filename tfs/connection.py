@@ -76,7 +76,7 @@ class TFSAPI:
         raw = self.rest_client.send_patch('wit/workitems/{id}?api-version=1.0'.format(id=work_item_id),
                                           data=update_data,
                                           headers={'Content-Type': 'application/json-patch+json'})
-        return Workitem(raw, self)
+        return raw
 
 
 class TFSClientError(Exception):
