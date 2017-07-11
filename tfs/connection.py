@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 
 from tfs.tfs import *
