@@ -19,6 +19,18 @@ workitem['state'] = 'Complete'
 # Add comment
 workitem['History'] = "Omg, it is goos issue!"
 
+# Workitem Parent Workitem
+parent = workitem.parent
+if parent: # Parent is None if Workitem hasn't Parent link
+    print("Workitem with id={} have parent={}".format(workitem.id, parent.id))
+
+# Workitem Childs Workitem
+childs = workitem.childs
+if childs: # Child is empty list if Workitem hasn't Child link
+    print("Workitem with id={} have Childs={}".format(workitem.id, ",".join([x.id for x in childs])))
+    
+
+
 print(workitem.history)
 
 ```
@@ -51,6 +63,8 @@ pip install dohq-tfs
 - **Workitem**:
   - Get info about **Workitem**
   - Set field
+  - Get parent **Workitem**
+  - Get child **Workitem**
 - **Changeset**
   - Get info about **Changeset**
   - Get relation workitems

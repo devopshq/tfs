@@ -9,6 +9,51 @@ from tfs.tfs import *
 
 class TestWorkitem(object):
     @pytest.fixture()
+    def workitem_with_child_only(self, tfsapi):
+        data_str = r"""{
+            "id": 100,
+            "rev": 1,
+            "fields": {
+                "System.AreaPath": "Test Agile",
+                "System.TeamProject": "Test Agile",
+                "System.IterationPath": "Test Agile\\Current\\Iteration 1",
+                "System.WorkItemType": "Bug",
+                "System.State": "Active",
+                "System.Reason": "New",
+                "System.CreatedDate": "2015-10-14T07:40:46.96Z",
+                "System.CreatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
+                "System.ChangedDate": "2015-10-14T07:40:46.96Z",
+                "System.ChangedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
+                "System.Title": "\u044c\u0441\u0440\u0442\u043e",
+                "Microsoft.VSTS.Common.StateChangeDate": "2015-10-14T07:40:46.96Z",
+                "Microsoft.VSTS.Common.ActivatedDate": "2015-10-14T07:40:46.96Z",
+                "Microsoft.VSTS.Common.ActivatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
+                "Microsoft.VSTS.Common.Priority": 2,
+                "Microsoft.VSTS.Common.Severity": "3 - Medium"
+            },
+            "relations": [
+                {
+                  "rel": "System.LinkTypes.Hierarchy-Forward",
+                  "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/10",
+                  "attributes": {
+                    "isLocked": false
+                  }
+                },
+                {
+                  "rel": "System.LinkTypes.Hierarchy-Forward",
+                  "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/11",
+                  "attributes": {
+                    "isLocked": false
+                  }
+                }
+              ],
+            "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/100"
+        }"""
+        data_ = json.loads(data_str)
+        wi = Workitem(data_, tfsapi)
+        yield wi
+
+    @pytest.fixture()
     def workitem(self, tfsapi):
         data_str = r"""{
             "id": 100,
@@ -31,7 +76,16 @@ class TestWorkitem(object):
                 "Microsoft.VSTS.Common.Priority": 2,
                 "Microsoft.VSTS.Common.Severity": "3 - Medium"
             },
-            "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/100"
+            "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/100",
+            "relations": [
+            {
+              "rel": "System.LinkTypes.Hierarchy-Reverse",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/110",
+              "attributes": {
+                "isLocked": false
+              }
+            }
+            ]
         }"""
         data_ = json.loads(data_str)
         wi = Workitem(data_, tfsapi)
@@ -56,6 +110,13 @@ class TestWorkitem(object):
     def test_workitem_fields_case_ins(self, workitem):
         assert workitem['ReaSon'] == "New"
         assert workitem['AREAPath'] == "Test Agile"
+
+    def test_workitem_parent_id(self, workitem):
+        assert workitem.parent_id == 110
+
+    def test_workitem_parent_with_child_only(self, workitem_with_child_only):
+        assert workitem_with_child_only.parent_id is None
+        assert workitem_with_child_only.child_ids == [10, 11]
 
 
 class TestChangeset(object):
