@@ -165,3 +165,54 @@ class TestChangeset(object):
         assert len(workitems) == 2
         assert workitems[0].id == 100
         assert workitems[1].id == 101
+
+
+class TestTFSQuery:
+    @pytest.fixture()
+    def tfsquery(self, tfsapi):
+        data_str = r"""
+        {
+          "id": "cbbcdcaa-377f-42f7-a544-4d9507f2aa22",
+          "name": "Shared Queries",
+          "path": "Shared Queries",
+          "createdDate": "2013-12-17T10:38:02.147Z",
+          "lastModifiedBy": {
+            "id": "190c53ac-8f14-4c4c-b4ba-d91a9b30da02",
+            "displayName": "Andrey Ivanov <DOMAIN\\AIvanov>"
+          },
+          "lastModifiedDate": "2013-12-17T10:38:02.58Z",
+          "isFolder": true,
+          "hasChildren": true,
+          "isPublic": true,
+          "_links": {
+            "self": {
+              "href": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/9d639e22-e9a9-49d7-8b40-ef94d9607bdb\/_apis\/wit\/queries\/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+            },
+            "html": {
+              "href": "https:\/\/tfs.tfs.ru\/tfs\/web\/qr.aspx?pguid=9d639e22-e9a9-49d7-8b40-ef94d9607bdb&qid=cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+            }
+          },
+          "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/9d639e22-e9a9-49d7-8b40-ef94d9607bdb\/_apis\/wit\/queries\/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+        }
+        """
+        data_ = json.loads(data_str)
+        cs = TFSQuery(data_, tfsapi)
+        yield cs
+
+    @pytest.mark.httpretty
+    def test_tfsquery(self, tfsquery):
+        assert tfsquery.id == "cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+
+    @pytest.mark.httpretty
+    def test_tfsquery_columns(self, tfsquery):
+        assert "System.Title" in tfsquery.columns
+
+    @pytest.mark.httpretty
+    def test_tfsquery_column_names(self, tfsquery):
+        assert "Title" in tfsquery.column_names
+
+    @pytest.mark.httpretty
+    def test_tfsquery_column_names(self, tfsquery):
+        assert len(tfsquery.workitems) == 2
+        assert tfsquery.workitems[0].id == 100
+        assert tfsquery.workitems[1].id == 101

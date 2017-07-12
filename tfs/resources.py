@@ -138,3 +138,18 @@ class Projects(TFSObject):
     @property
     def team(self):
         return self.tfs.get_tfs_object('projects/{}/teams'.format(self.id))
+
+
+class TFSQuery(TFSObject):
+    def __init__(self, data=None, tfs=None):
+        super().__init__(data, tfs)
+        self.result = self.tfs.rest_client.send_get('wit/wiql/{}?api-version=2.2'.format(self.id), project=True)
+        self.columns = tuple(i['referenceName'] for i in self.result['columns'])
+        self.column_names = tuple(i['name'] for i in self.result['columns'])
+        self._workitems = None
+
+    @property
+    def workitems(self):
+        if not self._workitems:
+            self._workitems = self.tfs.get_workitems((i['id'] for i in self.result['workItems']))
+        return self._workitems

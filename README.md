@@ -59,6 +59,24 @@ project_name = client.get_project("MyProjectName")
 project_team = project_name.team
 ```
 
+### Run Queries
+You can run Saved Queries and get Workitems
+```python
+# Set path to ProjectName in project parameter
+client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development/ProjectName", user=user, password=password)
+
+# Run New query 1 in Shared Queries folder
+quiery = client.run_query('Shared Queries/New query 1')
+
+# result content raw data
+result = quiery.result
+print(quiery.columns)
+print(quiery.column_names)
+
+# Get all found workitems
+workitems = quiery.workitems
+```
+
 ## Installation
 ```
 pip install dohq-tfs
