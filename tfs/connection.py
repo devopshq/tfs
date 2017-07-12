@@ -2,6 +2,7 @@
 from urllib.parse import quote
 
 import requests
+from requests.auth import HTTPBasicAuth
 
 from tfs.resources import *
 
@@ -115,9 +116,11 @@ class TFSHTTPClient:
         else:
             self._url_prj = self._url
 
-        self._auth = (user, password)
-        self._verify = verify
+        self.http_session = requests.Session()
+        auth = HTTPBasicAuth(user, password)
+        self.http_session.auth = auth
 
+        self._verify = verify
         if not self._verify:
             from requests.packages.urllib3.exceptions import InsecureRequestWarning
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -148,12 +151,12 @@ class TFSHTTPClient:
     def __send_request(self, method, uri, data, headers=None, payload=None, project=False):
         url = (self._url_prj if project else self._url) + uri
         if method == 'POST':
-            response = requests.post(url, auth=self._auth, json=data, verify=self._verify, headers=headers)
+            response = self.http_session.post(url, json=data, verify=self._verify, headers=headers)
         elif method == 'PATCH':
-            response = requests.patch(url, auth=self._auth, json=data, verify=self._verify, headers=headers)
+            response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers)
         else:
             headers = {'Content-Type': 'application/json'}
-            response = requests.get(url, auth=self._auth, headers=headers, verify=self._verify, params=payload)
+            response = self.http_session.get(url, headers=headers, verify=self._verify, params=payload)
             response.raise_for_status()
 
         try:
