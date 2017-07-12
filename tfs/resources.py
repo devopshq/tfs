@@ -44,10 +44,15 @@ class TFSObject(object):
                 yield item
 
     def get(self, key, default):
+        if key in self._attrib:
+            return self._attrib[key]
         key = self._add_prefix(key)
         return self._attrib.get(key, default)
 
     def __getitem__(self, key):
+        if key in self._attrib:
+            return self._attrib[key]
+
         key = self._add_prefix(key)
         return self._attrib[key]
 
@@ -78,6 +83,42 @@ class Workitem(TFSObject):
     @property
     def history(self):
         return self.tfs.get_tfs_object('wit/workitems/{}/history'.format(self.id))
+
+    def _find_in_relation(self, relation_type, return_one=True):
+        """
+        Find relation type in relations and return one or list
+        """
+        ids = []
+        for relation in self._data.get('relations', []):
+            if relation_type in relation.get('rel', ''):
+                id_ = relation['url'].split('/')[-1]
+                id_ = int(id_)
+                ids.append(id_)
+        if return_one:
+            return ids[0] if ids else None
+        else:
+            return ids
+
+    @property
+    def parent_id(self):
+        return self._find_in_relation('Hierarchy-Reverse', return_one=True)
+
+    @property
+    def parent(self):
+        if self.parent_id is None:
+            return None
+        return self.tfs.get_workitem(self.parent_id)
+
+    @property
+    def child_ids(self):
+        return self._find_in_relation('Hierarchy-Forward', return_one=False)
+
+    @property
+    def childs(self):
+        if self.child_ids:
+            return self.tfs.get_workitems(self.child_ids)
+        else:
+            return []
 
 
 class Changeset(TFSObject):

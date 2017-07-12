@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
 
-from tfs.tfs import *
+from tfs.resources import *
 
 
 def batch(iterable, n=1):
@@ -18,7 +18,7 @@ class TFSAPI:
     def __init__(self, server_url, project, user, password, verify=False):
         if user is None or password is None:
             raise ValueError('User name and api-key must be specified!')
-        self.rest_client = TFSClient(server_url, project=project, user=user, password=password, verify=verify)
+        self.rest_client = _HTTPClient(server_url, project=project, user=user, password=password, verify=verify)
 
     def get_tfs_object(self, uri, payload=None, object_class=TFSObject):
         """ Send requests and return any object in TFS """
@@ -41,8 +41,8 @@ class TFSAPI:
             object_class=Workitem)
         return workitems
 
-    def get_workitem(self, id, fields=None):
-        return self.get_workitems(id, fields)[0]
+    def get_workitem(self, id_, fields=None):
+        return self.get_workitems(id_, fields)[0]
 
     def get_workitems(self, work_items_ids, fields=None, batch_size=50):
         if isinstance(work_items_ids, int):
@@ -72,6 +72,9 @@ class TFSAPI:
     def get_projects(self):
         return self.get_tfs_object('projects', object_class=Projects)
 
+    def get_project(self, name):
+        return self.get_tfs_object('projects/{}'.format(name), object_class=Projects)
+
     def update_workitem(self, work_item_id, update_data):
         raw = self.rest_client.send_patch('wit/workitems/{id}?api-version=1.0'.format(id=work_item_id),
                                           data=update_data,
@@ -83,7 +86,7 @@ class TFSClientError(Exception):
     pass
 
 
-class TFSClient:
+class _HTTPClient:
     def __init__(self, base_url, project, user, password, verify=False):
         if not base_url.endswith('/'):
             base_url += '/'

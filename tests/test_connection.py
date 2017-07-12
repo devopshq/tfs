@@ -45,6 +45,13 @@ def test_get_projects(tfsapi):
     assert len(projects) == 1
     assert projects[0]['name'] == 'ProjectName'
 
+@pytest.mark.httpretty
+def test_get_project(tfsapi):
+    projects = tfsapi.get_project('ProjectName')
+
+    assert len(projects) == 1
+    assert projects[0]['name'] == 'ProjectName'
+
 
 @pytest.mark.httpretty
 def test_get_teams(tfsapi):
