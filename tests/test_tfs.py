@@ -74,7 +74,8 @@ class TestWorkitem(object):
                 "Microsoft.VSTS.Common.ActivatedDate": "2015-10-14T07:40:46.96Z",
                 "Microsoft.VSTS.Common.ActivatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
                 "Microsoft.VSTS.Common.Priority": 2,
-                "Microsoft.VSTS.Common.Severity": "3 - Medium"
+                "Microsoft.VSTS.Common.Severity": "3 - Medium",
+                "Custom.Bug.Type": "Manual Test Case"
             },
             "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/100",
             "relations": [
@@ -101,6 +102,9 @@ class TestWorkitem(object):
     def test_workitem_fields_with_prefix(self, workitem):
         assert workitem['System.Reason'] == "New"
         assert workitem['System.AreaPath'] == "Test Agile"
+
+    def test_workitem_fields_custom(self, workitem):
+        assert workitem['Custom.Bug.Type'] == "Manual Test Case"
 
     @pytest.mark.httpretty
     def test_workitem_field_update(self, workitem):

@@ -44,10 +44,15 @@ class TFSObject(object):
                 yield item
 
     def get(self, key, default):
+        if key in self._attrib:
+            return self._attrib[key]
         key = self._add_prefix(key)
         return self._attrib.get(key, default)
 
     def __getitem__(self, key):
+        if key in self._attrib:
+            return self._attrib[key]
+
         key = self._add_prefix(key)
         return self._attrib[key]
 
