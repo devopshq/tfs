@@ -71,8 +71,8 @@ pip install dohq-tfs
 ## Development
 ### Tests
 We use HTTPPrety. For GET-response locate you response.json to folder by URL. E.g:
-- http://tfs.tfs.rutfs/Development/_apis/wit/workitems?ids=anyid&anyflag => **tests/resources/tfs/Development/_apis/wit/workitems/response.json**
-- http://tfs.tfs.rutfs/Development/_apis/tfvc/changesets/10/workItems => **tests/resources/tfs/Development/_apis/tfvc/changesets/10/workItems/response.json**
+- http://tfs.tfs.ru/tfs/Development/_apis/wit/workitems?ids=anyid&anyflag => **tests/resources/tfs/Development/_apis/wit/workitems/response.json**
+- http://tfs.tfs.ru/tfs/Development/_apis/tfvc/changesets/10/workItems => **tests/resources/tfs/Development/_apis/tfvc/changesets/10/workItems/response.json**
 
 ### TODO
 - Implemented Resources-API (like https://github.com/pycontribs/jira)
