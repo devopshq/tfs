@@ -1,31 +1,12 @@
 # -*- coding: utf-8 -*-
+
+
 from urllib.parse import quote
 
 import requests
 from requests.auth import HTTPBasicAuth
 
 from tfs.resources import *
-
-
-def Version(printing=False):
-    """
-    Return current version of tfs-dohq build. Also, if printing = True then print version.
-    """
-    import pkg_resources  # part of standart setuptools
-
-    try:
-        version = pkg_resources.get_distribution('tfs-dohq').version
-
-    except Exception:
-        if printing:
-            print('unknown')
-
-        return 'unknown'
-
-    if printing:
-        print(version)
-
-    return version
 
 
 def batch(iterable, n=1):
