@@ -83,6 +83,7 @@ setup(
     ],
 
     install_requires=[
+        'requests',
     ],
 
     package_data={
