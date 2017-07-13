@@ -1,6 +1,24 @@
-### TFS Python Library (TFS API Python client).
-## Quickstart
-### Create connection
+TFS Python Library (TFS API Python client)
+==========================================
+- [Quickstart](#quickstart)
+    - [Installation](#installation)
+    - [Create connection](#create-connection)
+    - [Workitem](#orkitem)
+    - [Changesets](#changesets)
+    - [Project and Team](#project-and-team)
+- [Guide](#guide)
+    - [Tested compability](#tested-compability)
+    - [Development](#development)
+        - [Tests](#tests)
+        - [TODO](#todo)
+
+# Quickstart
+## Installation
+```
+pip install dohq-tfs
+```
+
+## Create connection
 ```python
 from tfs import TFSAPI
 
@@ -17,9 +35,9 @@ client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development", user=user, pas
 client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development/ProjectName", user=user, password=password)
 
 workitem = client.get_workitem(100) # Test connection with Workitem id
-
 ```
-### Workitem
+
+## Workitem
 ```python
 # For single Workitem
 workitem = client.get_workitem(100)
@@ -53,7 +71,7 @@ if childs: # Child is empty list if Workitem hasn't Child link
     print("Workitem with id={} have Childs={}".format(workitem.id, ",".join([x.id for x in childs])))
 ```
 
-### Changesets
+## Changesets
 ```python
 # Get changesets from 1000 to 1002
 changesets = client.get_changesets(from_=1000, to_=1002)
@@ -63,7 +81,7 @@ changesets = client.get_changesets(top=1)
 linked_workitems = changesets[0].workitems
 ```
 
-### Project & Team
+## Project & Team
 ```python
 # Get all project
 all_projects = client.get_projects()
@@ -75,7 +93,7 @@ project_name = client.get_project("MyProjectName")
 project_team = project_name.team
 ```
 
-### Run Queries
+## Run Queries
 You can run Saved Queries and get Workitems
 ```python
 # Set path to ProjectName in project parameter
@@ -93,13 +111,8 @@ print(quiery.column_names)
 workitems = quiery.workitems
 ```
 
-## Installation
-```
-pip install dohq-tfs
-```
-
 ## Guide
-### Compability:
+### Compability
 - TFS 2015 
 - TFS 2017
 
