@@ -18,7 +18,8 @@ if 'TRAVIS_BUILD_NUMBER' in os.environ and 'TRAVIS_BRANCH' in os.environ:
         os.environ['TRAVIS_BUILD_NUMBER'],
     )
 
-    devStatus = '5 - Production/Stable' if 'release' in os.environ['TRAVIS_BRANCH'] or os.environ['TRAVIS_BRANCH'] == 'master' else devStatus
+    devStatus = '5 - Production/Stable' if 'release' in os.environ['TRAVIS_BRANCH'] or os.environ[
+                                                                                           'TRAVIS_BRANCH'] == 'master' else devStatus
 
 else:
     print("This is local build")
@@ -74,15 +75,17 @@ setup(
     ],
 
     setup_requires=[
+        'pytest-runner'
     ],
 
     tests_require=[
-        'pytest',
+        'pytest==3.1.2',
         'HTTPretty',
         'pytest_httpretty',
     ],
 
     install_requires=[
+        'requests',
     ],
 
     package_data={
