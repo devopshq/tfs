@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
+
+
+from urllib.parse import quote
+
 import requests
+from requests.auth import HTTPBasicAuth
 
 from tfs.resources import *
 
@@ -15,14 +20,14 @@ def batch(iterable, n=1):
 
 
 class TFSAPI:
-    def __init__(self, server_url, project, user, password, verify=False):
+    def __init__(self, server_url, project="DefaultCollection", user=None, password=None, verify=False):
         if user is None or password is None:
             raise ValueError('User name and api-key must be specified!')
-        self.rest_client = _HTTPClient(server_url, project=project, user=user, password=password, verify=verify)
+        self.rest_client = TFSHTTPClient(server_url, project=project, user=user, password=password, verify=verify)
 
-    def get_tfs_object(self, uri, payload=None, object_class=TFSObject):
+    def get_tfs_object(self, uri, payload=None, object_class=TFSObject, project=False):
         """ Send requests and return any object in TFS """
-        raw = self.rest_client.send_get(uri=uri, payload=payload)
+        raw = self.rest_client.send_get(uri=uri, payload=payload, project=project)
 
         # For list results
         if 'value' in raw:
@@ -33,18 +38,22 @@ class TFSAPI:
 
         return objects
 
-    def __get_workitems(self, work_items_ids, fields=None):
+    def __get_workitems(self, work_items_ids, fields=None, expand='all'):
         ids_string = ','.join(map(str, work_items_ids))
-        fields_string = ('&fields=' + ','.join(fields)) if fields else "&$expand=all"
+        expand = '&$expand={}'.format(expand) if expand else ''
+        fields_string = ('&fields=' + ','.join(fields)) if fields else ""
         workitems = self.get_tfs_object(
-            'wit/workitems?ids={ids}{fields}&api-version=1.0'.format(ids=ids_string, fields=fields_string),
+            'wit/workitems?ids={ids}{fields}{expand}&api-version=1.0'.format(ids=ids_string,
+                                                                             fields=fields_string,
+                                                                             expand=expand),
             object_class=Workitem)
         return workitems
 
     def get_workitem(self, id_, fields=None):
-        return self.get_workitems(id_, fields)[0]
+        if isinstance(id_, int):
+            return self.get_workitems(id_, fields)[0]
 
-    def get_workitems(self, work_items_ids, fields=None, batch_size=50):
+    def get_workitems(self, work_items_ids, fields=None, batch_size=50, expand='all'):
         if isinstance(work_items_ids, int):
             work_items_ids = [work_items_ids]
         if isinstance(work_items_ids, str):
@@ -52,7 +61,7 @@ class TFSAPI:
 
         workitems = []
         for work_items_batch in batch(list(work_items_ids), batch_size):
-            work_items_batch_info = self.__get_workitems(work_items_batch, fields=fields)
+            work_items_batch_info = self.__get_workitems(work_items_batch, fields=fields, expand=expand)
             workitems += work_items_batch_info
         return workitems
 
@@ -81,44 +90,74 @@ class TFSAPI:
                                           headers={'Content-Type': 'application/json-patch+json'})
         return raw
 
+    def run_query(self, path):
+        if path and not path.startswith('/'):
+            path = '/' + quote(path)
+        query = self.get_tfs_object('wit/queries{path}?api-version=2.2'.format(path=path),
+                                    project=True,
+                                    object_class=TFSQuery)
+        return query
+
 
 class TFSClientError(Exception):
     pass
 
 
-class _HTTPClient:
+class TFSHTTPClient:
     def __init__(self, base_url, project, user, password, verify=False):
         if not base_url.endswith('/'):
             base_url += '/'
+
+        collection, project = self.get_collection_and_project(project)
         # Remove part after / in project-name, like Development/MyProject => Development
         # API responce only in Project, without subproject
-        project = project.partition('/')[0]
-        self._url = base_url + '%s/_apis/' % project
-        self._auth = (user, password)
-        self._verify = verify
+        self._url = base_url + '%s/_apis/' % collection
+        if project:
+            self._url_prj = base_url + '%s/%s/_apis/' % (collection, project)
+        else:
+            self._url_prj = self._url
 
+        self.http_session = requests.Session()
+        auth = HTTPBasicAuth(user, password)
+        self.http_session.auth = auth
+
+        self._verify = verify
         if not self._verify:
             from requests.packages.urllib3.exceptions import InsecureRequestWarning
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-    def send_get(self, uri, payload=None):
-        return self.__send_request('GET', uri, None, payload=payload)
+    @staticmethod
+    def get_collection_and_project(project):
+        splitted_project = project.split('/')
+        collection = splitted_project[0]
+        project = None
 
-    def send_post(self, uri, data, headers):
-        return self.__send_request('POST', uri, data, headers)
+        if len(splitted_project) > 1:
+            project = splitted_project[1]
+            # If not space
+            if project:
+                project = project.split('/')[0]
 
-    def send_patch(self, uri, data, headers):
-        return self.__send_request('PATCH', uri, data, headers)
+        return collection, project
 
-    def __send_request(self, method, uri, data, headers=None, payload=None):
-        url = self._url + uri
+    def send_get(self, uri, payload=None, project=False):
+        return self.__send_request('GET', uri, None, payload=payload, project=project)
+
+    def send_post(self, uri, data, headers, project=False):
+        return self.__send_request('POST', uri, data, headers, project=project)
+
+    def send_patch(self, uri, data, headers, project=False):
+        return self.__send_request('PATCH', uri, data, headers, project=project)
+
+    def __send_request(self, method, uri, data, headers=None, payload=None, project=False):
+        url = (self._url_prj if project else self._url) + uri
         if method == 'POST':
-            response = requests.post(url, auth=self._auth, json=data, verify=self._verify, headers=headers)
+            response = self.http_session.post(url, json=data, verify=self._verify, headers=headers)
         elif method == 'PATCH':
-            response = requests.patch(url, auth=self._auth, json=data, verify=self._verify, headers=headers)
+            response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers)
         else:
             headers = {'Content-Type': 'application/json'}
-            response = requests.get(url, auth=self._auth, headers=headers, verify=self._verify, params=payload)
+            response = self.http_session.get(url, headers=headers, verify=self._verify, params=payload)
             response.raise_for_status()
 
         try:

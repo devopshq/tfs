@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
+
+
 import json
-
-import httpretty
 import pytest
-
 from tfs.resources import *
 
 
@@ -24,7 +23,7 @@ class TestWorkitem(object):
                 "System.CreatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
                 "System.ChangedDate": "2015-10-14T07:40:46.96Z",
                 "System.ChangedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
-                "System.Title": "\u044c\u0441\u0440\u0442\u043e",
+                "System.Title": "MyTitle",
                 "Microsoft.VSTS.Common.StateChangeDate": "2015-10-14T07:40:46.96Z",
                 "Microsoft.VSTS.Common.ActivatedDate": "2015-10-14T07:40:46.96Z",
                 "Microsoft.VSTS.Common.ActivatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
@@ -69,7 +68,8 @@ class TestWorkitem(object):
                 "System.CreatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
                 "System.ChangedDate": "2015-10-14T07:40:46.96Z",
                 "System.ChangedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
-                "System.Title": "\u044c\u0441\u0440\u0442\u043e",
+                "System.Title": "MyTitle",
+                "System.Russia": "Русский язык",
                 "Microsoft.VSTS.Common.StateChangeDate": "2015-10-14T07:40:46.96Z",
                 "Microsoft.VSTS.Common.ActivatedDate": "2015-10-14T07:40:46.96Z",
                 "Microsoft.VSTS.Common.ActivatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
@@ -122,6 +122,13 @@ class TestWorkitem(object):
         assert workitem_with_child_only.parent_id is None
         assert workitem_with_child_only.child_ids == [10, 11]
 
+    def test_workitem_field_russia(self, workitem):
+        assert workitem['russia'] == "Русский язык"
+
+    def test_workitem_field_names(self, workitem):
+        assert 'Russia' in workitem.field_names
+        assert 'Title' in workitem.field_names
+
 
 class TestChangeset(object):
     @pytest.fixture()
@@ -165,3 +172,54 @@ class TestChangeset(object):
         assert len(workitems) == 2
         assert workitems[0].id == 100
         assert workitems[1].id == 101
+
+
+class TestTFSQuery:
+    @pytest.fixture()
+    def tfsquery(self, tfsapi):
+        data_str = r"""
+        {
+          "id": "cbbcdcaa-377f-42f7-a544-4d9507f2aa22",
+          "name": "Shared Queries",
+          "path": "Shared Queries",
+          "createdDate": "2013-12-17T10:38:02.147Z",
+          "lastModifiedBy": {
+            "id": "190c53ac-8f14-4c4c-b4ba-d91a9b30da02",
+            "displayName": "Andrey Ivanov <DOMAIN\\AIvanov>"
+          },
+          "lastModifiedDate": "2013-12-17T10:38:02.58Z",
+          "isFolder": true,
+          "hasChildren": true,
+          "isPublic": true,
+          "_links": {
+            "self": {
+              "href": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/9d639e22-e9a9-49d7-8b40-ef94d9607bdb\/_apis\/wit\/queries\/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+            },
+            "html": {
+              "href": "https:\/\/tfs.tfs.ru\/tfs\/web\/qr.aspx?pguid=9d639e22-e9a9-49d7-8b40-ef94d9607bdb&qid=cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+            }
+          },
+          "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/9d639e22-e9a9-49d7-8b40-ef94d9607bdb\/_apis\/wit\/queries\/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+        }
+        """
+        data_ = json.loads(data_str)
+        cs = TFSQuery(data_, tfsapi)
+        yield cs
+
+    @pytest.mark.httpretty
+    def test_tfsquery(self, tfsquery):
+        assert tfsquery.id == "cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+
+    @pytest.mark.httpretty
+    def test_tfsquery_columns(self, tfsquery):
+        assert "System.Title" in tfsquery.columns
+
+    @pytest.mark.httpretty
+    def test_tfsquery_column_names(self, tfsquery):
+        assert "Title" in tfsquery.column_names
+
+    @pytest.mark.httpretty
+    def test_tfsquery_column_names(self, tfsquery):
+        assert len(tfsquery.workitems) == 2
+        assert tfsquery.workitems[0].id == 100
+        assert tfsquery.workitems[1].id == 101

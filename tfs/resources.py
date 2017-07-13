@@ -57,6 +57,9 @@ class TFSObject(object):
         return self._attrib[key]
 
     def __setitem__(self, key, value):
+        if key in self._attrib:
+            self._attrib[key] = value
+
         key = self._add_prefix(key)
         self._attrib[key] = value
 
@@ -65,6 +68,12 @@ class TFSObject(object):
             return key
         else:
             return self._attrib_prefix + key
+
+    def _remove_prefix(self, key):
+        if key.startswith(self._attrib_prefix):
+            return key[len(self._attrib_prefix):]
+        else:
+            return key
 
 
 class Workitem(TFSObject):
@@ -79,6 +88,10 @@ class Workitem(TFSObject):
         update_data = [dict(op="add", path=field_path, value=value)]
         raw = self.tfs.update_workitem(self.id, update_data)
         self.__init__(raw, self.tfs)
+
+    @property
+    def field_names(self):
+        return [self._remove_prefix(x) for x in self._attrib]
 
     @property
     def history(self):
@@ -138,3 +151,18 @@ class Projects(TFSObject):
     @property
     def team(self):
         return self.tfs.get_tfs_object('projects/{}/teams'.format(self.id))
+
+
+class TFSQuery(TFSObject):
+    def __init__(self, data=None, tfs=None):
+        super().__init__(data, tfs)
+        self.result = self.tfs.rest_client.send_get('wit/wiql/{}?api-version=2.2'.format(self.id), project=True)
+        self.columns = tuple(i['referenceName'] for i in self.result['columns'])
+        self.column_names = tuple(i['name'] for i in self.result['columns'])
+        self._workitems = None
+
+    @property
+    def workitems(self):
+        if not self._workitems:
+            self._workitems = self.tfs.get_workitems((i['id'] for i in self.result['workItems']))
+        return self._workitems
