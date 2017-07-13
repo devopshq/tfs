@@ -4,6 +4,7 @@ TFS Python Library (TFS API Python client)
 [![dohq-tfs build status](https://travis-ci.org/devopshq/tfs.svg)](https://travis-ci.org/devopshq/tfs) [![dohq-tfs code quality](https://api.codacy.com/project/badge/Grade/a533e2d46b9b471893b4991e89649212)](https://www.codacy.com/app/tim55667757/tfs/dashboard) [![dohq-tfs code coverage](https://api.codacy.com/project/badge/Coverage/a533e2d46b9b471893b4991e89649212)](https://www.codacy.com/app/tim55667757/tfs/dashboard) [![dohq-tfs on PyPI](https://img.shields.io/pypi/v/dohq-tfs.svg)](https://pypi.python.org/pypi/dohq-tfs) [![dohq-tfs license](https://img.shields.io/pypi/l/vspheretools.svg)](https://github.com/devopshq/tfs/blob/master/LICENSE)
 
 *Index:*
+- [Introduction](#introduction)
 - [Quickstart](#quickstart)
     - [Installation](#installation)
     - [Create connection](#create-connection)
@@ -17,7 +18,17 @@ TFS Python Library (TFS API Python client)
         - [Tests](#tests)
         - [TODO](#todo)
 
-# Quickstart
+# Introduction
+
+TFS Python Library is a TFS API Python client that can work with TFS workflow and workitems.
+
+This tool allows:
+1. Get WorkItems (WI).
+2. Set WI fields.
+3. Run WI search queries.
+4. Work with TFVC changesets.
+5. Work with TFS Projects.
+
 ## Installation
 ```
 pip install dohq-tfs
