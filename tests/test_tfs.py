@@ -24,7 +24,7 @@ class TestWorkitem(object):
                 "System.CreatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
                 "System.ChangedDate": "2015-10-14T07:40:46.96Z",
                 "System.ChangedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
-                "System.Title": "\u044c\u0441\u0440\u0442\u043e",
+                "System.Title": "MyTitle",
                 "Microsoft.VSTS.Common.StateChangeDate": "2015-10-14T07:40:46.96Z",
                 "Microsoft.VSTS.Common.ActivatedDate": "2015-10-14T07:40:46.96Z",
                 "Microsoft.VSTS.Common.ActivatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
@@ -69,7 +69,8 @@ class TestWorkitem(object):
                 "System.CreatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
                 "System.ChangedDate": "2015-10-14T07:40:46.96Z",
                 "System.ChangedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
-                "System.Title": "\u044c\u0441\u0440\u0442\u043e",
+                "System.Title": "MyTitle",
+                "System.Russia": "Русский язык",
                 "Microsoft.VSTS.Common.StateChangeDate": "2015-10-14T07:40:46.96Z",
                 "Microsoft.VSTS.Common.ActivatedDate": "2015-10-14T07:40:46.96Z",
                 "Microsoft.VSTS.Common.ActivatedBy": "Alexey Ivanov <DOMAIN\\AIvanov>",
@@ -121,6 +122,13 @@ class TestWorkitem(object):
     def test_workitem_parent_with_child_only(self, workitem_with_child_only):
         assert workitem_with_child_only.parent_id is None
         assert workitem_with_child_only.child_ids == [10, 11]
+
+    def test_workitem_field_russia(self, workitem):
+        assert workitem['russia'] == "Русский язык"
+
+    def test_workitem_field_names(self, workitem):
+        assert 'Russia' in workitem.field_names
+        assert 'Title' in workitem.field_names
 
 
 class TestChangeset(object):

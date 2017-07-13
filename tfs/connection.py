@@ -18,7 +18,7 @@ def batch(iterable, n=1):
 
 
 class TFSAPI:
-    def __init__(self, server_url, project, user, password, verify=False):
+    def __init__(self, server_url, project="DefaultCollection", user=None, password=None, verify=False):
         if user is None or password is None:
             raise ValueError('User name and api-key must be specified!')
         self.rest_client = TFSHTTPClient(server_url, project=project, user=user, password=password, verify=verify)
@@ -95,7 +95,6 @@ class TFSAPI:
                                     project=True,
                                     object_class=TFSQuery)
         return query
-        return locals()
 
 
 class TFSClientError(Exception):

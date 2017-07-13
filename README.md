@@ -7,13 +7,29 @@ from tfs import TFSAPI
 user="username"
 password="password"
 
+# Use DefaultCollection
+client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=password)
+
+# Use CustomCollection
 client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development", user=user, password=password)
+
+# Set path to ProjectName in project parameter
+client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development/ProjectName", user=user, password=password)
+
 workitem = client.get_workitem(100) # Test connection with Workitem id
 
 ```
 ### Workitem
 ```python
+# For single Workitem
 workitem = client.get_workitem(100)
+
+# For multiple
+workitem = client.get_workitems([100,101,102]) # list
+workitem = client.get_workitems("100,101,102") # string separated with comma
+
+# Get all fields
+print(workitem.field_names)
 
 # Case insensetive. Remove space in field name
 print(workitem['assignedTo']) 
@@ -83,8 +99,9 @@ pip install dohq-tfs
 ```
 
 ## Guide
-### Tested compability:
+### Compability:
 - TFS 2015 
+- TFS 2017
 
 ## Development
 ### Tests
