@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
+
+
 import json
-
-import httpretty
 import pytest
-
 from tfs.resources import *
 
 
