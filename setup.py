@@ -90,10 +90,8 @@ setup(
 
     package_data={
         '': [
-            './tfs/*'
-
-            'LICENSE',
-            'README.md',
+            '../LICENSE',
+            '../README.md',
         ],
     },
 

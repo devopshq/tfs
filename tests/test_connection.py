@@ -36,6 +36,14 @@ class TestTFSAPI:
         assert changesets[0].id == 10
 
     @pytest.mark.httpretty
+    def test_get_wiql(self, tfsapi):
+        wiql_query = "SELECT *"
+        wiql = tfsapi.run_wiql(wiql_query)
+
+        assert isinstance(wiql, Wiql)
+        assert wiql.workitem_ids == [100, 101]
+
+    @pytest.mark.httpretty
     def test_get_projects(self, tfsapi):
         projects = tfsapi.get_projects()
 
@@ -57,18 +65,19 @@ class TestTFSAPI:
         assert isinstance(team, TFSObject)
         assert team['name'] == 'ProjectName'
 
-    class TestHTTPClient:
-        def test__get_collection(self):
-            collection, project = TFSHTTPClient.get_collection_and_project('Development')
-            assert collection == 'Development'
-            assert project is None
 
-        def test__get_collection_and_project(self):
-            collection, project = TFSHTTPClient.get_collection_and_project('Development/Project')
-            assert collection == 'Development'
-            assert project == 'Project'
+class TestHTTPClient:
+    def test__get_collection(self):
+        collection, project = TFSHTTPClient.get_collection_and_project('Development')
+        assert collection == 'Development'
+        assert project is None
 
-        def test__get_collection_and_project_and_team(self):
-            collection, project = TFSHTTPClient.get_collection_and_project('Development/Project/Team')
-            assert collection == 'Development'
-            assert project == 'Project'
+    def test__get_collection_and_project(self):
+        collection, project = TFSHTTPClient.get_collection_and_project('Development/Project')
+        assert collection == 'Development'
+        assert project == 'Project'
+
+    def test__get_collection_and_project_and_team(self):
+        collection, project = TFSHTTPClient.get_collection_and_project('Development/Project/Team')
+        assert collection == 'Development'
+        assert project == 'Project'

@@ -20,10 +20,25 @@ def batch(iterable, n=1):
 
 
 class TFSAPI:
-    def __init__(self, server_url, project="DefaultCollection", user=None, password=None, verify=False):
+    def __init__(self, server_url, project="DefaultCollection", user=None, password=None, verify=False,
+                 connect_timeout=20, read_timeout=180):
+        """
+        :param server_url: url to TFS server, e.g. https://tfs.example.com/
+        :param project: Collection or Collection\\Project
+        :param user: username, or DOMAIN\\username
+        :param password: password
+        :param verify: True|False - verify HTTPS cert
+        :param connect_timeout: Requests CONNECTION timeout, sec or None
+        :param read_timeout: Requests READ timeout, sec or None
+        """
         if user is None or password is None:
             raise ValueError('User name and api-key must be specified!')
-        self.rest_client = TFSHTTPClient(server_url, project=project, user=user, password=password, verify=verify)
+        self.rest_client = TFSHTTPClient(server_url,
+                                         project=project,
+                                         user=user, password=password,
+                                         verify=verify,
+                                         timeout=(connect_timeout, read_timeout),
+                                         )
 
     def get_tfs_object(self, uri, payload=None, object_class=TFSObject, project=False):
         """ Send requests and return any object in TFS """
@@ -74,8 +89,7 @@ class TFSAPI:
 
         if item_path:
             payload['searchCriteria.itemPath'] = item_path
-        changeset_raw = self.get_tfs_object('tfvc/changesets', payload=payload, object_class=Changeset)
-        changesets = [Changeset(x, self) for x in changeset_raw]
+        changesets = self.get_tfs_object('tfvc/changesets', payload=payload, object_class=Changeset)
         return changesets
 
     def get_projects(self):
@@ -98,13 +112,22 @@ class TFSAPI:
                                     object_class=TFSQuery)
         return query
 
+    def run_wiql(self, query):
+        data = {"query": query, }
+        wiql = self.rest_client.send_post('wit/wiql?api-version=1.0',
+                                          data=data,
+                                          project=True,
+                                          headers={'Content-Type': 'application/json'}
+                                          )
+        return Wiql(wiql, self)
+
 
 class TFSClientError(Exception):
     pass
 
 
 class TFSHTTPClient:
-    def __init__(self, base_url, project, user, password, verify=False):
+    def __init__(self, base_url, project, user, password, verify=False, timeout=None):
         if not base_url.endswith('/'):
             base_url += '/'
 
@@ -121,6 +144,7 @@ class TFSHTTPClient:
         auth = HTTPBasicAuth(user, password)
         self.http_session.auth = auth
 
+        self.timeout = timeout
         self._verify = verify
         if not self._verify:
             from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -152,12 +176,15 @@ class TFSHTTPClient:
     def __send_request(self, method, uri, data, headers=None, payload=None, project=False):
         url = (self._url_prj if project else self._url) + uri
         if method == 'POST':
-            response = self.http_session.post(url, json=data, verify=self._verify, headers=headers)
+            response = self.http_session.post(url, json=data, verify=self._verify, headers=headers,
+                                              timeout=self.timeout)
         elif method == 'PATCH':
-            response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers)
+            response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers,
+                                               timeout=self.timeout)
         else:
             headers = {'Content-Type': 'application/json'}
-            response = self.http_session.get(url, headers=headers, verify=self._verify, params=payload)
+            response = self.http_session.get(url, headers=headers, verify=self._verify, params=payload,
+                                             timeout=self.timeout)
             response.raise_for_status()
 
         try:
