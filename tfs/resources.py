@@ -40,6 +40,9 @@ class TFSObject(object):
     def __setitem__(self, key, value):
         raise NotImplemented
 
+    def get(self, key, default):
+        return self._data.get(key, default)
+
 
 class Workitem(TFSObject):
     def __init__(self, data=None, tfs=None):
