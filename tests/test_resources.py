@@ -163,6 +163,10 @@ class TestChangeset(object):
     def test_changeset_fields(self, changeset):
         assert changeset['comment'] == "My Comment"
 
+    def test_changeset_fields_get(self, changeset):
+        assert changeset.get('comment') == "My Comment"
+
+
     @pytest.mark.httpretty
     def test_get_changesets_workitem(self, tfsapi):
         changesets = tfsapi.get_changesets(from_=10, to_=14)

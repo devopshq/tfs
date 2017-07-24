@@ -40,7 +40,7 @@ class TFSObject(object):
     def __setitem__(self, key, value):
         raise NotImplemented
 
-    def get(self, key, default):
+    def get(self, key, default=None):
         return self._data.get(key, default)
 
 
@@ -57,7 +57,7 @@ class Workitem(TFSObject):
         raw = self.tfs.update_workitem(self.id, update_data)
         self.__init__(raw, self.tfs)
 
-    def get(self, key, default):
+    def get(self, key, default=None):
         if key in self._fields:
             return self._fields[key]
         key = self._add_prefix(key)
