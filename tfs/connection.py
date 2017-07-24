@@ -74,8 +74,7 @@ class TFSAPI:
 
         if item_path:
             payload['searchCriteria.itemPath'] = item_path
-        changeset_raw = self.get_tfs_object('tfvc/changesets', payload=payload, object_class=Changeset)
-        changesets = [Changeset(x, self) for x in changeset_raw]
+        changesets = self.get_tfs_object('tfvc/changesets', payload=payload, object_class=Changeset)
         return changesets
 
     def get_projects(self):
@@ -97,6 +96,15 @@ class TFSAPI:
                                     project=True,
                                     object_class=TFSQuery)
         return query
+
+    def run_wiql(self, query):
+        data = {"query": query, }
+        wiql = self.rest_client.send_post('wit/wiql?api-version=1.0',
+                                          data=data,
+                                          project=True,
+                                          headers={'Content-Type': 'application/json'}
+                                          )
+        return Wiql(wiql, self)
 
 
 class TFSClientError(Exception):
