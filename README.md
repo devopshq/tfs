@@ -107,7 +107,7 @@ workitems = quiery.workitems
 ```
 
 ## Run WIQL
-You can run [Work Item Query Language](https://www.visualstudio.com/en-us/docs/integrate/api/wit/wiql)
+You can run [Work Item Query Language](https://msdn.microsoft.com/en-us/library/bb130198(v=vs.90).aspx)
 ```python
 # Set path to ProjectName in project parameter
 client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development/ProjectName", user=user, password=password)
