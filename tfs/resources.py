@@ -165,6 +165,7 @@ class Wiql(TFSObject):
 
     def __init__(self, data=None, tfs=None):
         super().__init__(data, tfs)
+        self.result = self._data
 
     @property
     def workitem_ids(self):

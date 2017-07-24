@@ -9,7 +9,8 @@ TFS Python Library (TFS API Python client)
     - [Installation](#installation)
     - [Create connection](#create-connection)
     - [Workitem](#workitem)
-    - [Run Queries](#run-queries)
+    - [Run Saved Queries](#run-saved-queries)
+    - [Run WIQL](#run-wiql)
     - [Changesets](#changesets)
     - [Project and Team](#project--team)
 - [Guide](#guide)
@@ -87,7 +88,7 @@ if childs: # Child is empty list if Workitem hasn't Child link
     print("Workitem with id={} have Childs={}".format(workitem.id, ",".join([x.id for x in childs])))
 ```
 
-## Run Queries
+## Run Saved Queries
 You can run Saved Queries and get Workitems
 ```python
 # Set path to ProjectName in project parameter
@@ -103,6 +104,38 @@ print(quiery.column_names)
 
 # Get all found workitems
 workitems = quiery.workitems
+```
+
+## Run WIQL
+You can run [Work Item Query Language](https://www.visualstudio.com/en-us/docs/integrate/api/wit/wiql)
+```python
+# Set path to ProjectName in project parameter
+client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development/ProjectName", user=user, password=password)
+
+# Run custom query
+### NOTE: Fields in SELECT really ignored, wiql return Work Items with all fields
+query = """SELECT
+    [System.Id],
+    [System.WorkItemType],
+    [System.Title],
+    [System.ChangedDate]
+FROM workitems
+WHERE
+    [System.WorkItemType] = 'Bug'
+ORDER BY [System.ChangedDate]"""
+
+wiql = client.run_wiql(query)
+
+# Get founded Work Item ids
+ids = wiql.workitem_ids
+print("Found WI with ids={}".format(",".join(ids)))
+
+# Get RAW query data - python dict
+raw = wiql.result
+
+# Get all found workitems
+workitems = wiql.workitems
+print(workitems[0]['Title'])
 ```
 
 ## Changesets

@@ -347,3 +347,6 @@ class TestWiql(object):
 
     def test_wiql_empty(self, wiql_empty):
         assert wiql_empty.workitem_ids == []
+
+    def test_wiql_result(self, wiql):
+        assert wiql._data == wiql.result
