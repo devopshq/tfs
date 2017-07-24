@@ -24,74 +24,64 @@ class TFSObject(object):
     def __init__(self, data=None, tfs=None, uri=''):
         # TODO: CaseInsensitive Dict
         self._data = data
-        self._attrib = self._data
         self.tfs = tfs
-        self._attrib_prefix = ''
         self.id = self._data.get('id', None)
         self.uri = uri
 
     def __repr__(self):
         _repr = ''
-        for k, v in self._attrib.items():
+        for k, v in self._data.items():
             _repr += to_str(k) + ' = ' + to_str(v) + '\n'
         return _repr
 
-    def __iter__(self):
-        for item in self._attrib:
-            attr = self[item]
-            if isinstance(attr, basestring) or isinstance(attr, list) \
-                    or getattr(attr, '__iter__', False):
-                yield item
-
-    def get(self, key, default):
-        if key in self._attrib:
-            return self._attrib[key]
-        key = self._add_prefix(key)
-        return self._attrib.get(key, default)
-
     def __getitem__(self, key):
-        if key in self._attrib:
-            return self._attrib[key]
-
-        key = self._add_prefix(key)
-        return self._attrib[key]
+        return self._data[key]
 
     def __setitem__(self, key, value):
-        if key in self._attrib:
-            self._attrib[key] = value
-
-        key = self._add_prefix(key)
-        self._attrib[key] = value
-
-    def _add_prefix(self, key):
-        if key.startswith(self._attrib_prefix):
-            return key
-        else:
-            return self._attrib_prefix + key
-
-    def _remove_prefix(self, key):
-        if key.startswith(self._attrib_prefix):
-            return key[len(self._attrib_prefix):]
-        else:
-            return key
+        raise NotImplemented
 
 
 class Workitem(TFSObject):
     def __init__(self, data=None, tfs=None):
         super().__init__(data, tfs)
-        self._attrib = CaseInsensitiveDict(self._data['fields'])
-        self._attrib_prefix = 'System.'
+        self._fields = CaseInsensitiveDict(self._data['fields'])
+        self._system_prefix = 'System.'
         self.id = self._data['id']
 
     def __setitem__(self, key, value):
-        field_path = "/fields/{}{}".format(self._attrib_prefix, key)
+        field_path = "/fields/{}{}".format(self._system_prefix, key)
         update_data = [dict(op="add", path=field_path, value=value)]
         raw = self.tfs.update_workitem(self.id, update_data)
         self.__init__(raw, self.tfs)
 
+    def get(self, key, default):
+        if key in self._fields:
+            return self._fields[key]
+        key = self._add_prefix(key)
+        return self._fields.get(key, default)
+
+    def __getitem__(self, key):
+        if key in self._fields:
+            return self._fields[key]
+
+        key = self._add_prefix(key)
+        return self._fields[key]
+
+    def _add_prefix(self, key):
+        if key.startswith(self._system_prefix):
+            return key
+        else:
+            return self._system_prefix + key
+
+    def _remove_prefix(self, key):
+        if key.startswith(self._system_prefix):
+            return key[len(self._system_prefix):]
+        else:
+            return key
+
     @property
     def field_names(self):
-        return [self._remove_prefix(x) for x in self._attrib]
+        return [self._remove_prefix(x) for x in self._fields]
 
     @property
     def history(self):
@@ -166,3 +156,22 @@ class TFSQuery(TFSObject):
         if not self._workitems:
             self._workitems = self.tfs.get_workitems((i['id'] for i in self.result['workItems']))
         return self._workitems
+
+
+class Wiql(TFSObject):
+    """
+    Work Item Query Language
+    """
+
+    def __init__(self, data=None, tfs=None):
+        super().__init__(data, tfs)
+        self.result = self._data
+
+    @property
+    def workitem_ids(self):
+        ids = [x['id'] for x in self._data['workItems']]
+        return ids
+
+    @property
+    def workitems(self):
+        return self.tfs.get_workitems(self.workitem_ids)

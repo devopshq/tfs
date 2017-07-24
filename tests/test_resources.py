@@ -223,3 +223,130 @@ class TestTFSQuery:
         assert len(tfsquery.workitems) == 2
         assert tfsquery.workitems[0].id == 100
         assert tfsquery.workitems[1].id == 101
+
+
+class TestWiql(object):
+    @pytest.fixture()
+    def wiql(self, tfsapi):
+        data_str = r"""{
+          "queryResultType": "workItem",
+          "columns": [
+            {
+              "name": "ID",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/System.Id",
+              "referenceName": "System.Id"
+            },
+            {
+              "name": "Severity",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
+              "referenceName": "Microsoft.VSTS.Common.Severity"
+            },
+            {
+              "name": "Target Version",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/TargetVersion",
+              "referenceName": "TargetVersion"
+            }
+          ],
+          "sortColumns": [
+            {
+              "field": {
+                "name": "Target Version",
+                "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/TargetVersion",
+                "referenceName": "TargetVersion"
+              },
+              "descending": false
+            },
+            {
+              "field": {
+                "name": "Severity",
+                "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
+                "referenceName": "Microsoft.VSTS.Common.Severity"
+              },
+              "descending": false
+            }
+          ],
+          "workItems": [
+            {
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/100",
+              "id": 100
+            },
+            {
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/101",
+              "id": 101
+            }
+          ],
+          "asOf": "2017-07-24T06:59:38.74Z",
+          "queryType": "flat"
+        }"""
+        data_ = json.loads(data_str)
+        wiql = Wiql(data_, tfsapi)
+        yield wiql
+
+    @pytest.fixture()
+    def wiql_empty(self, tfsapi):
+        data_str = r"""{
+          "queryResultType": "workItem",
+          "columns": [
+            {
+              "name": "ID",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/System.Id",
+              "referenceName": "System.Id"
+            },
+            {
+              "name": "Severity",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
+              "referenceName": "Microsoft.VSTS.Common.Severity"
+            },
+            {
+              "name": "Target Version",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/TargetVersion",
+              "referenceName": "TargetVersion"
+            }
+          ],
+          "sortColumns": [
+            {
+              "field": {
+                "name": "Target Version",
+                "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/TargetVersion",
+                "referenceName": "TargetVersion"
+              },
+              "descending": false
+            },
+            {
+              "field": {
+                "name": "Severity",
+                "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
+                "referenceName": "Microsoft.VSTS.Common.Severity"
+              },
+              "descending": false
+            }
+          ],
+          "workItems": [
+          ],
+          "asOf": "2017-07-24T06:59:38.74Z",
+          "queryType": "flat"
+        }"""
+        data_ = json.loads(data_str)
+        wiql = Wiql(data_, tfsapi)
+        yield wiql
+
+    def test_wiql(self, wiql):
+        assert wiql.id is None
+        assert wiql["queryResultType"] == "workItem"
+
+    def test_get_wiql_workitem_ids(self, wiql):
+        assert wiql.workitem_ids == [100, 101]
+
+    @pytest.mark.httpretty
+    def test_get_wiql_workitems(self, wiql):
+        workitems = wiql.workitems
+
+        assert len(workitems) == 2
+        assert workitems[0].id == 100
+        assert workitems[1].id == 101
+
+    def test_wiql_empty(self, wiql_empty):
+        assert wiql_empty.workitem_ids == []
+
+    def test_wiql_result(self, wiql):
+        assert wiql._data == wiql.result

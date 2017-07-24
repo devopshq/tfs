@@ -27,12 +27,10 @@ def request_callback_get(request, uri, headers):
 
 @pytest.fixture(autouse=True)
 def tfs_server_mock():
-    httpretty.register_uri(httpretty.GET, re.compile(r"http://tfs.tfs.ru(.*)"),
-                           body=request_callback_get,
-                           content_type="application/json")
-    httpretty.register_uri(httpretty.PATCH, re.compile(r"http://tfs.tfs.ru(.*)"),
-                           body=request_callback_get,
-                           content_type="application/json")
+    for method in (httpretty.GET, httpretty.POST, httpretty.PATCH):
+        httpretty.register_uri(method, re.compile(r"http://tfs.tfs.ru(.*)"),
+                               body=request_callback_get,
+                               content_type="application/json")
 
 
 @pytest.fixture()
