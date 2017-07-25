@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 
-from setuptools import setup
 import os
+
+from setuptools import setup
 
 __version__ = '1.0'  # identify main version of dohq-tfs tool
 devStatus = '4 - Beta'  # default build status, see: https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -27,6 +28,12 @@ else:
 
 print("dohq-tfs build version = {}".format(__version__))
 
+try:
+    import pypandoc
+    long_description = pypandoc.convert('README.md', 'rst', format='md')
+except ImportError:
+    long_description = 'You can see detailed user manual here: https://devopshq.github.io/tfs/'
+
 setup(
     name='dohq-tfs',
 
@@ -34,7 +41,7 @@ setup(
 
     description='dohq-tfs is a TFS API Python client that can work with TFS workflow and workitems.',
 
-    long_description='You can see detailed user manual here: https://devopshq.github.io/tfs/',
+    long_description=long_description,
 
     license='MIT',
 
@@ -56,18 +63,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.4',
-    ],
-
-    keywords=[
-        'TFS',
-        'library',
-        'api',
-        'client',
-        'utility',
-        'routines',
-        'workitem',
-        'changesets',
-        'TFS2015',
     ],
 
     packages=[
