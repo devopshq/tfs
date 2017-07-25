@@ -28,12 +28,6 @@ else:
 
 print("dohq-tfs build version = {}".format(__version__))
 
-try:
-    import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst', format='md')
-except ImportError:
-    long_description = 'You can see detailed user manual here: https://devopshq.github.io/tfs/'
-
 setup(
     name='dohq-tfs',
 
@@ -41,7 +35,7 @@ setup(
 
     description='dohq-tfs is a TFS API Python client that can work with TFS workflow and workitems.',
 
-    long_description=long_description,
+    long_description='You can see detailed user manual here: https://devopshq.github.io/tfs/',
 
     license='MIT',
 

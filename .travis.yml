@@ -4,9 +4,6 @@ branches:
   only:
   - master
   - develop
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install pandoc -y
 install:
   - pip install -r requirements-travis.txt
 script:
