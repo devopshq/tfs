@@ -21,7 +21,8 @@ def batch(iterable, n=1):
 
 class TFSAPI:
     def __init__(self, server_url, project="DefaultCollection", user=None, password=None, verify=False,
-                 connect_timeout=20, read_timeout=180):
+                 auth_type=HTTPBasicAuth,
+                 connect_timeout=20, read_timeout=180, ):
         """
         :param server_url: url to TFS server, e.g. https://tfs.example.com/
         :param project: Collection or Collection\\Project
@@ -38,6 +39,7 @@ class TFSAPI:
                                          user=user, password=password,
                                          verify=verify,
                                          timeout=(connect_timeout, read_timeout),
+                                         auth_type=auth_type,
                                          )
 
     def get_tfs_object(self, uri, payload=None, object_class=TFSObject, project=False):
@@ -127,7 +129,7 @@ class TFSClientError(Exception):
 
 
 class TFSHTTPClient:
-    def __init__(self, base_url, project, user, password, verify=False, timeout=None):
+    def __init__(self, base_url, project, user, password, verify=False, timeout=None, auth_type=None):
         if not base_url.endswith('/'):
             base_url += '/'
 
@@ -141,7 +143,7 @@ class TFSHTTPClient:
             self._url_prj = self._url
 
         self.http_session = requests.Session()
-        auth = HTTPBasicAuth(user, password)
+        auth = auth_type(user, password)
         self.http_session.auth = auth
 
         self.timeout = timeout

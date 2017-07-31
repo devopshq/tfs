@@ -75,6 +75,7 @@ setup(
 
     install_requires=[
         'requests',
+        'requests-ntlm'
     ],
 
     package_data={

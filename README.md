@@ -9,6 +9,7 @@ Microsoft TFS Python Library (TFS API Python client)
 - [Quickstart](#quickstart)
     - [Installation](#installation)
     - [Create connection](#create-connection)
+        - [Authorization](#authorization)
         - [Timeout connection](#timeout-connection)
     - [Workitem](#workitem)
     - [Run Saved Queries](#run-saved-queries)
@@ -57,12 +58,21 @@ client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development/ProjectName", us
 workitem = client.get_workitem(100) # Test connection with Workitem id
 ```
 
+### Authorization
+```python
+# DEFAULT - Use HTTP Basic Auth
+client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=password)
+
+# Use NTLM authorization
+from requests_ntlm import HttpNtlmAuth
+client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=password, auth_type=HttpNtlmAuth)
+```
+
 ## Timeout connection
 You can set CONNECT and READ timeouts ([read more](http://docs.python-requests.org/en/master/user/advanced/#timeouts))
 ```python
 from tfs import TFSAPI
 client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=password, connect_timeout=30, read_timeout=None)
-
 ```
 
 ## Workitem
