@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 
-from setuptools import setup
 import os
+
+from setuptools import setup
 
 __version__ = '1.0'  # identify main version of dohq-tfs tool
 devStatus = '4 - Beta'  # default build status, see: https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -58,18 +59,6 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
 
-    keywords=[
-        'TFS',
-        'library',
-        'api',
-        'client',
-        'utility',
-        'routines',
-        'workitem',
-        'changesets',
-        'TFS2015',
-    ],
-
     packages=[
         'tfs',
     ],
@@ -86,6 +75,7 @@ setup(
 
     install_requires=[
         'requests',
+        'requests-ntlm'
     ],
 
     package_data={
