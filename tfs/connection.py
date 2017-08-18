@@ -134,7 +134,7 @@ class TFSHTTPClient:
             base_url += '/'
 
         collection, project = self.get_collection_and_project(project)
-        # Remove part after / in project-name, like Development/MyProject => Development
+        # Remove part after / in project-name, like DefaultCollection/MyProject => DefaultCollection
         # API responce only in Project, without subproject
         self._url = base_url + '%s/_apis/' % collection
         if project:

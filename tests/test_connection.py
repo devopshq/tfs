@@ -68,16 +68,16 @@ class TestTFSAPI:
 
 class TestHTTPClient:
     def test__get_collection(self):
-        collection, project = TFSHTTPClient.get_collection_and_project('Development')
-        assert collection == 'Development'
+        collection, project = TFSHTTPClient.get_collection_and_project('DefaultCollection')
+        assert collection == 'DefaultCollection'
         assert project is None
 
     def test__get_collection_and_project(self):
-        collection, project = TFSHTTPClient.get_collection_and_project('Development/Project')
-        assert collection == 'Development'
+        collection, project = TFSHTTPClient.get_collection_and_project('DefaultCollection/Project')
+        assert collection == 'DefaultCollection'
         assert project == 'Project'
 
     def test__get_collection_and_project_and_team(self):
-        collection, project = TFSHTTPClient.get_collection_and_project('Development/Project/Team')
-        assert collection == 'Development'
+        collection, project = TFSHTTPClient.get_collection_and_project('DefaultCollection/Project/Team')
+        assert collection == 'DefaultCollection'
         assert project == 'Project'

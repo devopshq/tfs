@@ -33,20 +33,20 @@ class TestWorkitem(object):
             "relations": [
                 {
                   "rel": "System.LinkTypes.Hierarchy-Forward",
-                  "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/10",
+                  "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/10",
                   "attributes": {
                     "isLocked": false
                   }
                 },
                 {
                   "rel": "System.LinkTypes.Hierarchy-Forward",
-                  "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/11",
+                  "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/11",
                   "attributes": {
                     "isLocked": false
                   }
                 }
               ],
-            "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/100"
+            "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/100"
         }"""
         data_ = json.loads(data_str)
         wi = Workitem(data_, tfsapi)
@@ -77,11 +77,11 @@ class TestWorkitem(object):
                 "Microsoft.VSTS.Common.Severity": "3 - Medium",
                 "Custom.Bug.Type": "Manual Test Case"
             },
-            "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/100",
+            "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/100",
             "relations": [
             {
               "rel": "System.LinkTypes.Hierarchy-Reverse",
-              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/110",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/110",
               "attributes": {
                 "isLocked": false
               }
@@ -135,20 +135,20 @@ class TestChangeset(object):
     def changeset(self):
         data_str = r"""{
           "changesetId": 10,
-          "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/tfvc\/changesets\/18736",
+          "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/tfvc\/changesets\/18736",
           "author": {
             "id": "831299d4-f278-4858-a188-d1edae64125d",
             "displayName": "\u041c\u0438\u0445\u0430\u0438\u043b \u041f\u043e\u043b\u044c\u0433\u0443\u043d",
             "uniqueName": "DOMAIN\\MIvanov",
-            "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/Identities\/831299d4-f278-4858-a188-d1edae64125d",
-            "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_api\/_common\/identityImage?id=831299d4-f278-4858-a188-d1edae64125d"
+            "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/831299d4-f278-4858-a188-d1edae64125d",
+            "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=831299d4-f278-4858-a188-d1edae64125d"
           },
           "checkedInBy": {
             "id": "dc115031-b185-421e-a58d-b2b19903f51a",
             "displayName": "deploy",
             "uniqueName": "DOMAIN\\deploy",
-            "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/Identities\/dc115031-b185-421e-a58d-b2b19903f51a",
-            "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_api\/_common\/identityImage?id=dc115031-b185-421e-a58d-b2b19903f51a"
+            "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/dc115031-b185-421e-a58d-b2b19903f51a",
+            "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=dc115031-b185-421e-a58d-b2b19903f51a"
           },
           "createdDate": "2017-06-30T15:43:41.71Z",
           "comment": "My Comment"
@@ -197,13 +197,13 @@ class TestTFSQuery:
           "isPublic": true,
           "_links": {
             "self": {
-              "href": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/9d639e22-e9a9-49d7-8b40-ef94d9607bdb\/_apis\/wit\/queries\/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+              "href": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/9d639e22-e9a9-49d7-8b40-ef94d9607bdb\/_apis\/wit\/queries\/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
             },
             "html": {
               "href": "https:\/\/tfs.tfs.ru\/tfs\/web\/qr.aspx?pguid=9d639e22-e9a9-49d7-8b40-ef94d9607bdb&qid=cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
             }
           },
-          "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/9d639e22-e9a9-49d7-8b40-ef94d9607bdb\/_apis\/wit\/queries\/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+          "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/9d639e22-e9a9-49d7-8b40-ef94d9607bdb\/_apis\/wit\/queries\/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
         }
         """
         data_ = json.loads(data_str)
@@ -237,17 +237,17 @@ class TestWiql(object):
           "columns": [
             {
               "name": "ID",
-              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/System.Id",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/System.Id",
               "referenceName": "System.Id"
             },
             {
               "name": "Severity",
-              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
               "referenceName": "Microsoft.VSTS.Common.Severity"
             },
             {
               "name": "Target Version",
-              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/TargetVersion",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/TargetVersion",
               "referenceName": "TargetVersion"
             }
           ],
@@ -255,7 +255,7 @@ class TestWiql(object):
             {
               "field": {
                 "name": "Target Version",
-                "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/TargetVersion",
+                "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/TargetVersion",
                 "referenceName": "TargetVersion"
               },
               "descending": false
@@ -263,7 +263,7 @@ class TestWiql(object):
             {
               "field": {
                 "name": "Severity",
-                "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
+                "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
                 "referenceName": "Microsoft.VSTS.Common.Severity"
               },
               "descending": false
@@ -271,11 +271,11 @@ class TestWiql(object):
           ],
           "workItems": [
             {
-              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/100",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/100",
               "id": 100
             },
             {
-              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/101",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/101",
               "id": 101
             }
           ],
@@ -293,17 +293,17 @@ class TestWiql(object):
           "columns": [
             {
               "name": "ID",
-              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/System.Id",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/System.Id",
               "referenceName": "System.Id"
             },
             {
               "name": "Severity",
-              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
               "referenceName": "Microsoft.VSTS.Common.Severity"
             },
             {
               "name": "Target Version",
-              "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/TargetVersion",
+              "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/TargetVersion",
               "referenceName": "TargetVersion"
             }
           ],
@@ -311,7 +311,7 @@ class TestWiql(object):
             {
               "field": {
                 "name": "Target Version",
-                "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/TargetVersion",
+                "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/TargetVersion",
                 "referenceName": "TargetVersion"
               },
               "descending": false
@@ -319,7 +319,7 @@ class TestWiql(object):
             {
               "field": {
                 "name": "Severity",
-                "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
+                "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
                 "referenceName": "Microsoft.VSTS.Common.Severity"
               },
               "descending": false
