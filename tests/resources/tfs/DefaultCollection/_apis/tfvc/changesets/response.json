@@ -1,0 +1,107 @@
+{
+  "count": 5,
+  "value": [
+    {
+      "changesetId": 10,
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/tfvc\/changesets\/18736",
+      "author": {
+        "id": "831299d4-f278-4858-a188-d1edae64125d",
+        "displayName": "\u041c\u0438\u0445\u0430\u0438\u043b \u041f\u043e\u043b\u044c\u0433\u0443\u043d",
+        "uniqueName": "DOMAIN\\MIvanov",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/831299d4-f278-4858-a188-d1edae64125d",
+        "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=831299d4-f278-4858-a188-d1edae64125d"
+      },
+      "checkedInBy": {
+        "id": "dc115031-b185-421e-a58d-b2b19903f51a",
+        "displayName": "deploy",
+        "uniqueName": "DOMAIN\\deploy",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/dc115031-b185-421e-a58d-b2b19903f51a",
+        "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=dc115031-b185-421e-a58d-b2b19903f51a"
+      },
+      "createdDate": "2017-06-30T15:43:41.71Z",
+      "comment": "Merge Main into R16.1 (PdqlAssetId)"
+    },
+    {
+      "changesetId": 11,
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/tfvc\/changesets\/18732",
+      "author": {
+        "id": "831299d4-f278-4858-a188-d1edae64125d",
+        "displayName": "\u041c\u0438\u0445\u0430\u0438\u043b \u041f\u043e\u043b\u044c\u0433\u0443\u043d",
+        "uniqueName": "DOMAIN\\MIvanov",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/831299d4-f278-4858-a188-d1edae64125d",
+        "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=831299d4-f278-4858-a188-d1edae64125d"
+      },
+      "checkedInBy": {
+        "id": "dc115031-b185-421e-a58d-b2b19903f51a",
+        "displayName": "deploy",
+        "uniqueName": "DOMAIN\\deploy",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/dc115031-b185-421e-a58d-b2b19903f51a",
+        "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=dc115031-b185-421e-a58d-b2b19903f51a"
+      },
+      "createdDate": "2017-06-30T12:16:46.907Z",
+      "comment": "\u0414\u043e\u0431\u0430\u0432\u0438\u043b \u0442\u0435\u0433 allIncidents \u0434\u043b\u044f \u0444\u0438\u043b\u044c\u0442\u0440\u0430 \u0412\u0441\u0435 \u0438\u043d\u0446\u0438\u0434\u0435\u043d\u0442\u044b + \u043d\u0435\u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u0440\u0435\u0444\u0430\u043a\u0442\u043e\u0440\u0438\u043d\u0433 \u043f\u0440\u043e\u0441\u0442",
+      "commentTruncated": true
+    },
+    {
+      "changesetId": 12,
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/tfvc\/changesets\/18727",
+      "author": {
+        "id": "831299d4-f278-4858-a188-d1edae64125d",
+        "displayName": "\u041c\u0438\u0445\u0430\u0438\u043b \u041f\u043e\u043b\u044c\u0433\u0443\u043d",
+        "uniqueName": "DOMAIN\\MIvanov",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/831299d4-f278-4858-a188-d1edae64125d",
+        "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=831299d4-f278-4858-a188-d1edae64125d"
+      },
+      "checkedInBy": {
+        "id": "dc115031-b185-421e-a58d-b2b19903f51a",
+        "displayName": "deploy",
+        "uniqueName": "DOMAIN\\deploy",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/dc115031-b185-421e-a58d-b2b19903f51a",
+        "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=dc115031-b185-421e-a58d-b2b19903f51a"
+      },
+      "createdDate": "2017-06-30T08:48:18.133Z",
+      "comment": "\u0418\u0441\u043f\u0440\u0430\u0432\u043b\u0435\u043d \u043f\u043e\u0440\u044f\u0434\u043e\u043a \u0441\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u043a\u0438 \u043a\u0440\u0438\u0442\u0438\u0447\u043d\u043e\u0441\u0442\u0438 \u043f\u043e \u0443\u043c\u043e\u043b\u0447\u0430\u043d\u0438\u044e \u0432 \u0441\u0438\u0441\u0442\u0435\u043c\u043d\u044b\u0445 \u0444\u0438\u043b\u044c\u0442\u0440\u0430\u0445 \u0438\u043d\u0446\u0438\u0434",
+      "commentTruncated": true
+    },
+    {
+      "changesetId": 13,
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/tfvc\/changesets\/18725",
+      "author": {
+        "id": "c7b8ae59-8bec-4d47-941e-66814c9dacea",
+        "displayName": "\u041a\u0438\u0440\u0438\u043b\u043b \u0418\u0432\u0430\u043d\u043e\u0432",
+        "uniqueName": "DOMAIN\\KIvanov",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/c7b8ae59-8bec-4d47-941e-66814c9dacea",
+        "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=c7b8ae59-8bec-4d47-941e-66814c9dacea"
+      },
+      "checkedInBy": {
+        "id": "dc115031-b185-421e-a58d-b2b19903f51a",
+        "displayName": "deploy",
+        "uniqueName": "DOMAIN\\deploy",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/dc115031-b185-421e-a58d-b2b19903f51a",
+        "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=dc115031-b185-421e-a58d-b2b19903f51a"
+      },
+      "createdDate": "2017-06-29T10:47:29.287Z",
+      "comment": "\u041b\u043e\u0433\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u043c\u0438\u0433\u0440\u0430\u0446\u0438\u0438 \u0433\u0440\u0443\u043f\u043f"
+    },
+    {
+      "changesetId": 14,
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/tfvc\/changesets\/18723",
+      "author": {
+        "id": "c7b8ae59-8bec-4d47-941e-66814c9dacea",
+        "displayName": "\u041a\u0438\u0440\u0438\u043b\u043b \u0418\u0432\u0430\u043d\u043e\u0432",
+        "uniqueName": "DOMAIN\\KIvanov",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/c7b8ae59-8bec-4d47-941e-66814c9dacea",
+        "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=c7b8ae59-8bec-4d47-941e-66814c9dacea"
+      },
+      "checkedInBy": {
+        "id": "dc115031-b185-421e-a58d-b2b19903f51a",
+        "displayName": "deploy",
+        "uniqueName": "DOMAIN\\deploy",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/dc115031-b185-421e-a58d-b2b19903f51a",
+        "imageUrl": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=dc115031-b185-421e-a58d-b2b19903f51a"
+      },
+      "createdDate": "2017-06-27T15:27:32.347Z",
+      "comment": "\u041c\u0438\u0433\u0440\u0430\u0446\u0438\u044f \u0433\u0440\u0443\u043f\u043f - \u043e\u043f\u0442\u0438\u043c\u0438\u0437\u0430\u0446\u0438\u044f"
+    }
+  ]
+}
