@@ -6,42 +6,42 @@
     {
       "referenceName": "System.Id",
       "name": "ID",
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/_apis\/wit\/fields\/System.Id"
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/System.Id"
     },
     {
       "referenceName": "System.WorkItemType",
       "name": "Work Item Type",
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/_apis\/wit\/fields\/System.WorkItemType"
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/System.WorkItemType"
     },
     {
       "referenceName": "System.Title",
       "name": "Title",
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/_apis\/wit\/fields\/System.Title"
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/System.Title"
     },
     {
       "referenceName": "System.AssignedTo",
       "name": "Assigned To",
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/_apis\/wit\/fields\/System.AssignedTo"
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/System.AssignedTo"
     },
     {
       "referenceName": "System.State",
       "name": "State",
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/_apis\/wit\/fields\/System.State"
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/System.State"
     },
     {
       "referenceName": "System.Tags",
       "name": "Tags",
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/_apis\/wit\/fields\/System.Tags"
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/System.Tags"
     }
   ],
   "workItems": [
     {
       "id": 100,
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/_apis\/wit\/workItems\/100"
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/100"
     },
     {
       "id": 101,
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DevelopmentTest\/_apis\/wit\/workItems\/100"
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/100"
     }
   ]
 }

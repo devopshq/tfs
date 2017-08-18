@@ -50,10 +50,10 @@ password="password"
 client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=password)
 
 # Use CustomCollection
-client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development", user=user, password=password)
+client = TFSAPI("https://tfs.tfs.ru/tfs/", project="DefaultCollection", user=user, password=password)
 
 # Set path to ProjectName in project parameter
-client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development/ProjectName", user=user, password=password)
+client = TFSAPI("https://tfs.tfs.ru/tfs/", project="DefaultCollection/ProjectName", user=user, password=password)
 
 workitem = client.get_workitem(100) # Test connection with Workitem id
 ```
@@ -113,7 +113,7 @@ if childs: # Child is empty list if Workitem hasn't Child link
 You can run Saved Queries and get Workitems
 ```python
 # Set path to ProjectName in project parameter
-client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development/ProjectName", user=user, password=password)
+client = TFSAPI("https://tfs.tfs.ru/tfs/", project="DefaultCollection/ProjectName", user=user, password=password)
 
 # Run New query 1 in Shared Queries folder
 quiery = client.run_query('Shared Queries/New query 1')
@@ -131,7 +131,7 @@ workitems = quiery.workitems
 You can run [Work Item Query Language](https://msdn.microsoft.com/en-us/library/bb130198(v=vs.90).aspx)
 ```python
 # Set path to ProjectName in project parameter
-client = TFSAPI("https://tfs.tfs.ru/tfs/", project="Development/ProjectName", user=user, password=password)
+client = TFSAPI("https://tfs.tfs.ru/tfs/", project="DefaultCollection/ProjectName", user=user, password=password)
 
 # Run custom query
 ### NOTE: Fields in SELECT really ignored, wiql return Work Items with all fields
@@ -190,8 +190,8 @@ project_team = project_name.team
 ## Development
 ### Tests
 We use HTTPPrety. For GET-response locate you response.json to folder by URL. E.g:
-- http://tfs.tfs.ru/tfs/Development/_apis/wit/workitems?ids=anyid&anyflag => **tests/resources/tfs/Development/_apis/wit/workitems/response.json**
-- http://tfs.tfs.ru/tfs/Development/_apis/tfvc/changesets/10/workItems => **tests/resources/tfs/Development/_apis/tfvc/changesets/10/workItems/response.json**
+- http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workitems?ids=anyid&anyflag => **tests/resources/tfs/DefaultCollection/_apis/wit/workitems/response.json**
+- http://tfs.tfs.ru/tfs/DefaultCollection/_apis/tfvc/changesets/10/workItems => **tests/resources/tfs/DefaultCollection/_apis/tfvc/changesets/10/workItems/response.json**
 
 ### TODO
 - Implemented Resources-API (like https://github.com/pycontribs/jira)

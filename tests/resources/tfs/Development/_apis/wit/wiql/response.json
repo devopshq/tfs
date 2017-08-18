@@ -3,17 +3,17 @@
   "columns": [
     {
       "name": "ID",
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/System.Id",
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/System.Id",
       "referenceName": "System.Id"
     },
     {
       "name": "Severity",
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
       "referenceName": "Microsoft.VSTS.Common.Severity"
     },
     {
       "name": "Target Version",
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/TargetVersion",
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/TargetVersion",
       "referenceName": "TargetVersion"
     }
   ],
@@ -21,7 +21,7 @@
     {
       "field": {
         "name": "Target Version",
-        "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/TargetVersion",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/TargetVersion",
         "referenceName": "TargetVersion"
       },
       "descending": false
@@ -29,7 +29,7 @@
     {
       "field": {
         "name": "Severity",
-        "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
+        "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/fields\/Microsoft.VSTS.Common.Severity",
         "referenceName": "Microsoft.VSTS.Common.Severity"
       },
       "descending": false
@@ -37,11 +37,11 @@
   ],
   "workItems": [
     {
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/100",
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/100",
       "id": 100
     },
     {
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/Development\/_apis\/wit\/workItems\/101",
+      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/101",
       "id": 101
     }
   ],
