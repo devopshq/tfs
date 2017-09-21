@@ -33,7 +33,7 @@ setup(
 
     version=__version__,
 
-    description='dohq-tfs is a TFS API Python client that can work with TFS workflow and workitems.',
+    description='Microsoft TFS Python Library (TFS API Python client) that can work with TFS workflow and workitems.',
 
     long_description='You can see detailed user manual here: https://devopshq.github.io/tfs/',
 
