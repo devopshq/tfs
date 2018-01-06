@@ -2,6 +2,7 @@
 """
 TFS API python 3 version
 """
+import os
 
 from requests.structures import CaseInsensitiveDict
 
@@ -137,16 +138,32 @@ class Workitem(TFSObject):
     def history(self):
         return self.workItemHistory
 
+    def find_in_relation(self, relation_type):
+        """
+        Get relation by type\name. Auto add
+        :param relation_type:
+        :return:
+        """
+        found = []
+        for relation in self.data.get('relations', []):
+            # Find as is, e.g. 'AttachedFile' or more smartly.
+            # Found 'Hierarchy-Forward' in 'System.LinkTypes.Hierarchy-Forward'
+            if relation_type == relation.get('rel', '') \
+                    or relation.get('rel', '').endswith(relation_type):
+                found.append(relation)
+        return found
+
     def _find_in_relation(self, relation_type, return_one=True):
         """
         Find relation type in relations and return one or list
+        one use for Parent WI
         """
         ids = []
-        for relation in self.data.get('relations', []):
-            if relation_type in relation.get('rel', ''):
-                id_ = relation['url'].split('/')[-1]
-                id_ = int(id_)
-                ids.append(id_)
+        relations = self.find_in_relation(relation_type)
+        for relation in relations:
+            id_ = relation['url'].split('/')[-1]
+            id_ = int(id_)
+            ids.append(id_)
         if return_one:
             return ids[0] if ids else None
         else:
@@ -172,6 +189,24 @@ class Workitem(TFSObject):
             return self.tfs.get_workitems(self.child_ids)
         else:
             return []
+
+    @property
+    def attachments(self):
+        list_ = self.find_in_relation('AttachedFile')
+        attachments_ = [Attachment(x, self.tfs) for x in list_]
+        return attachments_
+
+
+class Attachment(TFSObject):
+    def __init__(self, data=None, tfs=None):
+        super().__init__(data, tfs)
+        self.id = self.data['url'].split('/')[-1]  # Get UUID from url
+        self.url = self.data['url']
+        self.name = self.data['attributes']['name']
+
+    def download(self, path='.'):
+        path = os.path.join(path, self.name)
+        self.tfs.download_file(self.url, path)
 
 
 class Changeset(TFSObject):

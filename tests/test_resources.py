@@ -85,6 +85,19 @@ class TestWorkitem(object):
               "attributes": {
                 "isLocked": false
               }
+            },
+            {
+            "attributes": {
+                "authorizedDate": "2018-01-06T05:43:42.75Z",
+                "id": 47,
+                "name": ".gitignore",
+                "resourceCreatedDate": "2018-01-06T05:43:41.63Z",
+                "resourceModifiedDate": "2018-01-06T05:43:41.63Z",
+                "resourceSize": 1276,
+                "revisedDate": "9999-01-01T00:00:00Z"
+            },
+            "rel": "AttachedFile",
+            "url": "https://tfs.ptsecurity.ru/tfs/DevelopmentTest/_apis/wit/attachments/5766cbba-2794-468c-801b-3ede5e3267a0"
             }
             ],
             "_links": {
@@ -142,6 +155,15 @@ class TestWorkitem(object):
     def test_workitem_field_names(self, workitem):
         assert 'Russia' in workitem.field_names
         assert 'Title' in workitem.field_names
+
+    def test_find_in_relation(self, workitem):
+        assert len(workitem.find_in_relation('Hierarchy-Reverse')) == 1, 'Can not find in relation some link'
+
+    def test_attachment(self, workitem):
+        assert len(workitem.attachments) == 1
+        attach = workitem.attachments[0]
+        assert isinstance(attach, Attachment)
+        assert attach.name == '.gitignore'
 
     def test_dir_links(self, workitem):
         properties_must_be = ['workItemHistory', 'workItemRevisions', 'self', 'html']

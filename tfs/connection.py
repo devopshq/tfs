@@ -124,6 +124,12 @@ class TFSAPI:
                                           )
         return Wiql(wiql, self)
 
+    def download_file(self, uri, filename):
+        # TODO: Use download in stream, not in memory
+        r = self.rest_client.send_get(uri, json=False)
+        with open(filename, 'wb') as file:
+            file.write(r.content)
+
 
 class TFSClientError(Exception):
     pass
@@ -167,8 +173,8 @@ class TFSHTTPClient:
 
         return collection, project
 
-    def send_get(self, uri, payload=None, project=False):
-        return self.__send_request('GET', uri, None, payload=payload, project=project)
+    def send_get(self, uri, payload=None, project=False, json=True):
+        return self.__send_request('GET', uri, None, payload=payload, project=project, json=json)
 
     def send_post(self, uri, data, headers, project=False):
         return self.__send_request('POST', uri, data, headers, project=project)
@@ -176,7 +182,7 @@ class TFSHTTPClient:
     def send_patch(self, uri, data, headers, project=False):
         return self.__send_request('PATCH', uri, data, headers, project=project)
 
-    def __send_request(self, method, uri, data, headers=None, payload=None, project=False):
+    def __send_request(self, method, uri, data, headers=None, payload=None, project=False, json=True):
         """
         Send request
         :param method:
@@ -188,15 +194,12 @@ class TFSHTTPClient:
             False - add only collection to uri
             True - add Collection/Project to url, some api need it
             e.g. WIQL: https://www.visualstudio.com/en-us/docs/integrate/api/wit/wiql
+        :param json:
+            True - try to convert response to python-object
+            False - get as is
         :return:
         """
-        if uri.startswith(self._url):
-            # If we use URL (full path)
-            url = uri
-            uri = uri.replace(url, '')
-        else:
-            # Add prefix to uri
-            url = (self._url_prj if project else self._url) + uri
+        url = self.__prepare_uri(uri=uri, project=project)
 
         if method == 'POST':
             response = self.http_session.post(url, json=data, verify=self._verify, headers=headers,
@@ -210,12 +213,33 @@ class TFSHTTPClient:
                                              timeout=self.timeout)
             response.raise_for_status()
 
-        try:
-            result = response.json()
+        if json:
+            try:
+                result = response.json()
 
-            if response.status_code != 200:
-                raise TFSClientError('TFS API returned HTTP %s (%s)' % (
-                    response.status_code, result['error'] if 'error' in result else response.reason))
-            return result
-        except:
-            raise TFSClientError('Response is not json: {}'.format(response.text))
+                if response.status_code != 200:
+                    raise TFSClientError('TFS API returned HTTP %s (%s)' % (
+                        response.status_code, result['error'] if 'error' in result else response.reason))
+                return result
+            except:
+                raise TFSClientError('Response is not json: {}'.format(response.text))
+        else:
+            return response
+
+    def __prepare_uri(self, project, uri):
+        """
+        Convert URI to URL
+        :param project:
+        :param uri:
+        :return:
+        """
+        # TODO: Add get from non-standart collection,
+        # e.g. workItemTypes: https://www.visualstudio.com/en-us/docs/integrate/api/wit/work-item-types
+        if uri.startswith(self._url):
+            # If we use URL (full path)
+            url = uri
+            uri = uri.replace(url, '')
+        else:
+            # Add prefix to uri
+            url = (self._url_prj if project else self._url) + uri
+        return url
