@@ -9,7 +9,7 @@ install:
 script:
   - printenv
   - ls -la
-  - coverage run -m py.test tests --source="tfs/*"
+  - coverage run -m py.test tests
   - coverage xml
   - python-codacy-coverage -r coverage.xml
 deploy:
