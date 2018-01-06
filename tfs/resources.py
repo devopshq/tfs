@@ -60,11 +60,12 @@ class TFSObject(object):
             return self.__get_object_by_links(name)
         raise AttributeError("'{}' object has not attribute '{}'".format(self.__class__.__name__, name))
 
-    def __repr__(self):
-        _repr = ''
-        for k, v in self.data.items():
-            _repr += to_str(k) + ' = ' + to_str(v) + '\n'
-        return _repr
+    # TODO: implement better repr
+    # def __repr__(self):
+    #     _repr = ''
+    #     for k, v in self.data.items():
+    #         _repr += to_str(k) + ' = ' + to_str(v) + '\n'
+    #     return _repr
 
     def __getitem__(self, key):
         return self.data[key]
@@ -134,7 +135,7 @@ class Workitem(TFSObject):
 
     @property
     def history(self):
-        return self.tfs.get_tfs_object('wit/workitems/{}/history'.format(self.id))
+        return self.workItemHistory
 
     def _find_in_relation(self, relation_type, return_one=True):
         """
