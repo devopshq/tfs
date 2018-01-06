@@ -10,7 +10,7 @@ script:
   - printenv
   - ls -la
   - coverage run -m py.test tests
-  - coverage xml
+  - coverage xml --omit="*/tests*"
   - python-codacy-coverage -r coverage.xml
 deploy:
   provider: pypi
