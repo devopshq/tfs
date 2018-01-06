@@ -138,6 +138,10 @@ class Workitem(TFSObject):
     def history(self):
         return self.workItemHistory
 
+    @property
+    def revisions(self):
+        return self.workItemRevisions
+
     def find_in_relation(self, relation_type):
         """
         Get relation by type\name. Auto add

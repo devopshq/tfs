@@ -235,10 +235,9 @@ class TFSHTTPClient:
         """
         # TODO: Add get from non-standart collection,
         # e.g. workItemTypes: https://www.visualstudio.com/en-us/docs/integrate/api/wit/work-item-types
-        if uri.startswith(self._url):
+        if uri.startswith('https') or uri.startswith('http'):
             # If we use URL (full path)
             url = uri
-            uri = uri.replace(url, '')
         else:
             # Add prefix to uri
             url = (self._url_prj if project else self._url) + uri
