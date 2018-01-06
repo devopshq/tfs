@@ -97,7 +97,7 @@ class TestWorkitem(object):
                 "revisedDate": "9999-01-01T00:00:00Z"
             },
             "rel": "AttachedFile",
-            "url": "https://tfs.ptsecurity.ru/tfs/DevelopmentTest/_apis/wit/attachments/5766cbba-2794-468c-801b-3ede5e3267a0"
+            "url": "https://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/attachments/5766cbba-2794-468c-801b-3ede5e3267a0"
             }
             ],
             "_links": {
@@ -105,7 +105,7 @@ class TestWorkitem(object):
                 "href": "http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workItems/100"
               },
               "html": {
-                "href": "http://tfs.ptsecurity.ru/tfs/web/wi.aspx?pcguid=9cd4a217-5ab5-4e09-8116-ec8a6141e5a5&id=100"
+                "href": "http://tfs.tfs.ru/tfs/web/wi.aspx?pcguid=9cd4a217-5ab5-4e09-8116-ec8a6141e5a5&id=100"
               },
               "workItemRevisions": {
                 "href": "http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workItems/100/revisions"
