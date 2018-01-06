@@ -52,7 +52,7 @@ class Workitem(TFSObject):
         self.id = self._data['id']
 
     def __setitem__(self, key, value):
-        field_path = "/fields/{}{}".format(self._system_prefix, key)
+        field_path = "/fields/{}".format(key)
         update_data = [dict(op="add", path=field_path, value=value)]
         raw = self.tfs.update_workitem(self.id, update_data)
         self.__init__(raw, self.tfs)
