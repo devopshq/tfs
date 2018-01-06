@@ -277,7 +277,7 @@ class TestTFSQuery:
         assert "Title" in tfsquery.column_names
 
     @pytest.mark.httpretty
-    def test_tfsquery_column_names(self, tfsquery):
+    def test_tfsquery_ids(self, tfsquery):
         assert len(tfsquery.workitems) == 2
         assert tfsquery.workitems[0].id == 100
         assert tfsquery.workitems[1].id == 101
