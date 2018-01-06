@@ -9,8 +9,8 @@ install:
 script:
   - printenv
   - ls -la
-  - coverage run -m py.test tests
-  - coverage xml --omit="*/tests*"
+  - coverage run -m py.test tests --source="tfs/*"
+  - coverage xml
   - python-codacy-coverage -r coverage.xml
 deploy:
   provider: pypi
