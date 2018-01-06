@@ -24,6 +24,7 @@ class TFSAPI:
                  auth_type=HTTPBasicAuth,
                  connect_timeout=20, read_timeout=180, ):
         """
+        This class must be used to get first object from TFS
         :param server_url: url to TFS server, e.g. https://tfs.example.com/
         :param project: Collection or Collection\\Project
         :param user: username, or DOMAIN\\username
@@ -176,7 +177,27 @@ class TFSHTTPClient:
         return self.__send_request('PATCH', uri, data, headers, project=project)
 
     def __send_request(self, method, uri, data, headers=None, payload=None, project=False):
-        url = (self._url_prj if project else self._url) + uri
+        """
+        Send request
+        :param method:
+        :param uri:
+        :param data:
+        :param headers:
+        :param payload:
+        :param project:
+            False - add only collection to uri
+            True - add Collection/Project to url, some api need it
+            e.g. WIQL: https://www.visualstudio.com/en-us/docs/integrate/api/wit/wiql
+        :return:
+        """
+        if uri.startswith(self._url):
+            # If we use URL (full path)
+            url = uri
+            uri = uri.replace(url, '')
+        else:
+            # Add prefix to uri
+            url = (self._url_prj if project else self._url) + uri
+
         if method == 'POST':
             response = self.http_session.post(url, json=data, verify=self._verify, headers=headers,
                                               timeout=self.timeout)

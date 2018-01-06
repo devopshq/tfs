@@ -23,33 +23,76 @@ def to_bytes(a):
 class TFSObject(object):
     def __init__(self, data=None, tfs=None, uri=''):
         # TODO: CaseInsensitive Dict
-        self._data = data
+
+        self.data = data
         self.tfs = tfs
-        self.id = self._data.get('id', None)
+        self.id = self.data.get('id', None)
         self.uri = uri
+
+        self._data = self.data  # legacy, some people can use private method
+
+    def __dir__(self):
+        """
+        Extend standart dir() with attribute in `_links`
+        :return: extended list of attribute name
+        """
+        original = super(TFSObject, self).__dir__()
+        extend = self.data.get('_links', {})
+        extend = list(extend)
+        new_dir = original + extend
+        return new_dir
+
+    def __get_object_by_links(self, name):
+        """
+        Dynamically add property for all ``_links`` field in JSON, if exist
+        """
+        links = self.data.get('_links', {})  # or emtpy if _links is not exist
+        url = links[name]['href']
+        return self.tfs.get_tfs_object(url)
+
+    def __getattr__(self, name):
+        """
+        If object have not attribute, try search in `_links` and return new TFSObject
+        :param name:
+        :return: TFSObject
+        """
+        if name in self.data.get('_links', {}):
+            return self.__get_object_by_links(name)
+        raise AttributeError("'{}' object has not attribute '{}'".format(self.__class__.__name__, name))
 
     def __repr__(self):
         _repr = ''
-        for k, v in self._data.items():
+        for k, v in self.data.items():
             _repr += to_str(k) + ' = ' + to_str(v) + '\n'
         return _repr
 
     def __getitem__(self, key):
-        return self._data[key]
+        return self.data[key]
 
     def __setitem__(self, key, value):
+        """
+        We not implement default behavior, use class for it
+        :param key:
+        :param value:
+        :return:
+        """
         raise NotImplemented
 
     def get(self, key, default=None):
-        return self._data.get(key, default)
+        return self.data.get(key, default)
 
 
 class Workitem(TFSObject):
     def __init__(self, data=None, tfs=None):
         super().__init__(data, tfs)
-        self._fields = CaseInsensitiveDict(self._data['fields'])
+
+        # Use prefix in automatically lookup.
+        # We don't need use wi['System.History'], we use simple wi['History']
         self._system_prefix = 'System.'
-        self.id = self._data['id']
+
+        self.id = self.data['id']
+        self.fields = CaseInsensitiveDict(self.data['fields'])
+        self._fields = self.fields
 
     def __setitem__(self, key, value):
         field_path = "/fields/{}".format(key)
@@ -58,17 +101,20 @@ class Workitem(TFSObject):
         self.__init__(raw, self.tfs)
 
     def get(self, key, default=None):
-        if key in self._fields:
-            return self._fields[key]
+        if key in self.fields:
+            return self.fields[key]
+
+        # try to automatically add prefix
         key = self._add_prefix(key)
-        return self._fields.get(key, default)
+        return self.fields.get(key, default)
 
     def __getitem__(self, key):
-        if key in self._fields:
-            return self._fields[key]
+        if key in self.fields:
+            return self.fields[key]
 
+        # try to automatically add prefix
         key = self._add_prefix(key)
-        return self._fields[key]
+        return self.fields[key]
 
     def _add_prefix(self, key):
         if key.startswith(self._system_prefix):
@@ -84,7 +130,7 @@ class Workitem(TFSObject):
 
     @property
     def field_names(self):
-        return [self._remove_prefix(x) for x in self._fields]
+        return [self._remove_prefix(x) for x in self.fields]
 
     @property
     def history(self):
@@ -95,7 +141,7 @@ class Workitem(TFSObject):
         Find relation type in relations and return one or list
         """
         ids = []
-        for relation in self._data.get('relations', []):
+        for relation in self.data.get('relations', []):
             if relation_type in relation.get('rel', ''):
                 id_ = relation['url'].split('/')[-1]
                 id_ = int(id_)
@@ -130,7 +176,7 @@ class Workitem(TFSObject):
 class Changeset(TFSObject):
     def __init__(self, data=None, tfs=None):
         super().__init__(data, tfs)
-        self.id = self._data['changesetId']
+        self.id = self.data['changesetId']
 
     @property
     def workitems(self):
@@ -168,11 +214,11 @@ class Wiql(TFSObject):
 
     def __init__(self, data=None, tfs=None):
         super().__init__(data, tfs)
-        self.result = self._data
+        self.result = self.data
 
     @property
     def workitem_ids(self):
-        ids = [x['id'] for x in self._data['workItems']]
+        ids = [x['id'] for x in self.data['workItems']]
         return ids
 
     @property
