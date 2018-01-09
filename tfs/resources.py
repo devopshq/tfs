@@ -6,20 +6,6 @@ import os
 
 from requests.structures import CaseInsensitiveDict
 
-basestring = (str, bytes)
-
-
-def cmp(a, b):
-    return (a > b) - (a < b)
-
-
-def to_str(a):
-    return a.decode('utf-8') if isinstance(a, bytes) else str(a)
-
-
-def to_bytes(a):
-    return a.encode('utf-8') if isinstance(a, str) else a
-
 
 class TFSObject(object):
     def __init__(self, data=None, tfs=None, uri=''):
@@ -29,6 +15,7 @@ class TFSObject(object):
         self.tfs = tfs
         self.id = self.data.get('id', None)
         self.uri = uri
+        self.url = self.data['url'] if 'url' in self.data else None
 
         self._data = self.data  # legacy, some people can use private method
 
@@ -85,8 +72,8 @@ class TFSObject(object):
 
 
 class Workitem(TFSObject):
-    def __init__(self, data=None, tfs=None):
-        super().__init__(data, tfs)
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
 
         # Use prefix in automatically lookup.
         # We don't need use wi['System.History'], we use simple wi['History']
@@ -202,10 +189,9 @@ class Workitem(TFSObject):
 
 
 class Attachment(TFSObject):
-    def __init__(self, data=None, tfs=None):
-        super().__init__(data, tfs)
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
         self.id = self.data['url'].split('/')[-1]  # Get UUID from url
-        self.url = self.data['url']
         self.name = self.data['attributes']['name']
 
     def download(self, path='.'):
@@ -214,8 +200,8 @@ class Attachment(TFSObject):
 
 
 class Changeset(TFSObject):
-    def __init__(self, data=None, tfs=None):
-        super().__init__(data, tfs)
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
         self.id = self.data['changesetId']
 
     @property
@@ -233,8 +219,8 @@ class Projects(TFSObject):
 
 
 class TFSQuery(TFSObject):
-    def __init__(self, data=None, tfs=None):
-        super().__init__(data, tfs)
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
         self.result = self.tfs.rest_client.send_get('wit/wiql/{}?api-version=2.2'.format(self.id), project=True)
         self.columns = tuple(i['referenceName'] for i in self.result['columns'])
         self.column_names = tuple(i['name'] for i in self.result['columns'])
@@ -252,8 +238,8 @@ class Wiql(TFSObject):
     Work Item Query Language
     """
 
-    def __init__(self, data=None, tfs=None):
-        super().__init__(data, tfs)
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
         self.result = self.data
 
     @property

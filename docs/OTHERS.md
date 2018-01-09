@@ -1,4 +1,9 @@
-## Changesets
+# Table of Contents
+- [Changesets](#changesets)
+- [Project & Team](#project--team)
+
+
+# Changesets
 ```python
 # Get changesets from 1000 to 1002
 changesets = client.get_changesets(from_=1000, to_=1002)
@@ -8,7 +13,7 @@ changesets = client.get_changesets(top=1)
 linked_workitems = changesets[0].workitems
 ```
 
-## Project & Team
+# Project & Team
 ```python
 # Get all project
 all_projects = client.get_projects()

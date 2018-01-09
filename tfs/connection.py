@@ -11,8 +11,8 @@ from tfs.resources import *
 
 def batch(iterable, n=1):
     """
-    Из списка возращает елементы по N штук (в другом списке)
-    http://stackoverflow.com/questions/8290397/how-to-split-an-iterable-in-constant-size-chunks
+    "batch" function that would take as input an iterable and return an iterable of iterables
+    https://stackoverflow.com/a/8290508/6753144
     """
     l = len(iterable)
     for ndx in range(0, l, n):
@@ -50,9 +50,9 @@ class TFSAPI:
         # For list results
         if 'value' in raw:
             raw = raw['value']
-            objects = [object_class(x, self) for x in raw]
+            objects = [object_class(x, self, uri) for x in raw]
         else:
-            objects = object_class(raw, self)
+            objects = object_class(raw, self, uri)
 
         return objects
 

@@ -5,6 +5,7 @@ Microsoft TFS Python Library (TFS API Python client)
 
 ------
 
+# Table of Contents
 - [Introduction](#introduction)
 - [Quickstart](#quickstart)
     - [Installation](#installation)
@@ -13,6 +14,7 @@ Microsoft TFS Python Library (TFS API Python client)
         - [Timeout connection](#timeout-connection)
     - [Workitem](#workitem)
         - [Update workitem](#update-workitem)
+        - [Workitem attachments](#workitem-attachments)
     - [Run Saved Queries](#run-saved-queries)
     - [Run WIQL](#run-wiql)
     - [Advanced](#advanced)
@@ -115,6 +117,27 @@ workitem['History'] = "Omg, it is goos issue!"
 print(workitem.history)
 ```
 
+### Workitem attachments
+If workitem has attachments, you can download it and get info about.
+```python
+attachments = workitem.attachments
+attachment = attachments[0]
+# Internal TFS UID
+print(attachment.id) 
+
+# Filename
+print(attachment.name)
+
+# TFS Download URL
+print(attachment.url) 
+
+# You can download file to folder
+attachment.download('/home/user/folder') 
+
+# All raw data
+print(attachment.data)
+```
+
 ## Run Saved Queries
 You can run Saved Queries and get Workitems
 ```python
@@ -166,8 +189,8 @@ print(workitems[0]['Title'])
 ```
 
 ## Advanced
-- For [advanced usage](docs/ADVANCED.md)
-- Some others object available, [read more](docs/OTHERS.md)
+- [Advanced usage](docs/ADVANCED.md)
+- Some [others object available](docs/OTHERS.md)
 
 # Guide
 ## Compatibility
