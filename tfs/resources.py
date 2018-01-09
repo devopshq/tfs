@@ -2,54 +2,86 @@
 """
 TFS API python 3 version
 """
+import os
 
 from requests.structures import CaseInsensitiveDict
-
-basestring = (str, bytes)
-
-
-def cmp(a, b):
-    return (a > b) - (a < b)
-
-
-def to_str(a):
-    return a.decode('utf-8') if isinstance(a, bytes) else str(a)
-
-
-def to_bytes(a):
-    return a.encode('utf-8') if isinstance(a, str) else a
 
 
 class TFSObject(object):
     def __init__(self, data=None, tfs=None, uri=''):
         # TODO: CaseInsensitive Dict
-        self._data = data
-        self.tfs = tfs
-        self.id = self._data.get('id', None)
-        self.uri = uri
 
-    def __repr__(self):
-        _repr = ''
-        for k, v in self._data.items():
-            _repr += to_str(k) + ' = ' + to_str(v) + '\n'
-        return _repr
+        self.data = data
+        self.tfs = tfs
+        self.id = self.data.get('id', None)
+        self.uri = uri
+        self.url = self.data['url'] if 'url' in self.data else None
+
+        self._data = self.data  # legacy, some people can use private method
+
+    def __dir__(self):
+        """
+        Extend standart dir() with attribute in `_links`
+        :return: extended list of attribute name
+        """
+        original = super(TFSObject, self).__dir__()
+        extend = self.data.get('_links', {})
+        extend = list(extend)
+        new_dir = original + extend
+        return new_dir
+
+    def __get_object_by_links(self, name):
+        """
+        Dynamically add property for all ``_links`` field in JSON, if exist
+        """
+        links = self.data.get('_links', {})  # or emtpy if _links is not exist
+        url = links[name]['href']
+        return self.tfs.get_tfs_object(url)
+
+    def __getattr__(self, name):
+        """
+        If object have not attribute, try search in `_links` and return new TFSObject
+        :param name:
+        :return: TFSObject
+        """
+        if name in self.data.get('_links', {}):
+            return self.__get_object_by_links(name)
+        raise AttributeError("'{}' object has not attribute '{}'".format(self.__class__.__name__, name))
+
+    # TODO: implement better repr
+    # def __repr__(self):
+    #     _repr = ''
+    #     for k, v in self.data.items():
+    #         _repr += to_str(k) + ' = ' + to_str(v) + '\n'
+    #     return _repr
 
     def __getitem__(self, key):
-        return self._data[key]
+        return self.data[key]
 
     def __setitem__(self, key, value):
+        """
+        We not implement default behavior, use class for it
+        :param key:
+        :param value:
+        :return:
+        """
         raise NotImplemented
 
     def get(self, key, default=None):
-        return self._data.get(key, default)
+        return self.data.get(key, default)
 
 
 class Workitem(TFSObject):
-    def __init__(self, data=None, tfs=None):
-        super().__init__(data, tfs)
-        self._fields = CaseInsensitiveDict(self._data['fields'])
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
+
+        # Use prefix in automatically lookup.
+        # We don't need use wi['System.History'], we use simple wi['History']
         self._system_prefix = 'System.'
-        self.id = self._data['id']
+
+        self.id = self.data['id']
+        self.fields = CaseInsensitiveDict(self.data['fields'])
+        self._fields = self.fields
 
     def __setitem__(self, key, value):
         field_path = "/fields/{}".format(key)
@@ -58,17 +90,20 @@ class Workitem(TFSObject):
         self.__init__(raw, self.tfs)
 
     def get(self, key, default=None):
-        if key in self._fields:
-            return self._fields[key]
+        if key in self.fields:
+            return self.fields[key]
+
+        # try to automatically add prefix
         key = self._add_prefix(key)
-        return self._fields.get(key, default)
+        return self.fields.get(key, default)
 
     def __getitem__(self, key):
-        if key in self._fields:
-            return self._fields[key]
+        if key in self.fields:
+            return self.fields[key]
 
+        # try to automatically add prefix
         key = self._add_prefix(key)
-        return self._fields[key]
+        return self.fields[key]
 
     def _add_prefix(self, key):
         if key.startswith(self._system_prefix):
@@ -84,22 +119,42 @@ class Workitem(TFSObject):
 
     @property
     def field_names(self):
-        return [self._remove_prefix(x) for x in self._fields]
+        return [self._remove_prefix(x) for x in self.fields]
 
     @property
     def history(self):
-        return self.tfs.get_tfs_object('wit/workitems/{}/history'.format(self.id))
+        return self.workItemHistory
+
+    @property
+    def revisions(self):
+        return self.workItemRevisions
+
+    def find_in_relation(self, relation_type):
+        """
+        Get relation by type\name. Auto add
+        :param relation_type:
+        :return:
+        """
+        found = []
+        for relation in self.data.get('relations', []):
+            # Find as is, e.g. 'AttachedFile' or more smartly.
+            # Found 'Hierarchy-Forward' in 'System.LinkTypes.Hierarchy-Forward'
+            if relation_type == relation.get('rel', '') \
+                    or relation.get('rel', '').endswith(relation_type):
+                found.append(relation)
+        return found
 
     def _find_in_relation(self, relation_type, return_one=True):
         """
         Find relation type in relations and return one or list
+        one use for Parent WI
         """
         ids = []
-        for relation in self._data.get('relations', []):
-            if relation_type in relation.get('rel', ''):
-                id_ = relation['url'].split('/')[-1]
-                id_ = int(id_)
-                ids.append(id_)
+        relations = self.find_in_relation(relation_type)
+        for relation in relations:
+            id_ = relation['url'].split('/')[-1]
+            id_ = int(id_)
+            ids.append(id_)
         if return_one:
             return ids[0] if ids else None
         else:
@@ -126,11 +181,28 @@ class Workitem(TFSObject):
         else:
             return []
 
+    @property
+    def attachments(self):
+        list_ = self.find_in_relation('AttachedFile')
+        attachments_ = [Attachment(x, self.tfs) for x in list_]
+        return attachments_
+
+
+class Attachment(TFSObject):
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
+        self.id = self.data['url'].split('/')[-1]  # Get UUID from url
+        self.name = self.data['attributes']['name']
+
+    def download(self, path='.'):
+        path = os.path.join(path, self.name)
+        self.tfs.download_file(self.url, path)
+
 
 class Changeset(TFSObject):
-    def __init__(self, data=None, tfs=None):
-        super().__init__(data, tfs)
-        self.id = self._data['changesetId']
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
+        self.id = self.data['changesetId']
 
     @property
     def workitems(self):
@@ -147,8 +219,8 @@ class Projects(TFSObject):
 
 
 class TFSQuery(TFSObject):
-    def __init__(self, data=None, tfs=None):
-        super().__init__(data, tfs)
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
         self.result = self.tfs.rest_client.send_get('wit/wiql/{}?api-version=2.2'.format(self.id), project=True)
         self.columns = tuple(i['referenceName'] for i in self.result['columns'])
         self.column_names = tuple(i['name'] for i in self.result['columns'])
@@ -166,13 +238,13 @@ class Wiql(TFSObject):
     Work Item Query Language
     """
 
-    def __init__(self, data=None, tfs=None):
-        super().__init__(data, tfs)
-        self.result = self._data
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
+        self.result = self.data
 
     @property
     def workitem_ids(self):
-        ids = [x['id'] for x in self._data['workItems']]
+        ids = [x['id'] for x in self.data['workItems']]
         return ids
 
     @property

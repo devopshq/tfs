@@ -22,7 +22,7 @@
         "Microsoft.VSTS.Common.Priority": 2,
         "Microsoft.VSTS.Common.Severity": "3 - Medium"
       },
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/1370"
+      "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/1370"
     },
     {
       "id": 101,
@@ -44,7 +44,7 @@
         "WEF_241EA9B233DB4EF49F5E03D7B35936E2_Kanban.Column": "New",
         "WEF_7ED661C40E944216A7573095C3ABE60C_Kanban.Column": "New"
       },
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/1371"
+      "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/1371"
     }
   ]
 }

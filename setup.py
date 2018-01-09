@@ -35,7 +35,7 @@ setup(
 
     description='Microsoft TFS Python Library (TFS API Python client) that can work with TFS workflow and workitems.',
 
-    long_description='You can see detailed user manual here: https://devopshq.github.io/tfs/',
+    long_description='You can see detailed user manual here: https://github.com/devopshq/tfs/blob/master/README.md',
 
     license='MIT',
 
@@ -43,7 +43,7 @@ setup(
 
     author_email='allburov@gmail.com',
 
-    url='https://devopshq.github.io/tfs/',
+    url='https://github.com/devopshq/tfs/blob/master/README.md',
 
     download_url='https://github.com/devopshq/tfs.git',
 
