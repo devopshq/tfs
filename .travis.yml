@@ -14,7 +14,7 @@ script:
   - python-codacy-coverage -r coverage.xml
 
 deploy:
-  provider: pypi
+- provider: pypi
   user: devopshq
   password:
     secure: "u7kqhFT32wLvGvdXLRg3RtTdfGcSzfFWTQb0p1cdRHWBm/771Q2H4bfvwv8GTVmSz+0txtW4O20/VMuMSULqAgW9ChLoNnpppsiEuwOL/KgFknOMgegM+QqdBU7OyB4c0XBxCEfoe8/+Z8lNlB1+UShwh6aJHjiUvR9U537ebtniMWyj0Nb93f53YQGsh29gbuqDNzIWPePFuSDBhKTRhKEHdBfol11YCgyNs2MXkdTUQ60G+DMtdAOM32mJEXi3n2yQWtnWdnsxApqZ4LLlEO1J7FJ0/6sXEd5Y8aQBoYPdE5RdGjo1gjxpp0tL3WxXisG1TlHdgNShKzO5CT4pUFD5qWqhbzlwDM8eI3xFS39I75bVeoPrQ9jn0MlBs8JQJIEFbn6HDW7G/hezMoQPwH2Sn2ET9/XH9axt3U7Wrqf9I10FuFMdBZ4hD62kml94WfxiC40sCNMgYW/zPYGSUQLXfzWImyFz32K8MTQErWVoiaDz8bx5rjLa+zmmwchhZCX4YdBh4BMIOy793YYx6/jLGUBhKuIyHGYREUF/ZlZg5rYssbKUP9G4TdzPix3dGCBgdtrsYwUZ79Odu/SjwV8uzOfcU2p9E0j1GjEK5BnfwY7b5ZpXeagBze34kDU3U89Jnmwc08eu0S+olv7/4iGn+gvQZOvM9s0CShhMI7I="
@@ -22,9 +22,7 @@ deploy:
   on:
     branch: master
   skip_cleanup: true
-
-deploy:
-  provider: pypi
+- provider: pypi
   user: devopshq
   password:
     secure: "u7kqhFT32wLvGvdXLRg3RtTdfGcSzfFWTQb0p1cdRHWBm/771Q2H4bfvwv8GTVmSz+0txtW4O20/VMuMSULqAgW9ChLoNnpppsiEuwOL/KgFknOMgegM+QqdBU7OyB4c0XBxCEfoe8/+Z8lNlB1+UShwh6aJHjiUvR9U537ebtniMWyj0Nb93f53YQGsh29gbuqDNzIWPePFuSDBhKTRhKEHdBfol11YCgyNs2MXkdTUQ60G+DMtdAOM32mJEXi3n2yQWtnWdnsxApqZ4LLlEO1J7FJ0/6sXEd5Y8aQBoYPdE5RdGjo1gjxpp0tL3WxXisG1TlHdgNShKzO5CT4pUFD5qWqhbzlwDM8eI3xFS39I75bVeoPrQ9jn0MlBs8JQJIEFbn6HDW7G/hezMoQPwH2Sn2ET9/XH9axt3U7Wrqf9I10FuFMdBZ4hD62kml94WfxiC40sCNMgYW/zPYGSUQLXfzWImyFz32K8MTQErWVoiaDz8bx5rjLa+zmmwchhZCX4YdBh4BMIOy793YYx6/jLGUBhKuIyHGYREUF/ZlZg5rYssbKUP9G4TdzPix3dGCBgdtrsYwUZ79Odu/SjwV8uzOfcU2p9E0j1GjEK5BnfwY7b5ZpXeagBze34kDU3U89Jnmwc08eu0S+olv7/4iGn+gvQZOvM9s0CShhMI7I="
