@@ -22,7 +22,6 @@ deploy:
   on:
     branch: master
   skip_cleanup: true
-
 - provider: pypi
   user: devopshq
   password:
