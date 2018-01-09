@@ -193,6 +193,8 @@ print(workitems[0]['Title'])
 - Some [others object available](docs/OTHERS.md)
 
 # Guide
+If you use this library, [put a star](https://help.github.com/articles/about-stars/) on [this repository](https://github.com/devopshq/tfs). This motivates us and other developers to develop the library :)
+
 ## Compatibility
 - Tested with **Python.3.4**
 - TFS 2015 
