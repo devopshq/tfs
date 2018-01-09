@@ -12,6 +12,7 @@ script:
   - coverage run -m py.test tests
   - coverage xml
   - python-codacy-coverage -r coverage.xml
+
 deploy:
   provider: pypi
   user: devopshq
@@ -19,10 +20,22 @@ deploy:
     secure: "u7kqhFT32wLvGvdXLRg3RtTdfGcSzfFWTQb0p1cdRHWBm/771Q2H4bfvwv8GTVmSz+0txtW4O20/VMuMSULqAgW9ChLoNnpppsiEuwOL/KgFknOMgegM+QqdBU7OyB4c0XBxCEfoe8/+Z8lNlB1+UShwh6aJHjiUvR9U537ebtniMWyj0Nb93f53YQGsh29gbuqDNzIWPePFuSDBhKTRhKEHdBfol11YCgyNs2MXkdTUQ60G+DMtdAOM32mJEXi3n2yQWtnWdnsxApqZ4LLlEO1J7FJ0/6sXEd5Y8aQBoYPdE5RdGjo1gjxpp0tL3WxXisG1TlHdgNShKzO5CT4pUFD5qWqhbzlwDM8eI3xFS39I75bVeoPrQ9jn0MlBs8JQJIEFbn6HDW7G/hezMoQPwH2Sn2ET9/XH9axt3U7Wrqf9I10FuFMdBZ4hD62kml94WfxiC40sCNMgYW/zPYGSUQLXfzWImyFz32K8MTQErWVoiaDz8bx5rjLa+zmmwchhZCX4YdBh4BMIOy793YYx6/jLGUBhKuIyHGYREUF/ZlZg5rYssbKUP9G4TdzPix3dGCBgdtrsYwUZ79Odu/SjwV8uzOfcU2p9E0j1GjEK5BnfwY7b5ZpXeagBze34kDU3U89Jnmwc08eu0S+olv7/4iGn+gvQZOvM9s0CShhMI7I="
   distributions: sdist bdist_wheel
   on:
-    all_branches: true
+    branch: master
   skip_cleanup: true
+
+deploy:
+  provider: pypi
+  user: devopshq
+  password:
+    secure: "u7kqhFT32wLvGvdXLRg3RtTdfGcSzfFWTQb0p1cdRHWBm/771Q2H4bfvwv8GTVmSz+0txtW4O20/VMuMSULqAgW9ChLoNnpppsiEuwOL/KgFknOMgegM+QqdBU7OyB4c0XBxCEfoe8/+Z8lNlB1+UShwh6aJHjiUvR9U537ebtniMWyj0Nb93f53YQGsh29gbuqDNzIWPePFuSDBhKTRhKEHdBfol11YCgyNs2MXkdTUQ60G+DMtdAOM32mJEXi3n2yQWtnWdnsxApqZ4LLlEO1J7FJ0/6sXEd5Y8aQBoYPdE5RdGjo1gjxpp0tL3WxXisG1TlHdgNShKzO5CT4pUFD5qWqhbzlwDM8eI3xFS39I75bVeoPrQ9jn0MlBs8JQJIEFbn6HDW7G/hezMoQPwH2Sn2ET9/XH9axt3U7Wrqf9I10FuFMdBZ4hD62kml94WfxiC40sCNMgYW/zPYGSUQLXfzWImyFz32K8MTQErWVoiaDz8bx5rjLa+zmmwchhZCX4YdBh4BMIOy793YYx6/jLGUBhKuIyHGYREUF/ZlZg5rYssbKUP9G4TdzPix3dGCBgdtrsYwUZ79Odu/SjwV8uzOfcU2p9E0j1GjEK5BnfwY7b5ZpXeagBze34kDU3U89Jnmwc08eu0S+olv7/4iGn+gvQZOvM9s0CShhMI7I="
+  distributions: sdist bdist_wheel
+  on:
+    branch: develop
+  skip_cleanup: true
+
 after_script:
   - echo "Deploy to PyPI finished."
+
 env:
   global:
   - secure: "d67oNhecPXRl0HiTfcI29PKUPLo657VMaCLAt7BAyPk3LXLSgkz9X0fpz0I2dq3DrtREMrKNcoHjFY5x5FoMemYJfg/93PPk8hRbu3XWKiGVHVdj8xwu2hJSSxl/enmEs25qAs1c3Rss+9CyZ7rP4cY7J0hiVymgBZKWSG/8UL6P2D3iDpvxf3EKapPRrf8FP6l3Nmwk3iVlFrwzq4koBUlC2SEd2Hr1uL+iGHuOdNlH4bksMc0nIeC6f905YJ1x3hHMg46h75RkWBrPmj9nn5eAS3jva8Fg9WrDiieF9JrL6GZ0SpektgDS+SjZuinAgjmDZQOogLZtg8+cyDVSud5x0d1K1OQBatNb1ZWVDqLld2E6/6Pxp1x1Bg52OpQvxL23HZkg7XZtxhZzhOEI4f/TvG4123voygjQXSZXVrdqzLwwAxuGqtxym5lcAe7tRllmnXs/Nty/M5ICQhVU56pxoMvSjwwXySBdP69TC6YBNtLbDY9ySImd3lJpbJcc0ftuo2aU6FJjXMNFTuTjmVfw3g/fKvPcjVsTbHqVWOhyfI/smAJxgJx/ugEm9PFk7i2rIc3JkYtW1AyoIXGJBeytvZRlyDz9ulowYSEPCtKL6Z9tqMGPHUntKwwHKbRTBIGsDhnRLN095MYbb7d7aOagBIfOGSaxY3e/mpyXwQI="

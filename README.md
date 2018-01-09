@@ -5,6 +5,7 @@ Microsoft TFS Python Library (TFS API Python client)
 
 ------
 
+# Table of Contents
 - [Introduction](#introduction)
 - [Quickstart](#quickstart)
     - [Installation](#installation)
@@ -12,27 +13,27 @@ Microsoft TFS Python Library (TFS API Python client)
         - [Authorization](#authorization)
         - [Timeout connection](#timeout-connection)
     - [Workitem](#workitem)
+        - [Update workitem](#update-workitem)
+        - [Workitem attachments](#workitem-attachments)
     - [Run Saved Queries](#run-saved-queries)
     - [Run WIQL](#run-wiql)
-    - [Changesets](#changesets)
-    - [Project and Team](#project--team)
+    - [Advanced](#advanced)
 - [Guide](#guide)
-    - [Compability](#compability)
-    - [Development](#development)
-        - [Tests](#tests)
-        - [TODO](#todo)
+    - [Compatibility](#Compatibility)
+    - [Contribute](#contribute)
 
 ------
 
 # Introduction
 Microsoft Team Foundation Server Python Library is a Microsoft TFS API Python client that can work with Microsoft TFS workflow and workitems.
 
-This tool allows:
-1. Get WorkItems (WI).
-2. Set WI fields.
-3. Run WI search queries.
-4. Work with TFVC changesets.
-5. Work with TFS Projects.
+This python library allows:
+1. Get [WorkItems (WI)](#workitem)
+2. Set [WI fields](#update-workitem)
+3. Run [WI search queries](#run-saved-queries)
+4. Run [WIQL](#run-wiql)
+4. Work [with TFVC changesets](docs/OTHER.md)
+5. Work [with TFS Projects](docs/OTHER.md)
 
 ## Installation
 ```
@@ -90,14 +91,6 @@ print(workitem.field_names)
 # Case insensetive. Remove space in field name
 print(workitem['assignedTo']) 
 
-# Update field
-workitem['state'] = 'Complete' 
-
-# Add comment
-print(workitem.history)
-workitem['History'] = "Omg, it is goos issue!"
-print(workitem.history)
-
 # Workitem Parent Workitem
 parent = workitem.parent
 if parent: # Parent is None if Workitem hasn't Parent link
@@ -107,6 +100,42 @@ if parent: # Parent is None if Workitem hasn't Parent link
 childs = workitem.childs
 if childs: # Child is empty list if Workitem hasn't Child link
     print("Workitem with id={} have Childs={}".format(workitem.id, ",".join([x.id for x in childs])))
+
+# Workitem revisions
+revisions = workitem.revisions
+```
+
+### Update workitem
+
+```python
+# Update field
+workitem['state'] = 'Complete' 
+
+# Add comment
+print(workitem.history)
+workitem['History'] = "Omg, it is goos issue!"
+print(workitem.history)
+```
+
+### Workitem attachments
+If workitem has attachments, you can download it and get info about.
+```python
+attachments = workitem.attachments
+attachment = attachments[0]
+# Internal TFS UID
+print(attachment.id) 
+
+# Filename
+print(attachment.name)
+
+# TFS Download URL
+print(attachment.url) 
+
+# You can download file to folder
+attachment.download('/home/user/folder') 
+
+# All raw data
+print(attachment.data)
 ```
 
 ## Run Saved Queries
@@ -159,39 +188,17 @@ workitems = wiql.workitems
 print(workitems[0]['Title'])
 ```
 
-## Changesets
-```python
-# Get changesets from 1000 to 1002
-changesets = client.get_changesets(from_=1000, to_=1002)
+## Advanced
+- [Advanced usage](docs/ADVANCED.md)
+- Some [others object available](docs/OTHERS.md)
 
-# Get changesets and related Workitems
-changesets = client.get_changesets(top=1)
-linked_workitems = changesets[0].workitems
-```
+# Guide
+If you use this library, [put a star](https://help.github.com/articles/about-stars/) on [this repository](https://github.com/devopshq/tfs). This motivates us and other developers to develop the library :)
 
-## Project & Team
-```python
-# Get all project
-all_projects = client.get_projects()
-
-# Get project
-project_name = client.get_project("MyProjectName")
-
-# Get project team
-project_team = project_name.team
-```
-
-
-## Guide
-### Compability
+## Compatibility
+- Tested with **Python.3.4**
 - TFS 2015 
 - TFS 2017
 
-## Development
-### Tests
-We use HTTPPrety. For GET-response locate you response.json to folder by URL. E.g:
-- http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workitems?ids=anyid&anyflag => **tests/resources/tfs/DefaultCollection/_apis/wit/workitems/response.json**
-- http://tfs.tfs.ru/tfs/DefaultCollection/_apis/tfvc/changesets/10/workItems => **tests/resources/tfs/DefaultCollection/_apis/tfvc/changesets/10/workItems/response.json**
-
-### TODO
-- Implemented Resources-API (like https://github.com/pycontribs/jira)
+## Contribute
+[About contribute](docs/CONTRIBUTE.md)

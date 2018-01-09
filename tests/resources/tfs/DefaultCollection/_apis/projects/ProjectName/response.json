@@ -4,7 +4,7 @@
     {
       "id": "26e73aff-d80b-430d-b95c-76140bf184de",
       "name": "ProjectName",
-      "url": "https:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/projects\/26e73aff-d80b-430d-b95c-76140bf184de",
+      "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/projects\/26e73aff-d80b-430d-b95c-76140bf184de",
       "state": "wellFormed",
       "revision": 43900539
     }

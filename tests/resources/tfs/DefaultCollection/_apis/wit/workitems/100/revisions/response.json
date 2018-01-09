@@ -1,0 +1,150 @@
+{
+    "count": 6,
+    "value": [
+        {
+            "fields": {
+                "Microsoft.VSTS.Common.Priority": 2,
+                "Microsoft.VSTS.Common.StateChangeDate": "2017-03-03T09:12:44.673Z",
+                "Microsoft.VSTS.Common.ValueArea": "Business",
+                "System.AreaPath": "PROJECTQA_test\\lolo",
+                "System.BoardColumn": "New",
+                "System.ChangedBy": "Dmitry Ivanov <DOMAIN\\DIvanov>",
+                "System.ChangedDate": "2017-03-03T09:12:44.673Z",
+                "System.CreatedBy": "Dmitry Ivanov <DOMAIN\\DIvanov>",
+                "System.CreatedDate": "2017-03-03T09:12:44.673Z",
+                "System.IterationPath": "PROJECTQA_test",
+                "System.Reason": "New",
+                "System.State": "New",
+                "System.TeamProject": "PROJECTQA_test",
+                "System.Title": "asdasd",
+                "System.WorkItemType": "User Story",
+                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+            },
+            "id": 100,
+            "rev": 1,
+            "url": "http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workItems/100/revisions/1"
+        },
+        {
+            "fields": {
+                "Microsoft.VSTS.Common.Priority": 2,
+                "Microsoft.VSTS.Common.StackRank": 1000031622.0,
+                "Microsoft.VSTS.Common.StateChangeDate": "2017-03-03T09:12:44.673Z",
+                "Microsoft.VSTS.Common.ValueArea": "Business",
+                "System.AreaPath": "PROJECTQA_test\\lolo",
+                "System.BoardColumn": "New",
+                "System.ChangedBy": "Dmitry Ivanov <DOMAIN\\DIvanov>",
+                "System.ChangedDate": "2017-03-03T09:12:45.277Z",
+                "System.CreatedBy": "Dmitry Ivanov <DOMAIN\\DIvanov>",
+                "System.CreatedDate": "2017-03-03T09:12:44.673Z",
+                "System.IterationPath": "PROJECTQA_test",
+                "System.Reason": "New",
+                "System.State": "New",
+                "System.TeamProject": "PROJECTQA_test",
+                "System.Title": "asdasd",
+                "System.WorkItemType": "User Story",
+                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+            },
+            "id": 100,
+            "rev": 2,
+            "url": "http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workItems/100/revisions/2"
+        },
+        {
+            "fields": {
+                "Microsoft.VSTS.Common.Priority": 2,
+                "Microsoft.VSTS.Common.StackRank": 1000031622.0,
+                "Microsoft.VSTS.Common.StateChangeDate": "2017-03-03T09:12:44.673Z",
+                "Microsoft.VSTS.Common.ValueArea": "Business",
+                "System.AreaPath": "PROJECTQA_test\\lolo",
+                "System.BoardColumn": "New",
+                "System.ChangedBy": "Dmitry Ivanov <DOMAIN\\DIvanov>",
+                "System.ChangedDate": "2017-03-03T09:17:42.31Z",
+                "System.CreatedBy": "Dmitry Ivanov <DOMAIN\\DIvanov>",
+                "System.CreatedDate": "2017-03-03T09:12:44.673Z",
+                "System.IterationPath": "PROJECTQA_test",
+                "System.Reason": "New",
+                "System.State": "New",
+                "System.TeamProject": "PROJECTQA_test",
+                "System.Title": "Bug test 1",
+                "System.WorkItemType": "User Story",
+                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+            },
+            "id": 100,
+            "rev": 4,
+            "url": "http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workItems/100/revisions/4"
+        },
+        {
+            "fields": {
+                "Microsoft.VSTS.Common.Priority": 2,
+                "Microsoft.VSTS.Common.StackRank": 1000031622.0,
+                "Microsoft.VSTS.Common.StateChangeDate": "2017-03-03T09:12:44.673Z",
+                "Microsoft.VSTS.Common.ValueArea": "Business",
+                "System.AreaPath": "PROJECTQA_test\\lolo",
+                "System.BoardColumn": "New",
+                "System.ChangedBy": "Dmitry Ivanov <DOMAIN\\DIvanov>",
+                "System.ChangedDate": "2017-03-03T09:22:04.167Z",
+                "System.CreatedBy": "Dmitry Ivanov <DOMAIN\\DIvanov>",
+                "System.CreatedDate": "2017-03-03T09:12:44.673Z",
+                "System.IterationPath": "PROJECTQA_test",
+                "System.Reason": "New",
+                "System.State": "New",
+                "System.TeamProject": "PROJECTQA_test",
+                "System.Title": "Bug test 1",
+                "System.WorkItemType": "User Story",
+                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+            },
+            "id": 100,
+            "rev": 5,
+            "url": "http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workItems/100/revisions/5"
+        },
+        {
+            "fields": {
+                "Microsoft.VSTS.Common.Priority": 2,
+                "Microsoft.VSTS.Common.StackRank": 1000031622.0,
+                "Microsoft.VSTS.Common.StateChangeDate": "2017-03-03T09:12:44.673Z",
+                "Microsoft.VSTS.Common.ValueArea": "Business",
+                "System.AreaPath": "PROJECTQA_test\\lolo",
+                "System.BoardColumn": "New",
+                "System.ChangedBy": "ci_PROJECTProductQA <DOMAIN\\ci_PROJECTProductQA>",
+                "System.ChangedDate": "2017-03-03T09:24:31Z",
+                "System.CreatedBy": "Dmitry Ivanov <DOMAIN\\DIvanov>",
+                "System.CreatedDate": "2017-03-03T09:12:44.673Z",
+                "System.History": "<table style=\"font-size:12px;border-style:dotted;border-color:#eaeaea;border-width:1px;margin-left:15px;\" width=\"90%\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td colspan=3><b><i>Dmitry Ivanov</i></b> added the test result contains this Defect in <i>DrTest</i></td>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td><b>Plan: </b><a href=\"http://10.0.177.253/testrail/index.php?/plans/view/2799\" title=\"Проверка работы добавлени\\я коментария в TFS\">R2799</a></td>\n\t\t\t\t\t\t<td><b>Run: </b><a href=\"http://10.0.177.253/testrail/index.php?/runs/view/2800\" title=\"Run для проверки\">R2800</a></td>\n\t\t\t\t\t\t<td><b>Status: </b><span style=\"color:rgb(184, 97, 97);\">Failed</span></td>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr><td><b>Case: </b><a href=\"http://10.0.177.253/testrail/index.php?/cases/view/235987\" title=\"Проверка работы Add Result\">C235987</a></td>\n\t\t\t\t\t\t<td><b>Test: </b><a href=\"http://10.0.177.253/testrail/index.php?/tests/view/827663\" title=\"Проверка работы Add Result\">R827663</a></td>\n\t\t\t\t\t\t<td><b>Version: </b>15.0.0-5555-FB</td>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr><td colspan=3><b>Test Comment</b></td></tr><tr><td colspan=3>Воспроизводится ошибка 100.</td></tr>\n\t\t\t\t</table>",
+                "System.IterationPath": "PROJECTQA_test",
+                "System.Reason": "New",
+                "System.State": "New",
+                "System.TeamProject": "PROJECTQA_test",
+                "System.Title": "Bug test 1",
+                "System.WorkItemType": "User Story",
+                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+            },
+            "id": 100,
+            "rev": 6,
+            "url": "http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workItems/100/revisions/6"
+        },
+        {
+            "fields": {
+                "Microsoft.VSTS.Common.Priority": 2,
+                "Microsoft.VSTS.Common.StackRank": 1000031622.0,
+                "Microsoft.VSTS.Common.StateChangeDate": "2017-03-03T09:12:44.673Z",
+                "Microsoft.VSTS.Common.ValueArea": "Business",
+                "System.AreaPath": "PROJECTQA_test\\lolo",
+                "System.BoardColumn": "New",
+                "System.ChangedBy": "ci_PROJECTProductQA <DOMAIN\\ci_PROJECTProductQA>",
+                "System.ChangedDate": "2017-03-03T09:27:27.4Z",
+                "System.CreatedBy": "Dmitry Ivanov <DOMAIN\\DIvanov>",
+                "System.CreatedDate": "2017-03-03T09:12:44.673Z",
+                "System.History": "<table style=\"font-size:12px;border-style:dotted;border-color:#eaeaea;border-width:1px;margin-left:15px;\" width=\"90%\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td colspan=3><b><i>Dmitry Ivanov</i></b> added the test result contains this Defect in <i>DrTest</i></td>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td><b>Plan: </b><a href=\"http://10.0.177.253/testrail/index.php?/plans/view/2799\" title=\"Проверка работы добавлени\\я коментария в TFS\">R2799</a></td>\n\t\t\t\t\t\t<td><b>Run: </b><a href=\"http://10.0.177.253/testrail/index.php?/runs/view/2800\" title=\"Run для проверки\">R2800</a></td>\n\t\t\t\t\t\t<td><b>Status: </b><span style=\"color:rgb(184, 97, 97);\">Failed</span></td>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr><td><b>Case: </b><a href=\"http://10.0.177.253/testrail/index.php?/cases/view/235987\" title=\"Проверка работы Add Result\">C235987</a></td>\n\t\t\t\t\t\t<td><b>Test: </b><a href=\"http://10.0.177.253/testrail/index.php?/tests/view/827663\" title=\"Проверка работы Add Result\">T827663</a></td>\n\t\t\t\t\t\t<td><b>Version: </b>15.0.0-5555-FB</td>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr><td colspan=3><b>Test Comment</b></td></tr><tr><td colspan=3>Воспроизводится ошибка 100.</td></tr>\n\t\t\t\t</table>",
+                "System.IterationPath": "PROJECTQA_test",
+                "System.Reason": "New",
+                "System.State": "New",
+                "System.TeamProject": "PROJECTQA_test",
+                "System.Title": "Bug test 1",
+                "System.WorkItemType": "User Story",
+                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+            },
+            "id": 100,
+            "rev": 7,
+            "url": "http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workItems/100/revisions/7"
+        }
+    ]
+}
