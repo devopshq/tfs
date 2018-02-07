@@ -71,6 +71,17 @@ class TFSObject(object):
         return self.data.get(key, default)
 
 
+class Iteration(TFSObject):
+    def __init__(self, data=None, tfs=None, uri=''):
+        super().__init__(data, tfs, uri)
+
+        self.id = self.data['id']
+        self.name = self.data['name']
+        self.url = self.data['url']
+        self.attributes = CaseInsensitiveDict(self.data['attributes'])
+        self._attributes = self.attributes
+
+
 class Workitem(TFSObject):
     def __init__(self, data=None, tfs=None, uri=''):
         super().__init__(data, tfs, uri)
