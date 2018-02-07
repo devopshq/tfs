@@ -22,7 +22,7 @@ def batch(iterable, n=1):
 class TFSAPI:
     def __init__(self, server_url, project="DefaultCollection", user=None, password=None, verify=False,
                  auth_type=HTTPBasicAuth,
-                 connect_timeout=20, read_timeout=180, ):
+                 connect_timeout=20, read_timeout=180, coll_type='main_project' ):
         """
         This class must be used to get first object from TFS
         :param server_url: url to TFS server, e.g. https://tfs.example.com/
@@ -32,6 +32,7 @@ class TFSAPI:
         :param verify: True|False - verify HTTPS cert
         :param connect_timeout: Requests CONNECTION timeout, sec or None
         :param read_timeout: Requests READ timeout, sec or None
+        :param coll_type: Collection type, request primary project (main_project) or subproject (sub_project)
         """
         if user is None or password is None:
             raise ValueError('User name and api-key must be specified!')
@@ -41,6 +42,7 @@ class TFSAPI:
                                          verify=verify,
                                          timeout=(connect_timeout, read_timeout),
                                          auth_type=auth_type,
+                                         coll_type=coll_type,
                                          )
 
     def get_tfs_object(self, uri, payload=None, object_class=TFSObject, project=False):
@@ -55,6 +57,13 @@ class TFSAPI:
             objects = object_class(raw, self, uri)
 
         return objects
+
+    def get_iterations(self):
+        iterations = self.get_tfs_object(
+            'work/TeamSettings/Iterations?api-version=v2.0',
+            object_class=Iteration, project=True)
+        return iterations
+
 
     def __get_workitems(self, work_items_ids, fields=None, expand='all'):
         ids_string = ','.join(map(str, work_items_ids))
@@ -136,11 +145,11 @@ class TFSClientError(Exception):
 
 
 class TFSHTTPClient:
-    def __init__(self, base_url, project, user, password, verify=False, timeout=None, auth_type=None):
+    def __init__(self, base_url, project, user, password, coll_type, verify=False, timeout=None, auth_type=None):
         if not base_url.endswith('/'):
             base_url += '/'
 
-        collection, project = self.get_collection_and_project(project)
+        collection, project = self.get_collection_and_project(project, coll_type)
         # Remove part after / in project-name, like DefaultCollection/MyProject => DefaultCollection
         # API responce only in Project, without subproject
         self._url = base_url + '%s/_apis/' % collection
@@ -160,16 +169,28 @@ class TFSHTTPClient:
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     @staticmethod
-    def get_collection_and_project(project):
+    def get_collection_and_project(project, coll_type):
         splitted_project = project.split('/')
         collection = splitted_project[0]
         project = None
 
         if len(splitted_project) > 1:
-            project = splitted_project[1]
-            # If not space
-            if project:
-                project = project.split('/')[0]
+            if coll_type == 'main_project':
+                project = splitted_project[1]
+                # If not space
+                if project:
+                    project = project.split('/')[0]
+            elif coll_type == 'sub_project':
+                project = ''
+                i = 1
+                while i < len(splitted_project):
+                    project = '{}{}/'.format(project, splitted_project[i])
+                    i += 1
+
+                if project.endswith('/'):
+                    project = project[:-1]
+            else:
+                raise ValueError('No collection type specified. Project: main_project, Subproject: sub_project')
 
         return collection, project
 
