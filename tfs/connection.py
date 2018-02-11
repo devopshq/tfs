@@ -130,6 +130,12 @@ class TFSAPI:
         with open(filename, 'wb') as file:
             file.write(r.content)
 
+    def get_gitrepositories(self):
+        return self.get_tfs_object('git/repositories', object_class=GitRepository)
+
+    def get_gitrepository(self, name):
+        return self.get_tfs_object('git/repositories/{name}'.format(name=name), project=True, object_class=GitRepository)
+
 
 class TFSClientError(Exception):
     pass
