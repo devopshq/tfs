@@ -250,3 +250,7 @@ class Wiql(TFSObject):
     @property
     def workitems(self):
         return self.tfs.get_workitems(self.workitem_ids)
+
+
+class GitRepository(TFSObject):
+    pass
