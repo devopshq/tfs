@@ -46,7 +46,7 @@ class TFSObject(object):
         """
         if name in self.data.get('_links', {}):
             return self.__get_object_by_links(name)
-        raise AttributeError("'{}' object has not attribute '{}'".format(self.__class__.__name__, name))
+        raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, name))
 
     # TODO: implement better repr
     # def __repr__(self):
