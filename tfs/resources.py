@@ -187,6 +187,16 @@ class Workitem(TFSObject):
         attachments_ = [Attachment(x, self.tfs) for x in list_]
         return attachments_
 
+    def add_relation(self, relation):
+        """
+        Add an attachment, related (work item) link or hyperlink
+        :param relation: Must have the following keys: rel, url, attributes
+        """
+        path = '/relations/-'
+        update_data = [dict(op="add", path=path, value=relation)]
+        raw = self.tfs.update_workitem(self.id, update_data)
+        self.__init__(raw, self.tfs)
+
 
 class Attachment(TFSObject):
     def __init__(self, data=None, tfs=None, uri=''):
