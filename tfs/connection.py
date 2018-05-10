@@ -160,12 +160,13 @@ class TFSAPI:
 
         body = []
         field_path = '/fields/{name}'
-        for name, value in fields:
+        for name, value in fields.items():
             body.append(dict(op="add", path=field_path.format(name=name), value=value))
 
-        relation_path = '/relations/-'
-        for relation in relations:
-            body.append(dict(op="add", path=relation_path, value=relation))
+        if relations:
+            relation_path = '/relations/-'
+            for relation in relations:
+                body.append(dict(op="add", path=relation_path, value=relation))
 
         raw = self.__create_workitem(wi_type, body, validate_only, bypass_rules, suppress_notifications,
                                      api_version)
@@ -174,7 +175,8 @@ class TFSAPI:
 
     def __adjusted_area_iteration(self, value):
         actual_area = value.split('\\')[1:]
-        return '\\'.join(actual_area.insert(0, self.rest_client.project))
+        actual_area.insert(0, self.rest_client.project)
+        return '\\'.join(actual_area)
 
     def copy_workitem(self, workitem, with_links_and_attachments=False, from_another_project=False, target_type=None,
                       target_area=None,
@@ -188,12 +190,35 @@ class TFSAPI:
         if target_type:
             fields['System.WorkItemType'] = target_type
 
-        # When copy from another project, adjust AreaPath and IterationPath and do not copy TeamProject
+        # When copy from another project, adjust AreaPath and IterationPath and do not copy identifying fields
         if from_another_project:
-            no_copy_fields = ['System.TeamProject', 'System.AreaPath', 'System.IterationPath']
+            no_copy_fields = ['System.TeamProject',
+                              'System.AreaPath',
+                              'System.IterationPath',
+                              'System.Id',
+                              'System.AreaId',
+                              'System.NodeName',
+                              'System.AreaLevel1',
+                              'System.AreaLevel2',
+                              'System.AreaLevel3',
+                              'System.AreaLevel4',
+                              'System.Rev',
+                              'System.AutorizedDate',
+                              'System.RevisedDate',
+                              'System.IterationId',
+                              'System.IterationLevel1',
+                              'System.IterationLevel2',
+                              'System.IterationLevel4',
+                              'System.CreatedDate',
+                              'System.CreatedBy',
+                              'System.ChangedDate',
+                              'System.ChangedBy',
+                              'System.AuthorizedAs',
+                              'System.AuthorizedDate',
+                              'System.Watermark']
 
             fields = {}
-            for name, value in workitem.fields:
+            for name, value in workitem.fields.items():
                 if name in no_copy_fields:
                     continue
                 fields[name] = value
@@ -205,7 +230,16 @@ class TFSAPI:
 
         relations = None
         if with_links_and_attachments:
-            relations = workitem.data.get('relations')
+            # When copy relations, do not copy their IDs as you get 404 in response
+            no_copy_attributes = ['id']
+            relations = []
+
+            for relation in list(workitem.data.get('relations')):
+                rel = dict(relation)
+                for attr in no_copy_attributes:
+                    if attr in rel['attributes']:
+                        del rel['attributes'][attr]
+                relations.append(rel)
 
         wi = self.create_workitem(workitem['WorkItemType'], fields, relations, validate_only, bypass_rules,
                                   suppress_notifications,
