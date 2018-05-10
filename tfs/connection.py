@@ -136,6 +136,83 @@ class TFSAPI:
     def get_gitrepository(self, name):
         return self.get_tfs_object('git/repositories/{name}'.format(name=name), project=True, object_class=GitRepository)
 
+    def __create_workitem(self, wi_type, data=None, validate_only=None, bypass_rules=None,
+                          suppress_notifications=None,
+                          api_version=4.1):
+        """
+        Create work item. Param description: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create
+        :param project: Name of the target project. The same project is used by default.
+        :return: Raw JSON of the work item created
+        """
+        uri_str = 'wit/workitems/${type}?{apiVersion}{validateOnly}{bypassRules}{suppressNotifications}'
+        av = 'api-version={}'.format(api_version)
+        vo = '&validateOnly={}'.format(validate_only) if validate_only else ''
+        br = '&bypassRules={}'.format(bypass_rules) if bypass_rules else ''
+        sn = '&suppressNotifications={}'.format(suppress_notifications) if suppress_notifications else ''
+        uri = uri_str.format(type=wi_type, apiVersion=av, validateOnly=vo, bypassRules=br, suppressNotifications=sn)
+        headers = {'Content-Type': 'application/json-patch+json'}
+        raw = self.rest_client.send_post(uri=uri, data=data, headers=headers, project=True)
+        return raw
+
+    def create_workitem(self, wi_type, fields=None, relations=None, validate_only=None, bypass_rules=None,
+                        suppress_notifications=None,
+                        api_version=4.1):
+
+        body = []
+        field_path = '/fields/{name}'
+        for name, value in fields:
+            body.append(dict(op="add", path=field_path.format(name=name), value=value))
+
+        relation_path = '/relations/-'
+        for relation in relations:
+            body.append(dict(op="add", path=relation_path, value=relation))
+
+        raw = self.__create_workitem(wi_type, body, validate_only, bypass_rules, suppress_notifications,
+                                     api_version)
+
+        return Workitem(raw)
+
+    def __adjusted_area_iteration(self, value):
+        actual_area = value.split('\\')[1:]
+        return '\\'.join(actual_area.insert(0, self.rest_client.project))
+
+    def copy_workitem(self, workitem, with_links_and_attachments=False, from_another_project=False, target_type=None,
+                      target_area=None,
+                      target_iteration=None,
+                      validate_only=None,
+                      bypass_rules=None,
+                      suppress_notifications=None,
+                      api_version=4.1):
+
+        fields = workitem.data.get('fields')
+        if target_type:
+            fields['System.WorkItemType'] = target_type
+
+        # When copy from another project, adjust AreaPath and IterationPath and do not copy TeamProject
+        if from_another_project:
+            no_copy_fields = ['System.TeamProject', 'System.AreaPath', 'System.IterationPath']
+
+            fields = {}
+            for name, value in workitem.fields:
+                if name in no_copy_fields:
+                    continue
+                fields[name] = value
+
+            fields['System.AreaPath'] = target_area \
+                if target_area else self.__adjusted_area_iteration(workitem['AreaPath'])
+            fields['System.IterationPath'] = target_iteration \
+                if target_iteration else self.__adjusted_area_iteration(workitem['IterationPath'])
+
+        relations = None
+        if with_links_and_attachments:
+            relations = workitem.data.get('relations')
+
+        wi = self.create_workitem(workitem['WorkItemType'], fields, relations, validate_only, bypass_rules,
+                                  suppress_notifications,
+                                  api_version)
+
+        return wi
+
 
 class TFSClientError(Exception):
     pass
@@ -147,6 +224,8 @@ class TFSHTTPClient:
             base_url += '/'
 
         collection, project = self.get_collection_and_project(project)
+        self.collection = collection
+        self.project = project
         # Remove part after / in project-name, like DefaultCollection/MyProject => DefaultCollection
         # API responce only in Project, without subproject
         self._url = base_url + '%s/_apis/' % collection
