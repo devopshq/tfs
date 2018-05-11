@@ -13,6 +13,7 @@ Microsoft TFS Python Library (TFS API Python client)
         - [Authorization](#authorization)
         - [Timeout connection](#timeout-connection)
     - [Workitem](#workitem)
+        - [Create or copy workitem](#create-or-copy-workitem)
         - [Update workitem](#update-workitem)
         - [Workitem attachments](#workitem-attachments)
     - [Run Saved Queries](#run-saved-queries)
@@ -104,6 +105,14 @@ if childs: # Child is empty list if Workitem hasn't Child link
 # Workitem revisions
 revisions = workitem.revisions
 ```
+### Create or copy workitem
+```python
+# Create new bug
+workitem = client.create_workitem('Bug')
+
+# Copy with links and attachments and without sending notifications
+new_wi = client.copy_workitem(workitem, with_links_and_attachments=True, suppress_notifications=True)
+```
 
 ### Update workitem
 
@@ -113,7 +122,7 @@ workitem['state'] = 'Complete'
 
 # Add comment
 print(workitem.history)
-workitem['History'] = "Omg, it is goos issue!"
+workitem['History'] = "Omg, it is a good issue!"
 print(workitem.history)
 ```
 
