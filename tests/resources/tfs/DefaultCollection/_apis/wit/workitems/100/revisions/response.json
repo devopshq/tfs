@@ -17,8 +17,7 @@
                 "System.State": "New",
                 "System.TeamProject": "PROJECTQA_test",
                 "System.Title": "asdasd",
-                "System.WorkItemType": "User Story",
-                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+                "System.WorkItemType": "User Story"
             },
             "id": 100,
             "rev": 1,
@@ -41,8 +40,7 @@
                 "System.State": "New",
                 "System.TeamProject": "PROJECTQA_test",
                 "System.Title": "asdasd",
-                "System.WorkItemType": "User Story",
-                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+                "System.WorkItemType": "User Story"
             },
             "id": 100,
             "rev": 2,
@@ -65,8 +63,7 @@
                 "System.State": "New",
                 "System.TeamProject": "PROJECTQA_test",
                 "System.Title": "Bug test 1",
-                "System.WorkItemType": "User Story",
-                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+                "System.WorkItemType": "User Story"
             },
             "id": 100,
             "rev": 4,
@@ -89,8 +86,7 @@
                 "System.State": "New",
                 "System.TeamProject": "PROJECTQA_test",
                 "System.Title": "Bug test 1",
-                "System.WorkItemType": "User Story",
-                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+                "System.WorkItemType": "User Story"
             },
             "id": 100,
             "rev": 5,
@@ -114,8 +110,7 @@
                 "System.State": "New",
                 "System.TeamProject": "PROJECTQA_test",
                 "System.Title": "Bug test 1",
-                "System.WorkItemType": "User Story",
-                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+                "System.WorkItemType": "User Story"
             },
             "id": 100,
             "rev": 6,
@@ -139,8 +134,7 @@
                 "System.State": "New",
                 "System.TeamProject": "PROJECTQA_test",
                 "System.Title": "Bug test 1",
-                "System.WorkItemType": "User Story",
-                "WEF_664133C1618A415F8956A8EB6EE71483_Kanban.Column": "New"
+                "System.WorkItemType": "User Story"
             },
             "id": 100,
             "rev": 7,
