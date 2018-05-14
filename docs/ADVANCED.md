@@ -48,11 +48,18 @@ If you need find other type, you can use `workitem.find_in_relations` method:
 workitem = client.get_workitem(100)
 
 # links is Dict
-links = workitem.find_in_relations('Hyperlink') 
+links = workitem.find_in_relation('Hyperlink') 
 
 # duplicates is Dict
 # Really type is System.LinkTypes.Duplicate-Forward, but it will be found
-duplicates = workitem.find_in_relations('Duplicate-Forward') 
+duplicates = workitem.find_in_relation('Duplicate-Forward') 
+```
+
+Existing relations (links, attachments) can be added to another work item:
+```python
+attachments = workitem1.find_in_relation('AttachedFile')
+for attachment in attachments:
+    workitem2.add_relation(attachment)
 ```
 
 ## Links
