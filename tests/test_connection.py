@@ -65,6 +65,20 @@ class TestTFSAPI:
         assert isinstance(team, TFSObject)
         assert team['name'] == 'ProjectName'
 
+    @pytest.mark.httpretty
+    def test_get_gitrepositories(self, tfsapi):
+        repos = tfsapi.get_gitrepositories()
+        name = repos[0].data['name']
+
+        assert name == 'AnotherRepository'
+
+    @pytest.mark.httpretty
+    def test_get_gitrepository(self, tfsapi):
+        repo = tfsapi.get_gitrepository('AnotherRepository')
+        name = repo.data['name']
+
+        assert name == 'AnotherRepository'
+
 
 class TestHTTPClient:
     def test__get_collection(self):
