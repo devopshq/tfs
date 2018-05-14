@@ -136,7 +136,7 @@ class TFSAPI:
     def get_gitrepository(self, name):
         return self.get_tfs_object('git/repositories/{name}'.format(name=name), project=True, object_class=GitRepository)
 
-    def __create_workitem(self, wi_type, data=None, validate_only=None, bypass_rules=None,
+    def __create_workitem(self, type, data=None, validate_only=None, bypass_rules=None,
                           suppress_notifications=None,
                           api_version=4.1):
         """
@@ -144,14 +144,12 @@ class TFSAPI:
         :param project: Name of the target project. The same project is used by default.
         :return: Raw JSON of the work item created
         """
-        uri_str = 'wit/workitems/${type}?{apiVersion}{validateOnly}{bypassRules}{suppressNotifications}'
-        av = 'api-version={}'.format(api_version)
-        vo = '&validateOnly={}'.format(validate_only) if validate_only else ''
-        br = '&bypassRules={}'.format(bypass_rules) if bypass_rules else ''
-        sn = '&suppressNotifications={}'.format(suppress_notifications) if suppress_notifications else ''
-        uri = uri_str.format(type=wi_type, apiVersion=av, validateOnly=vo, bypassRules=br, suppressNotifications=sn)
+        uri = 'wit/workitems/${type}'.format(type=type)
+        params = {'api-version': api_version, 'validateOnly': validate_only, 'bypassRules': bypass_rules,
+                  'suppressNotifications': suppress_notifications}
+
         headers = {'Content-Type': 'application/json-patch+json'}
-        raw = self.rest_client.send_post(uri=uri, data=data, headers=headers, project=True)
+        raw = self.rest_client.send_post(uri=uri, data=data, headers=headers, project=True, payload=params)
         return raw
 
     def create_workitem(self, wi_type, fields=None, relations=None, validate_only=None, bypass_rules=None,
@@ -295,11 +293,11 @@ class TFSHTTPClient:
     def send_get(self, uri, payload=None, project=False, json=True):
         return self.__send_request('GET', uri, None, payload=payload, project=project, json=json)
 
-    def send_post(self, uri, data, headers, project=False):
-        return self.__send_request('POST', uri, data, headers, project=project)
+    def send_post(self, uri, data, headers, payload=None, project=False):
+        return self.__send_request('POST', uri, data, headers, payload=payload, project=project)
 
-    def send_patch(self, uri, data, headers, project=False):
-        return self.__send_request('PATCH', uri, data, headers, project=project)
+    def send_patch(self, uri, data, headers, payload=None, project=False):
+        return self.__send_request('PATCH', uri, data, headers, payload=payload, project=project)
 
     def __send_request(self, method, uri, data, headers=None, payload=None, project=False, json=True):
         """
@@ -321,10 +319,10 @@ class TFSHTTPClient:
         url = self.__prepare_uri(uri=uri, project=project)
 
         if method == 'POST':
-            response = self.http_session.post(url, json=data, verify=self._verify, headers=headers,
+            response = self.http_session.post(url, json=data, verify=self._verify, headers=headers, params=payload,
                                               timeout=self.timeout)
         elif method == 'PATCH':
-            response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers,
+            response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers, params=payload,
                                                timeout=self.timeout)
         else:
             headers = {'Content-Type': 'application/json'}
