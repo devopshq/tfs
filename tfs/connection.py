@@ -136,7 +136,7 @@ class TFSAPI:
     def get_gitrepository(self, name):
         return self.get_tfs_object('git/repositories/{name}'.format(name=name), project=True, object_class=GitRepository)
 
-    def __create_workitem(self, type, data=None, validate_only=None, bypass_rules=None,
+    def __create_workitem(self, type_, data=None, validate_only=None, bypass_rules=None,
                           suppress_notifications=None,
                           api_version=4.1):
         """
@@ -144,7 +144,7 @@ class TFSAPI:
         :param project: Name of the target project. The same project is used by default.
         :return: Raw JSON of the work item created
         """
-        uri = 'wit/workitems/${type}'.format(type=type)
+        uri = 'wit/workitems/${type}'.format(type=type_)
         params = {'api-version': api_version, 'validateOnly': validate_only, 'bypassRules': bypass_rules,
                   'suppressNotifications': suppress_notifications}
 
@@ -152,26 +152,40 @@ class TFSAPI:
         raw = self.rest_client.send_post(uri=uri, data=data, headers=headers, project=True, payload=params)
         return raw
 
-    def create_workitem(self, wi_type, fields=None, relations=None, validate_only=None, bypass_rules=None,
+    def create_workitem(self, type_, fields=None, relations_raw=None, validate_only=None, bypass_rules=None,
                         suppress_notifications=None,
                         api_version=4.1):
+        """
+        Create work item. Doc: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create
+        :param type_: Work item
+        :param fields: Dictionary containing field values
+        :param relations_raw: List containing relations which are dict(rel, url[, attributes])
+        :param validate_only: When True, do not actually create a work item, a dry run of sorts
+        :param bypass_rules: When True, can bypass restrictions like <ALLOWEDVALUES> and such
+        :param suppress_notifications: When true, notifications are [supposedly] not sent
+        :param api_version: API version to use
+        :return: WorkItem instance of a newly created WI
+        """
 
-        body = []
-        field_path = '/fields/{name}'
-        for name, value in fields.items():
-            body.append(dict(op="add", path=field_path.format(name=name), value=value))
+        # fields
+        body = [dict(op="add", path='/fields/{}'.format(name), value=value) for name, value in fields.items()] \
+            if fields else []
+        # relations
+        if relations_raw:
+            body.extend([dict(op="add", path='/relations/-', value=relation) for relation in relations_raw])
 
-        if relations:
-            relation_path = '/relations/-'
-            for relation in relations:
-                body.append(dict(op="add", path=relation_path, value=relation))
-
-        raw = self.__create_workitem(wi_type, body, validate_only, bypass_rules, suppress_notifications,
+        raw = self.__create_workitem(type_, body, validate_only, bypass_rules, suppress_notifications,
                                      api_version)
 
         return Workitem(raw)
 
     def __adjusted_area_iteration(self, value):
+        """
+        Adapt area or iteration path from the old TeamProject to the current one. Used when copying work items from
+        different projects.
+        :param value: Old area/iteration path value.
+        :return: Value with the project part replaced.
+        """
         actual_area = value.split('\\')[1:]
         actual_area.insert(0, self.rest_client.project)
         return '\\'.join(actual_area)
@@ -183,6 +197,20 @@ class TFSAPI:
                       bypass_rules=None,
                       suppress_notifications=None,
                       api_version=4.1):
+        """
+        Create a copy of a work item
+        :param workitem: Source workitem
+        :param with_links_and_attachments: When True, all relations are copied
+        :param from_another_project: When True, certain fields are not copied
+        :param target_type: When specified, the copy will have this type instead of the source one
+        :param target_area: When specified, the copy will have this area instead of the source one
+        :param target_iteration: When specified, the copy will have this iteration instead of the source one
+        :param validate_only: When True, do not actually create a work item, a dry run of sorts
+        :param bypass_rules: When True, can bypass restrictions like <ALLOWEDVALUES> and such
+        :param suppress_notifications: When true, notifications are [supposedly] not sent
+        :param api_version: API version to use
+        :return: WorkItem instance of a newly created copy
+        """
 
         fields = workitem.data.get('fields')
         if target_type:
