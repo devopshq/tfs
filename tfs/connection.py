@@ -177,7 +177,7 @@ class TFSAPI:
         raw = self.__create_workitem(type_, body, validate_only, bypass_rules, suppress_notifications,
                                      api_version)
 
-        return Workitem(raw)
+        return Workitem(raw, self)
 
     def __adjusted_area_iteration(self, value):
         """
@@ -213,8 +213,7 @@ class TFSAPI:
         """
 
         fields = workitem.data.get('fields')
-        if target_type:
-            fields['System.WorkItemType'] = target_type
+        type_ = target_type if target_type else fields['System.WorkItemType']
 
         # When copy from another project, adjust AreaPath and IterationPath and do not copy identifying fields
         if from_another_project:
@@ -255,22 +254,13 @@ class TFSAPI:
                 if target_iteration else self.__adjusted_area_iteration(workitem['IterationPath'])
 
         relations = None
-        if with_links_and_attachments:
-            # When copy relations, do not copy their IDs as you get 404 in response
-            no_copy_attributes = ['id']
-            relations = []
 
-            for relation in list(workitem.data.get('relations')):
-                rel = dict(relation)
-                for attr in no_copy_attributes:
-                    if attr in rel['attributes']:
-                        del rel['attributes'][attr]
-                relations.append(rel)
-
-        wi = self.create_workitem(workitem['WorkItemType'], fields, relations, validate_only, bypass_rules,
+        wi = self.create_workitem(type_, fields, relations, validate_only, bypass_rules,
                                   suppress_notifications,
                                   api_version)
 
+        if with_links_and_attachments:
+            wi.add_relations_raw(workitem.data.get('relations', {}))
         return wi
 
 
