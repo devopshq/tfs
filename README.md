@@ -110,6 +110,13 @@ revisions = workitem.revisions
 # Create new bug
 workitem = client.create_workitem('Bug')
 
+# Create new task with some fields
+fields = {'System.Title': 'My task', 
+          'System.Description': 'My description', 
+          'System.AssignedTo': 'John Doe',
+          'MyCompany.MyCustomField': 'MyCustomValue'}
+workitem = client.create_workitem('Task', fields=fields)
+
 # Copy with links and attachments and without sending notifications
 new_wi = client.copy_workitem(workitem, with_links_and_attachments=True, suppress_notifications=True)
 ```
@@ -199,7 +206,7 @@ print(workitems[0]['Title'])
 
 ## Advanced
 - [Advanced usage](docs/ADVANCED.md)
-- Some [others object available](docs/OTHERS.md)
+- Some [other objects available](docs/OTHERS.md)
 
 # Guide
 If you use this library, [put a star](https://help.github.com/articles/about-stars/) on [this repository](https://github.com/devopshq/tfs). This motivates us and other developers to develop the library :)
