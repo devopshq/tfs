@@ -87,7 +87,6 @@ class TestTFSAPI:
         old_area = 'OldProject\\Area1'
         new_area = '{}\\Area1'.format(new_project)
 
-        print(dir(api))
         assert api._TFSAPI__adjusted_area_iteration(old_area) == new_area
 
 
