@@ -4,6 +4,7 @@ TFS API python 3 version
 """
 import os
 
+from copy import deepcopy
 from requests.structures import CaseInsensitiveDict
 
 
@@ -186,6 +187,22 @@ class Workitem(TFSObject):
         list_ = self.find_in_relation('AttachedFile')
         attachments_ = [Attachment(x, self.tfs) for x in list_]
         return attachments_
+
+    def add_relation(self, relation):
+        """
+        Add an attachment, related (work item) link or hyperlink
+        :param relation: Must have the following keys: rel, url, attributes
+        """
+        # remove ID from attributes as it has to be unique
+        relation = deepcopy(relation)
+        if 'attributes' in relation:
+            if 'id' in relation['attributes']:
+                del relation['attributes']['id']
+
+        path = '/relations/-'
+        update_data = [dict(op="add", path=path, value=relation)]
+        raw = self.tfs.update_workitem(self.id, update_data)
+        self.__init__(raw, self.tfs)
 
 
 class Attachment(TFSObject):
