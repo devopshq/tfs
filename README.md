@@ -13,6 +13,7 @@ Microsoft TFS Python Library (TFS API Python client)
         - [Authorization](#authorization)
         - [Timeout connection](#timeout-connection)
     - [Workitem](#workitem)
+        - [Create or copy workitem](#create-or-copy-workitem)
         - [Update workitem](#update-workitem)
         - [Workitem attachments](#workitem-attachments)
     - [Run Saved Queries](#run-saved-queries)
@@ -104,6 +105,21 @@ if childs: # Child is empty list if Workitem hasn't Child link
 # Workitem revisions
 revisions = workitem.revisions
 ```
+### Create or copy workitem
+```python
+# Create new bug
+workitem = client.create_workitem('Bug')
+
+# Create new task with some fields
+fields = {'System.Title': 'My task', 
+          'System.Description': 'My description', 
+          'System.AssignedTo': 'John Doe',
+          'MyCompany.MyCustomField': 'MyCustomValue'}
+workitem = client.create_workitem('Task', fields=fields)
+
+# Copy with links and attachments and without sending notifications
+new_wi = client.copy_workitem(workitem, with_links_and_attachments=True, suppress_notifications=True)
+```
 
 ### Update workitem
 
@@ -113,7 +129,7 @@ workitem['state'] = 'Complete'
 
 # Add comment
 print(workitem.history)
-workitem['History'] = "Omg, it is goos issue!"
+workitem['History'] = "Omg, it is a good issue!"
 print(workitem.history)
 ```
 
@@ -190,7 +206,7 @@ print(workitems[0]['Title'])
 
 ## Advanced
 - [Advanced usage](docs/ADVANCED.md)
-- Some [others object available](docs/OTHERS.md)
+- Some [other objects available](docs/OTHERS.md)
 
 # Guide
 If you use this library, [put a star](https://help.github.com/articles/about-stars/) on [this repository](https://github.com/devopshq/tfs). This motivates us and other developers to develop the library :)

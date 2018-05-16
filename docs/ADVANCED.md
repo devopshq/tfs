@@ -57,9 +57,8 @@ duplicates = workitem.find_in_relation('Duplicate-Forward')
 
 Existing relations (links, attachments) can be added to another work item:
 ```python
-attachments = workitem1.find_in_relation('AttachedFile')
-for attachment in attachments:
-    workitem2.add_relation(attachment)
+attachments_raw = workitem1.find_in_relation('AttachedFile')
+workitem2.add_relations_raw(attachments_raw)
 ```
 
 ## Links

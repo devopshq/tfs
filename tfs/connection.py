@@ -136,6 +136,133 @@ class TFSAPI:
     def get_gitrepository(self, name):
         return self.get_tfs_object('git/repositories/{name}'.format(name=name), project=True, object_class=GitRepository)
 
+    def __create_workitem(self, type_, data=None, validate_only=None, bypass_rules=None,
+                          suppress_notifications=None,
+                          api_version=4.1):
+        """
+        Create work item. Param description: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create
+        :param project: Name of the target project. The same project is used by default.
+        :return: Raw JSON of the work item created
+        """
+        uri = 'wit/workitems/${type}'.format(type=type_)
+        params = {'api-version': api_version, 'validateOnly': validate_only, 'bypassRules': bypass_rules,
+                  'suppressNotifications': suppress_notifications}
+
+        headers = {'Content-Type': 'application/json-patch+json'}
+        raw = self.rest_client.send_post(uri=uri, data=data, headers=headers, project=True, payload=params)
+        return raw
+
+    def create_workitem(self, type_, fields=None, relations_raw=None, validate_only=None, bypass_rules=None,
+                        suppress_notifications=None,
+                        api_version=4.1):
+        """
+        Create work item. Doc: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create
+        :param type_: Work item
+        :param fields: Dictionary containing field values
+        :param relations_raw: List containing relations which are dict(rel, url[, attributes])
+        :param validate_only: When True, do not actually create a work item, a dry run of sorts
+        :param bypass_rules: When True, can bypass restrictions like <ALLOWEDVALUES> and such
+        :param suppress_notifications: When true, notifications are [supposedly] not sent
+        :param api_version: API version to use
+        :return: WorkItem instance of a newly created WI
+        """
+
+        # fields
+        body = [dict(op="add", path='/fields/{}'.format(name), value=value) for name, value in fields.items()] \
+            if fields else []
+        # relations
+        if relations_raw:
+            body.extend([dict(op="add", path='/relations/-', value=relation) for relation in relations_raw])
+
+        raw = self.__create_workitem(type_, body, validate_only, bypass_rules, suppress_notifications,
+                                     api_version)
+
+        return Workitem(raw, self)
+
+    def __adjusted_area_iteration(self, value):
+        """
+        Adapt area or iteration path from the old TeamProject to the current one. Used when copying work items from
+        different projects.
+        :param value: Old area/iteration path value.
+        :return: Value with the project part replaced.
+        """
+        actual_area = value.split('\\')[1:]
+        actual_area.insert(0, self.rest_client.project)
+        return '\\'.join(actual_area)
+
+    def copy_workitem(self, workitem, with_links_and_attachments=False, from_another_project=False, target_type=None,
+                      target_area=None,
+                      target_iteration=None,
+                      validate_only=None,
+                      bypass_rules=None,
+                      suppress_notifications=None,
+                      api_version=4.1):
+        """
+        Create a copy of a work item
+        :param workitem: Source workitem
+        :param with_links_and_attachments: When True, all relations are copied
+        :param from_another_project: When True, certain fields are not copied
+        :param target_type: When specified, the copy will have this type instead of the source one
+        :param target_area: When specified, the copy will have this area instead of the source one
+        :param target_iteration: When specified, the copy will have this iteration instead of the source one
+        :param validate_only: When True, do not actually create a work item, a dry run of sorts
+        :param bypass_rules: When True, can bypass restrictions like <ALLOWEDVALUES> and such
+        :param suppress_notifications: When true, notifications are [supposedly] not sent
+        :param api_version: API version to use
+        :return: WorkItem instance of a newly created copy
+        """
+
+        fields = workitem.data.get('fields')
+        type_ = target_type if target_type else fields['System.WorkItemType']
+
+        # When copy from another project, adjust AreaPath and IterationPath and do not copy identifying fields
+        if from_another_project:
+            no_copy_fields = ['System.TeamProject',
+                              'System.AreaPath',
+                              'System.IterationPath',
+                              'System.Id',
+                              'System.AreaId',
+                              'System.NodeName',
+                              'System.AreaLevel1',
+                              'System.AreaLevel2',
+                              'System.AreaLevel3',
+                              'System.AreaLevel4',
+                              'System.Rev',
+                              'System.AutorizedDate',
+                              'System.RevisedDate',
+                              'System.IterationId',
+                              'System.IterationLevel1',
+                              'System.IterationLevel2',
+                              'System.IterationLevel4',
+                              'System.CreatedDate',
+                              'System.CreatedBy',
+                              'System.ChangedDate',
+                              'System.ChangedBy',
+                              'System.AuthorizedAs',
+                              'System.AuthorizedDate',
+                              'System.Watermark']
+
+            fields = {}
+            for name, value in workitem.fields.items():
+                if name in no_copy_fields:
+                    continue
+                fields[name] = value
+
+            fields['System.AreaPath'] = target_area \
+                if target_area else self.__adjusted_area_iteration(workitem['AreaPath'])
+            fields['System.IterationPath'] = target_iteration \
+                if target_iteration else self.__adjusted_area_iteration(workitem['IterationPath'])
+
+        relations = None
+
+        wi = self.create_workitem(type_, fields, relations, validate_only, bypass_rules,
+                                  suppress_notifications,
+                                  api_version)
+
+        if with_links_and_attachments:
+            wi.add_relations_raw(workitem.data.get('relations', {}))
+        return wi
+
 
 class TFSClientError(Exception):
     pass
@@ -147,6 +274,8 @@ class TFSHTTPClient:
             base_url += '/'
 
         collection, project = self.get_collection_and_project(project)
+        self.collection = collection
+        self.project = project
         # Remove part after / in project-name, like DefaultCollection/MyProject => DefaultCollection
         # API responce only in Project, without subproject
         self._url = base_url + '%s/_apis/' % collection
@@ -182,11 +311,11 @@ class TFSHTTPClient:
     def send_get(self, uri, payload=None, project=False, json=True):
         return self.__send_request('GET', uri, None, payload=payload, project=project, json=json)
 
-    def send_post(self, uri, data, headers, project=False):
-        return self.__send_request('POST', uri, data, headers, project=project)
+    def send_post(self, uri, data, headers, payload=None, project=False):
+        return self.__send_request('POST', uri, data, headers, payload=payload, project=project)
 
-    def send_patch(self, uri, data, headers, project=False):
-        return self.__send_request('PATCH', uri, data, headers, project=project)
+    def send_patch(self, uri, data, headers, payload=None, project=False):
+        return self.__send_request('PATCH', uri, data, headers, payload=payload, project=project)
 
     def __send_request(self, method, uri, data, headers=None, payload=None, project=False, json=True):
         """
@@ -208,10 +337,10 @@ class TFSHTTPClient:
         url = self.__prepare_uri(uri=uri, project=project)
 
         if method == 'POST':
-            response = self.http_session.post(url, json=data, verify=self._verify, headers=headers,
+            response = self.http_session.post(url, json=data, verify=self._verify, headers=headers, params=payload,
                                               timeout=self.timeout)
         elif method == 'PATCH':
-            response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers,
+            response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers, params=payload,
                                                timeout=self.timeout)
         else:
             headers = {'Content-Type': 'application/json'}

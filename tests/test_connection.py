@@ -79,6 +79,16 @@ class TestTFSAPI:
 
         assert name == 'AnotherRepository'
 
+    @pytest.mark.httpretty
+    def test_adjusted_area_iteration(self):
+        new_project = 'NewProject'
+        api = TFSAPI("http://tfs.tfs.ru/tfs", 'DefaultCollection/{}'.format(new_project), 'username', 'password')
+
+        old_area = 'OldProject\\Area1'
+        new_area = '{}\\Area1'.format(new_project)
+
+        assert api._TFSAPI__adjusted_area_iteration(old_area) == new_area
+
 
 class TestHTTPClient:
     def test__get_collection(self):
