@@ -206,7 +206,7 @@ print(workitems[0]['Title'])
 
 ## Advanced
 - [Advanced usage](docs/ADVANCED.md) - what is is `TFSObject`, find and add with Workitem relations, links, and information about `TFSHTTPClient`
-- Some [other objects available](docs/OTHERS.md)
+- Some [other objects available](docs/OTHERS.md) -  `Changesets`, `Project`, `Team`
 
 # Guide
 If you use this library, [put a star](https://help.github.com/articles/about-stars/) on [this repository](https://github.com/devopshq/tfs). This motivates us and other developers to develop the library :)
