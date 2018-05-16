@@ -205,7 +205,7 @@ print(workitems[0]['Title'])
 ```
 
 ## Advanced
-- [Advanced usage](docs/ADVANCED.md)
+- [Advanced usage](docs/ADVANCED.md) - what is is `TFSObject`, find and add with Workitem relations, links, and information about `TFSHTTPClient`
 - Some [other objects available](docs/OTHERS.md)
 
 # Guide
