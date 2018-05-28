@@ -202,8 +202,9 @@ class Workitem(TFSObject):
 
         path = '/relations/-'
         update_data = [dict(op="add", path=path, value=relation) for relation in copy_raw]
-        raw = self.tfs.update_workitem(self.id, update_data)
-        self.__init__(raw, self.tfs)
+        if update_data:
+            raw = self.tfs.update_workitem(self.id, update_data)
+            self.__init__(raw, self.tfs)
 
 
 class Attachment(TFSObject):
