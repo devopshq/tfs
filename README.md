@@ -110,7 +110,7 @@ revisions = workitem.revisions
 # Create new bug
 workitem = client.create_workitem('Bug')
 
-# Create new task with some fields
+# Create new task with some fields (use field reference names, e.g. System.*)
 fields = {'System.Title': 'My task', 
           'System.Description': 'My description', 
           'System.AssignedTo': 'John Doe',
