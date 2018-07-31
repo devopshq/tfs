@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-
+import re
 from urllib.parse import quote
 
 import requests
@@ -87,8 +86,12 @@ class TFSAPI:
         payload = {'$top': top}
 
         if from_ and to_:
-            payload['searchCriteria.fromId'] = from_
-            payload['searchCriteria.toId'] = to_
+            match = re.search('[a-zA-Z]', from_) and re.search('[a-zA-Z]', to_)
+            if match is not None:
+                payload['searchCriteria.fromId'] = from_
+                payload['searchCriteria.toId'] = to_
+            else:
+                raise ValueError('from_ and to_ must be valid TFS changeset IDs!')
 
         if item_path:
             payload['searchCriteria.itemPath'] = item_path
