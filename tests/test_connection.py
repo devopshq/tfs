@@ -36,6 +36,12 @@ class TestTFSAPI:
         assert changesets[0].id == 10
 
     @pytest.mark.httpretty
+    def test_get_changeset(self, tfsapi):
+        changeset = tfsapi.get_changeset(10)
+
+        assert changeset.id == 10
+
+    @pytest.mark.httpretty
     def test_get_wiql(self, tfsapi):
         wiql_query = "SELECT *"
         wiql = tfsapi.run_wiql(wiql_query)

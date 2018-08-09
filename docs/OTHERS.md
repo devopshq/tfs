@@ -8,6 +8,9 @@
 # Get changesets from 1000 to 1002
 changesets = client.get_changesets(from_=1000, to_=1002)
 
+# Get just a particular changeset
+changeset = client.get_changeset(1000)
+
 # Get changesets and related Workitems
 changesets = client.get_changesets(top=1)
 linked_workitems = changesets[0].workitems
