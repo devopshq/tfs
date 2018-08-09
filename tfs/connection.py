@@ -89,7 +89,9 @@ class TFSAPI:
         payload = {'$top': top}
 
         if from_ and to_:
-            if isinstance(from_, int) and isinstance(to_, int):
+            from_ = str(from_)
+            to_ = str(to_)
+            if from_.isdigit() and to_.isdigit():
                 payload['searchCriteria.fromId'] = from_
                 payload['searchCriteria.toId'] = to_
             else:
