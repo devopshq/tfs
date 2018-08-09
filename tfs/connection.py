@@ -82,8 +82,7 @@ class TFSAPI:
         return workitems
 
     def get_changeset(self, id_):
-        if isinstance(id_, int):
-            return self.get_changesets(from_=id_, to_=id_)[0]
+        return self.get_changesets(from_=id_, to_=id_)[0]
 
     def get_changesets(self, from_=None, to_=None, item_path=None, top=10000):
         payload = {'$top': top}
