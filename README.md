@@ -61,13 +61,16 @@ workitem = client.get_workitem(100) # Test connection with Workitem id
 ```
 
 ### Authorization
+You can use password or [personal access token](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) in `password` field.
 ```python
 # DEFAULT - Use HTTP Basic Auth
 client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=password)
+client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=personal_access_token)
 
 # Use NTLM authorization
 from requests_ntlm import HttpNtlmAuth
 client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=password, auth_type=HttpNtlmAuth)
+
 ```
 
 ## Timeout connection

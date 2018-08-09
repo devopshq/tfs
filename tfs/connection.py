@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
 from urllib.parse import quote
 
 import requests
@@ -82,12 +81,16 @@ class TFSAPI:
             workitems += work_items_batch_info
         return workitems
 
+    def get_changeset(self, id_):
+        return self.get_changesets(from_=id_, to_=id_)[0]
+
     def get_changesets(self, from_=None, to_=None, item_path=None, top=10000):
         payload = {'$top': top}
 
         if from_ and to_:
-            match = re.search('[a-zA-Z]', from_) and re.search('[a-zA-Z]', to_)
-            if match is not None:
+            from_ = str(from_)
+            to_ = str(to_)
+            if from_.isdigit() and to_.isdigit():
                 payload['searchCriteria.fromId'] = from_
                 payload['searchCriteria.toId'] = to_
             else:
