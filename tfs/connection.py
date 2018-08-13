@@ -144,7 +144,7 @@ class TFSAPI:
 
     def __create_workitem(self, type_, data=None, validate_only=None, bypass_rules=None,
                           suppress_notifications=None,
-                          api_version=4.1):
+                          api_version=1.0):
         """
         Create work item. Param description: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create
         :param project: Name of the target project. The same project is used by default.
@@ -160,7 +160,7 @@ class TFSAPI:
 
     def create_workitem(self, type_, fields=None, relations_raw=None, validate_only=None, bypass_rules=None,
                         suppress_notifications=None,
-                        api_version=4.1):
+                        api_version=1.0):
         """
         Create work item. Doc: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create
         :param type_: Work item
@@ -202,7 +202,7 @@ class TFSAPI:
                       validate_only=None,
                       bypass_rules=None,
                       suppress_notifications=None,
-                      api_version=4.1):
+                      api_version=1.0):
         """
         Create a copy of a work item
         :param workitem: Source workitem
