@@ -188,7 +188,7 @@ class Workitem(TFSObject):
         attachments_ = [Attachment(x, self.tfs) for x in list_]
         return attachments_
 
-    def add_relations_raw(self, relations_raw):
+    def add_relations_raw(self, relations_raw, params=None):
         """
         Add attachments, related (work item) links and/or hyperlinks
         :param relations_raw: List of relations. Each relation is a dict with the following keys: rel, url, attributes
@@ -203,7 +203,7 @@ class Workitem(TFSObject):
         path = '/relations/-'
         update_data = [dict(op="add", path=path, value=relation) for relation in copy_raw]
         if update_data:
-            raw = self.tfs.update_workitem(self.id, update_data)
+            raw = self.tfs.update_workitem(self.id, update_data, params)
             self.__init__(raw, self.tfs)
 
 
