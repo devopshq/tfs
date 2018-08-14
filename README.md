@@ -19,6 +19,7 @@ Microsoft TFS Python Library (TFS API Python client)
     - [Run Saved Queries](#run-saved-queries)
     - [Run WIQL](#run-wiql)
     - [Advanced](#advanced)
+- [Troubleshooting](#troubleshooting)
 - [Guide](#guide)
     - [Compatibility](#Compatibility)
     - [Contribute](#contribute)
@@ -210,6 +211,16 @@ print(workitems[0]['Title'])
 ## Advanced
 - [Advanced usage](docs/ADVANCED.md)
 - Some [other objects available](docs/OTHERS.md)
+
+# Troubleshooting
+
+If you cannot create or update a work item, here are some possible reasons:
+- check if the account you use has **enough permissions** in the collection/project;
+- make sure you **follow your workflow**, work items might have required fields or any other sort of restrictions;
+- verify that the api version [fits your team foundation server version](https://docs.microsoft.com/en-us/vsts/integrate/concepts/rest-api-versioning);
+
+If neither of these helped your case, [look through our issues list](https://github.com/devopshq/tfs/issues).
+If there is no similar issue, [create one](https://github.com/devopshq/tfs/issues/new).
 
 # Guide
 If you use this library, [put a star](https://help.github.com/articles/about-stars/) on [this repository](https://github.com/devopshq/tfs). This motivates us and other developers to develop the library :)
