@@ -81,6 +81,6 @@ print(links)
 ```
 
 ## TFSHTTPClient
-**TODO**: Describe how other people can use some usefull function and object from `tfs.connection`
+**TODO**: Describe how other people can use some useful function and object from `tfs.connection`
 - Get from TFSAPI
 - `send_*` methods
