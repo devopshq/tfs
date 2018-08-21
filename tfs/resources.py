@@ -3,8 +3,8 @@
 TFS API python 3 version
 """
 import os
-
 from copy import deepcopy
+
 from requests.structures import CaseInsensitiveDict
 
 
