@@ -4,7 +4,7 @@ from urllib.parse import quote
 import requests
 from requests.auth import HTTPBasicAuth
 
-from tfs.resources import *
+from tfs.resources import *  # noqa
 
 
 def batch(iterable, n=1):
@@ -12,9 +12,9 @@ def batch(iterable, n=1):
     "batch" function that would take as input an iterable and return an iterable of iterables
     https://stackoverflow.com/a/8290508/6753144
     """
-    l = len(iterable)
-    for ndx in range(0, l, n):
-        yield iterable[ndx:min(ndx + n, l)]
+    len_ = len(iterable)
+    for ndx in range(0, len_, n):
+        yield iterable[ndx:min(ndx + n, len_)]
 
 
 class TFSAPI:
@@ -141,7 +141,8 @@ class TFSAPI:
         return self.get_tfs_object('git/repositories', object_class=GitRepository)
 
     def get_gitrepository(self, name):
-        return self.get_tfs_object('git/repositories/{name}'.format(name=name), project=True, object_class=GitRepository)
+        return self.get_tfs_object('git/repositories/{name}'.format(name=name), project=True,
+                                   object_class=GitRepository)
 
     def __create_workitem(self, type_, data=None, validate_only=None, bypass_rules=None,
                           suppress_notifications=None,
@@ -354,7 +355,7 @@ class TFSHTTPClient:
                                                timeout=self.timeout)
         else:
             headers = {'Content-Type': 'application/json'}
-            response = self.http_session.get(url, headers=headers, verify=self._verify, params=payload,
+            response = self.http_session.get('https://ya.ru', headers=headers, verify=self._verify, params=payload,
                                              timeout=self.timeout)
             response.raise_for_status()
 
@@ -366,7 +367,7 @@ class TFSHTTPClient:
                     raise TFSClientError('TFS API returned HTTP %s (%s)' % (
                         response.status_code, result['error'] if 'error' in result else response.reason))
                 return result
-            except:
+            except ValueError:
                 raise TFSClientError('Response is not json: {}'.format(response.text))
         else:
             return response
