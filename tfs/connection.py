@@ -355,7 +355,7 @@ class TFSHTTPClient:
                                                timeout=self.timeout)
         else:
             headers = {'Content-Type': 'application/json'}
-            response = self.http_session.get(uri, headers=headers, verify=self._verify, params=payload,
+            response = self.http_session.get(url, headers=headers, verify=self._verify, params=payload,
                                              timeout=self.timeout)
             response.raise_for_status()
 
