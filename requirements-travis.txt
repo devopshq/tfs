@@ -5,3 +5,4 @@ HTTPretty
 pytest_httpretty
 pypandoc
 requests_ntlm
+flake8

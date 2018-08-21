@@ -8,7 +8,7 @@ install:
   - pip install -r requirements-travis.txt
 script:
   - printenv
-  - ls -la
+  - flake8 tfs
   - coverage run -m py.test tests
   - coverage xml
   - if [[ ! $CODACY_PROJECT_TOKEN ]]; then echo "Variable CODACY_PROJECT_TOKEN not set. Step is skipped."; exit 0; else python-codacy-coverage -r coverage.xml; fi

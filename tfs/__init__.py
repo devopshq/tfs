@@ -1,4 +1,2 @@
 # -*- coding: utf-8 -*-
-from tfs.connection import *
-
-
+from tfs.connection import *  # noqa
