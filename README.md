@@ -72,6 +72,11 @@ client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=personal_access_t
 from requests_ntlm import HttpNtlmAuth
 client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=password, auth_type=HttpNtlmAuth)
 
+# Use HttpNegotiateAuth for single-sign-on with Kerberos
+# see more https://github.com/brandond/requests-negotiate-sspi
+import requests
+from requests_negotiate_sspi import HttpNegotiateAuth
+client = TFSAPI("https://tfs.tfs.ru/tfs/", auth_type=HttpNegotiateAuth)
 ```
 
 ## Timeout connection
