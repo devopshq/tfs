@@ -31,8 +31,8 @@ class TFSAPI:
         :param connect_timeout: Requests CONNECTION timeout, sec or None
         :param read_timeout: Requests READ timeout, sec or None
         """
-        if user is None or password is None:
-            raise ValueError('User name and api-key must be specified!')
+        if (user is None or password is None) and auth_type is HTTPBasicAuth:
+            raise ValueError('User name and password must be specified!')
         self.rest_client = TFSHTTPClient(server_url,
                                          project=project,
                                          user=user, password=password,
@@ -296,7 +296,7 @@ class TFSHTTPClient:
             self._url_prj = self._url
 
         self.http_session = requests.Session()
-        auth = auth_type(user, password)
+        auth = auth_type() if user is None and password is None else auth_type(user, password)
         self.http_session.auth = auth
 
         self.timeout = timeout
