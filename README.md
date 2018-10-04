@@ -196,7 +196,7 @@ ORDER BY [System.ChangedDate]"""
 
 wiql = client.run_wiql(query)
 
-# Get founded Work Item ids
+# Get found Work Item ids
 ids = wiql.workitem_ids
 print("Found WI with ids={}".format(",".join(ids)))
 
@@ -206,6 +206,11 @@ raw = wiql.result
 # Get all found workitems
 workitems = wiql.workitems
 print(workitems[0]['Title'])
+```
+
+You can add extra [URI parameters](https://docs.microsoft.com/en-us/rest/api/vsts/wit/wiql/query%20by%20wiql?view=vsts-rest-4.1#uri-parameters) as a dictionary (only works for parameters that come at the end of the link):
+```python
+wiql = client.run_query(query, params={'$top': 10, 'timePrecision': True, 'api-version': '1.0'})
 ```
 
 ## Advanced
