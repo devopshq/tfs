@@ -62,7 +62,7 @@ workitem2.add_relations_raw(attachments_raw)
 ```
 
 ## Links
-Some `TFSObject` have `_links` in their data. You can acces to this data as raw or get new `TFSObject`:
+Some `TFSObject` have `_links` in their data. You can access to this data as raw or get new `TFSObject`:
 ```python
 workitem = client.get_workitem(100)
 
@@ -81,6 +81,30 @@ print(links)
 ```
 
 ## TFSHTTPClient
-**TODO**: Describe how other people can use some useful function and object from `tfs.connection`
-- Get from TFSAPI
-- `send_*` methods
+If you want full control over contents of your requests, you can use `rest_client` to send raw request via `send_get`, `send_post` and `send_patch` methods:
+
+```python
+client = TFSAPI(...)
+new_task_raw = client.rest_client.send_post(
+    uri,        # short address: '/_apis/wit/workitems/$task'
+                # or full address: 'https://<full_web_path_to_tfs_collection>/<project>/_apis/wit/workitems/$task'
+    data,       # request body, e.g. 
+#[
+#  {
+#    "op": "add",
+#    "path": "/fields/System.Title",
+#    "from": null,
+#    "value": "Sample task"
+#  }
+#]
+    verify,     # SSL verification (see docs for Python Requests at http://docs.python-requests.org/en/master/user/advanced/#ssl-cert-verification) 
+    headers,    # request headers, e.g. {'Content-Type': 'application/json-patch+json'}
+    payload,    # url parameters, e.g. {'validateOnly': True, 'api-version': '1.0', 'whatever': 'whatnot'}
+                # these will be appended to resulting URL as parameters (?validateOnly=true&api-version=1.0&whatever=whatnot)
+    project     # set to True for project-related API (e.g. work item creation)
+)
+
+new_task = WorkItem(client, new_task_raw)
+```  
+
+The `send_patch` method has the same parameters as `send_post` while `send_get` does not use `data` as GET-requests naturally do not have body.
