@@ -122,12 +122,17 @@ class TFSAPI:
                                     object_class=TFSQuery)
         return query
 
-    def run_wiql(self, query):
+    def run_wiql(self, query, params=None):
         data = {"query": query, }
-        wiql = self.rest_client.send_post('wit/wiql?api-version=1.0',
+        if params is None:
+            params = {}
+        if 'api-version' not in params:
+            params['api-version'] = '1.0'
+        wiql = self.rest_client.send_post('wit/wiql',
                                           data=data,
                                           project=True,
-                                          headers={'Content-Type': 'application/json'}
+                                          headers={'Content-Type': 'application/json'},
+                                          payload=params
                                           )
         return Wiql(wiql, self)
 
