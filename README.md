@@ -170,15 +170,17 @@ You can run Saved Queries and get Workitems
 client = TFSAPI("https://tfs.tfs.ru/tfs/", project="DefaultCollection/ProjectName", user=user, password=password)
 
 # Run New query 1 in Shared Queries folder
-quiery = client.run_query('Shared Queries/New query 1')
+query = client.run_query('Shared Queries/New query 1')
+# You can also use query GUID
+query = client.run_query('7d123e4af-f52e-4c0d-a220-b5cceffa8f5e')
 
 # result content raw data
-result = quiery.result
-print(quiery.columns)
-print(quiery.column_names)
+result = query.result
+print(query.columns)
+print(query.column_names)
 
 # Get all found workitems
-workitems = quiery.workitems
+workitems = query.workitems
 ```
 
 ## Run WIQL
