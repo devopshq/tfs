@@ -72,6 +72,11 @@ client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=personal_access_t
 from requests_ntlm import HttpNtlmAuth
 client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=password, auth_type=HttpNtlmAuth)
 
+# Use HttpNegotiateAuth for single-sign-on with Kerberos
+# see more https://github.com/brandond/requests-negotiate-sspi
+import requests
+from requests_negotiate_sspi import HttpNegotiateAuth
+client = TFSAPI("https://tfs.tfs.ru/tfs/", auth_type=HttpNegotiateAuth)
 ```
 
 ## Timeout connection
@@ -165,15 +170,17 @@ You can run Saved Queries and get Workitems
 client = TFSAPI("https://tfs.tfs.ru/tfs/", project="DefaultCollection/ProjectName", user=user, password=password)
 
 # Run New query 1 in Shared Queries folder
-quiery = client.run_query('Shared Queries/New query 1')
+query = client.run_query('Shared Queries/New query 1')
+# You can also use query GUID
+query = client.run_query('7d123e4af-f52e-4c0d-a220-b5cceffa8f5e')
 
 # result content raw data
-result = quiery.result
-print(quiery.columns)
-print(quiery.column_names)
+result = query.result
+print(query.columns)
+print(query.column_names)
 
 # Get all found workitems
-workitems = quiery.workitems
+workitems = query.workitems
 ```
 
 ## Run WIQL
@@ -214,8 +221,8 @@ wiql = client.run_query(query, params={'$top': 10, 'timePrecision': True, 'api-v
 ```
 
 ## Advanced
-- [Advanced usage](docs/ADVANCED.md)
-- Some [other objects available](docs/OTHERS.md)
+- [Advanced usage](docs/ADVANCED.md) - what is is `TFSObject`, find and add with Workitem relations, links, and information about `TFSHTTPClient`
+- Some [other objects available](docs/OTHERS.md) -  `Changesets`, `Project`, `Team`
 
 # Troubleshooting
 
