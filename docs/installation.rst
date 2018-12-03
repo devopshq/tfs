@@ -1,5 +1,6 @@
 Installation
 ************
+Install latest version from pypi
 
 .. code-block:: shell
 

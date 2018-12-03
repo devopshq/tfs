@@ -1,7 +1,7 @@
 Microsoft TFS Python Library (TFS API Python client)
 ####################################################
 
-|build  status| |docs| |code quality| |code coverage| |pypi| |license|
+|build status| |docs| |code quality| |code coverage| |pypi| |license|
 
 .. toctree::
     :hidden:
