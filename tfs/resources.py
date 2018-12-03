@@ -132,7 +132,8 @@ class Workitem(TFSObject):
 
     def find_in_relation(self, relation_type):
         """
-        Get relation by type\name. Auto add
+        Get relation by type\\name. Auto add
+
         :param relation_type:
         :return:
         """
@@ -191,6 +192,7 @@ class Workitem(TFSObject):
     def add_relations_raw(self, relations_raw, params=None):
         """
         Add attachments, related (work item) links and/or hyperlinks
+
         :param relations_raw: List of relations. Each relation is a dict with the following keys: rel, url, attributes
         """
         # remove ID from attributes as it has to be unique

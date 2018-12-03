@@ -23,6 +23,7 @@ class TFSAPI:
                  connect_timeout=20, read_timeout=180, ):
         """
         This class must be used to get first object from TFS
+
         :param server_url: url to TFS server, e.g. https://tfs.example.com/
         :param project: Collection or Collection\\Project
         :param user: username, or DOMAIN\\username
@@ -154,6 +155,7 @@ class TFSAPI:
                           api_version=1.0):
         """
         Create work item. Param description: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create
+
         :param project: Name of the target project. The same project is used by default.
         :return: Raw JSON of the work item created
         """
@@ -170,6 +172,7 @@ class TFSAPI:
                         api_version=1.0):
         """
         Create work item. Doc: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create
+        
         :param type_: Work item
         :param fields: Dictionary containing field values
         :param relations_raw: List containing relations which are dict(rel, url[, attributes])
@@ -212,6 +215,7 @@ class TFSAPI:
                       api_version=1.0):
         """
         Create a copy of a work item
+
         :param workitem: Source workitem
         :param with_links_and_attachments: When True, all relations are copied
         :param from_another_project: When True, certain fields are not copied
@@ -336,6 +340,7 @@ class TFSHTTPClient:
     def __send_request(self, method, uri, data, headers=None, payload=None, project=False, json=True):
         """
         Send request
+
         :param method:
         :param uri:
         :param data:
@@ -380,6 +385,7 @@ class TFSHTTPClient:
     def __prepare_uri(self, project, uri):
         """
         Convert URI to URL
+        
         :param project:
         :param uri:
         :return:
