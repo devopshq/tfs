@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'TFS'
-copyright = '2018, Alexey Burov (allburov)'
+copyright = '2018, DevOpsHQ (devopshq)'
 author = 'Alexey Burov (allburov)'
 
 # The short X.Y version
