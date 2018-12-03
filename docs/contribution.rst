@@ -16,6 +16,32 @@ Development takes place on GitHub, where the git-flow branch structure is used:
 * ``feature/XXX`` - feature branches are used for development of new features
     before they are merged to ``develop``
 
+Documentation
+===========
+
+We use sphinx to build docs::
+
+    cd docs-sphinx
+    make html
+    # open ./docs/_build/html/index.html on your browser
+    start ./_build/html/index.html # Windows
+
+
+Publish
+~~~~~~~~~~~~~~
+
+For repositories admin:
+
+  + All documentation saved in ``docs``-folder on branches.
+  + We use ``gh-pages`` as source for publishing on github pages.
+  + Read example how it work on `habr.com (Russian) <https://habr.com/post/180213/>`__
+
+Run this script to publish new html on https://devopshq.github.io/tfs/ ::
+
+    cd docs
+    bash ./publish-gh-pages.sh
+
+
 Tests
 =====
 

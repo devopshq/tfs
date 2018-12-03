@@ -12,6 +12,7 @@ Microsoft TFS Python Library (TFS API Python client)
     others
     contribution
     api
+    GitHub <https://github.com/devopshq/tfs>
 
 Introduction
 ************
