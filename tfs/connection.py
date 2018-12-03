@@ -172,7 +172,7 @@ class TFSAPI:
                         api_version=1.0):
         """
         Create work item. Doc: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create
-        
+
         :param type_: Work item
         :param fields: Dictionary containing field values
         :param relations_raw: List containing relations which are dict(rel, url[, attributes])
@@ -385,7 +385,7 @@ class TFSHTTPClient:
     def __prepare_uri(self, project, uri):
         """
         Convert URI to URL
-        
+
         :param project:
         :param uri:
         :return:
