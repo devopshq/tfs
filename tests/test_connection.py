@@ -1,10 +1,32 @@
 # -*- coding: utf-8 -*-
 import pytest
+import httpretty
+import re
 
 from tfs import *
+from tests.conftest import request_callback_get
 
 
 class TestTFSAPI:
+    @httpretty.activate
+    def test_get_gitrepositories_with_pat(self):
+        def request_callback_get_pat(request, uri, headers):
+            authorization = request.headers.get('Authorization')
+            assert authorization == "Basic OmtsNWt0bnR3M2V6dnh0aGl0YzVhZTR1YmdzZWRpMnFrcWh6cWNuZ2hnNzV0azJuNHJnZmE="
+
+            code, headers, response = request_callback_get(request, uri, headers)
+            return code, headers, response
+
+        httpretty.register_uri(httpretty.GET, re.compile(r"http://tfs.tfs.ru(.*)"),
+                               body=request_callback_get_pat)
+
+        client = TFSAPI("http://tfs.tfs.ru/tfs", 'DefaultCollection',
+                        pat='kl5ktntw3ezvxthitc5ae4ubgsedi2qkqhzqcnghg75tk2n4rgfa')
+
+        repos = client.get_gitrepositories()
+        name = repos[0].data['name']
+        assert name == 'AnotherRepository'
+
     @pytest.mark.httpretty
     def test_get_workitems(self, tfsapi):
         workitems = tfsapi.get_workitems(work_items_ids=[100, 101])
