@@ -45,7 +45,7 @@ Run this script to publish new html on https://devopshq.github.io/tfs/ ::
 Tests
 =====
 
-We use the HTTP client mocking tool `HTTPPretty <https://github.com/gabrielfalcao/HTTPretty>`__.
+We use the HTTP client mocking tool `HTTPretty <https://github.com/gabrielfalcao/HTTPretty>`__.
 
 For GET-response locate you response.json to folder by URL. E.g:
 
