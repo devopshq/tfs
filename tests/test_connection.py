@@ -25,6 +25,26 @@ class TestTFSAPI:
 
         repos = client.get_gitrepositories()
         name = repos[0].data['name']
+        assert name == 'AnotherRepository'\
+
+    @httpretty.activate
+    def test_get_gitrepositories_with_pat_and_password(self):
+        # if pat and password are given then it is expected that the password is ignored and the pat header is added
+        def request_callback_get_pat(request, uri, headers):
+            authorization = request.headers.get('Authorization')
+            assert authorization == "Basic OmtsNWt0bnR3M2V6dnh0aGl0YzVhZTR1YmdzZWRpMnFrcWh6cWNuZ2hnNzV0azJuNHJnZmE="
+
+            code, headers, response = request_callback_get(request, uri, headers)
+            return code, headers, response
+
+        httpretty.register_uri(httpretty.GET, re.compile(r"http://tfs.tfs.ru(.*)"),
+                               body=request_callback_get_pat)
+
+        client = TFSAPI("http://tfs.tfs.ru/tfs", 'DefaultCollection', user='any_user', password='any_password',
+                        pat='kl5ktntw3ezvxthitc5ae4ubgsedi2qkqhzqcnghg75tk2n4rgfa')
+
+        repos = client.get_gitrepositories()
+        name = repos[0].data['name']
         assert name == 'AnotherRepository'
 
     @pytest.mark.httpretty

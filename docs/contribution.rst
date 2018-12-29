@@ -17,7 +17,7 @@ Development takes place on GitHub, where the git-flow branch structure is used:
     before they are merged to ``develop``
 
 Documentation
-===========
+=============
 
 We use sphinx to build docs::
 
@@ -45,7 +45,8 @@ Run this script to publish new html on https://devopshq.github.io/tfs/ ::
 Tests
 =====
 
-We use HTTPPrety.
+We use the HTTP client mocking tool `HTTPPretty <https://github.com/gabrielfalcao/HTTPretty>`__.
+
 For GET-response locate you response.json to folder by URL. E.g:
 
 * http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workitems?ids=anyid&anyflag
