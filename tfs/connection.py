@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from urllib.parse import quote
 
+import base64
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -18,7 +19,7 @@ def batch(iterable, n=1):
 
 
 class TFSAPI:
-    def __init__(self, server_url, project="DefaultCollection", user=None, password=None, verify=False,
+    def __init__(self, server_url, project="DefaultCollection", user=None, password=None, pat=None, verify=False,
                  auth_type=HTTPBasicAuth,
                  connect_timeout=20, read_timeout=180, ):
         """
@@ -28,15 +29,17 @@ class TFSAPI:
         :param project: Collection or Collection\\Project
         :param user: username, or DOMAIN\\username
         :param password: password
+        :param pat: personal access token
         :param verify: True|False - verify HTTPS cert
         :param connect_timeout: Requests CONNECTION timeout, sec or None
         :param read_timeout: Requests READ timeout, sec or None
         """
-        if (user is None or password is None) and auth_type is HTTPBasicAuth:
-            raise ValueError('User name and password must be specified!')
+        if auth_type is HTTPBasicAuth:
+            if (user is None or password is None) and pat is None:
+                raise ValueError('User name and password or personal access token must be specified!')
         self.rest_client = TFSHTTPClient(server_url,
                                          project=project,
-                                         user=user, password=password,
+                                         user=user, password=password, pat=pat,
                                          verify=verify,
                                          timeout=(connect_timeout, read_timeout),
                                          auth_type=auth_type,
@@ -289,7 +292,7 @@ class TFSClientError(Exception):
 
 
 class TFSHTTPClient:
-    def __init__(self, base_url, project, user, password, verify=False, timeout=None, auth_type=None):
+    def __init__(self, base_url, project, user, password, pat, verify=False, timeout=None, auth_type=None):
         if not base_url.endswith('/'):
             base_url += '/'
 
@@ -305,8 +308,13 @@ class TFSHTTPClient:
             self._url_prj = self._url
 
         self.http_session = requests.Session()
-        auth = auth_type() if user is None and password is None else auth_type(user, password)
-        self.http_session.auth = auth
+        if pat is not None:
+            pat = ":" + pat
+            pat_base64 = b'Basic ' + base64.b64encode(pat.encode("utf8"))
+            self.http_session.headers.update({'Authorization': pat_base64})
+        else:
+            auth = auth_type() if user is None and password is None else auth_type(user, password)
+            self.http_session.auth = auth
 
         self.timeout = timeout
         self._verify = verify

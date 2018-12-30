@@ -25,7 +25,9 @@ Create connection
 Authorization
 -------------
 
-You can use password or `personal access token`__ in ``password`` field.
+You can use a password in ``password`` field or a `personal access token`__ in ``pat`` field.
+If both are given at the same time the ``password`` field will be ignored and the
+personal access token will be used instead.
 
 __ https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts
 
@@ -33,7 +35,9 @@ __ https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-acc
 
     # DEFAULT - Use HTTP Basic Auth
     client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=password)
-    client = TFSAPI("https://tfs.tfs.ru/tfs/", user=user, password=personal_access_token)
+
+    # HTTP Basic Auth with personal access token
+    client = TFSAPI("https://tfs.tfs.ru/tfs/", pat=personal_access_token)
 
     # Use NTLM authorization
     from requests_ntlm import HttpNtlmAuth
@@ -77,7 +81,7 @@ Work Items
     # Get all fields
     print(workitem.field_names)
 
-    # Case insensetive. Remove space in field name
+    # Case insensitive. Remove space in field name
     print(workitem['assignedTo']) 
 
     # Workitem Parent Workitem
@@ -129,7 +133,7 @@ Update workitem
 Workitem attachments
 --------------------
 
-If workitem has attachments, you can download it and get info about
+If a workitem has attachments, you can download and get info about them
 
 ::
 
