@@ -17,7 +17,7 @@ git clone git@github.com:devopshq/tfs.git
 cd tfs
 git branch -D gh-pages || echo "branch don't exist"
 git checkout --orphan gh-pages
-rm -rf !(.git|.gitignore) | echo "something wrong, but contiunue"
+rm -rf !(.git|.gitignore) | echo "something wrong, but continue"
 
 cp -r $CURR_DIR/_build/html/* .
 
