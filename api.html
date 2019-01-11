@@ -1,0 +1,455 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>API Documentation &#8212; TFS  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Contribution" href="contribution.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-tfs">
+<span id="api-documentation"></span><h1>API Documentation<a class="headerlink" href="#module-tfs" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="connection">
+<h2>Connection<a class="headerlink" href="#connection" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="tfsapi">
+<h3>TFSAPI<a class="headerlink" href="#tfsapi" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="tfs.TFSAPI">
+<em class="property">class </em><code class="descclassname">tfs.</code><code class="descname">TFSAPI</code><span class="sig-paren">(</span><em>server_url</em>, <em>project='DefaultCollection'</em>, <em>user=None</em>, <em>password=None</em>, <em>pat=None</em>, <em>verify=False</em>, <em>auth_type=&lt;class 'requests.auth.HTTPBasicAuth'&gt;</em>, <em>connect_timeout=20</em>, <em>read_timeout=180</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="tfs.TFSAPI.copy_workitem">
+<code class="descname">copy_workitem</code><span class="sig-paren">(</span><em>workitem</em>, <em>with_links_and_attachments=False</em>, <em>from_another_project=False</em>, <em>target_type=None</em>, <em>target_area=None</em>, <em>target_iteration=None</em>, <em>validate_only=None</em>, <em>bypass_rules=None</em>, <em>suppress_notifications=None</em>, <em>api_version=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.copy_workitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.copy_workitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a copy of a work item</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>workitem</strong> – Source workitem</li>
+<li><strong>with_links_and_attachments</strong> – When True, all relations are copied</li>
+<li><strong>from_another_project</strong> – When True, certain fields are not copied</li>
+<li><strong>target_type</strong> – When specified, the copy will have this type instead of the source one</li>
+<li><strong>target_area</strong> – When specified, the copy will have this area instead of the source one</li>
+<li><strong>target_iteration</strong> – When specified, the copy will have this iteration instead of the source one</li>
+<li><strong>validate_only</strong> – When True, do not actually create a work item, a dry run of sorts</li>
+<li><strong>bypass_rules</strong> – When True, can bypass restrictions like &lt;ALLOWEDVALUES&gt; and such</li>
+<li><strong>suppress_notifications</strong> – When true, notifications are [supposedly] not sent</li>
+<li><strong>api_version</strong> – API version to use</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">WorkItem instance of a newly created copy</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.create_workitem">
+<code class="descname">create_workitem</code><span class="sig-paren">(</span><em>type_</em>, <em>fields=None</em>, <em>relations_raw=None</em>, <em>validate_only=None</em>, <em>bypass_rules=None</em>, <em>suppress_notifications=None</em>, <em>api_version=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.create_workitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.create_workitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create work item. Doc: <a class="reference external" href="https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create">https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>type</strong> – Work item</li>
+<li><strong>fields</strong> – Dictionary containing field values</li>
+<li><strong>relations_raw</strong> – List containing relations which are dict(rel, url[, attributes])</li>
+<li><strong>validate_only</strong> – When True, do not actually create a work item, a dry run of sorts</li>
+<li><strong>bypass_rules</strong> – When True, can bypass restrictions like &lt;ALLOWEDVALUES&gt; and such</li>
+<li><strong>suppress_notifications</strong> – When true, notifications are [supposedly] not sent</li>
+<li><strong>api_version</strong> – API version to use</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">WorkItem instance of a newly created WI</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.download_file">
+<code class="descname">download_file</code><span class="sig-paren">(</span><em>uri</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.download_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.download_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.get_changeset">
+<code class="descname">get_changeset</code><span class="sig-paren">(</span><em>id_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.get_changeset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.get_changeset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.get_changesets">
+<code class="descname">get_changesets</code><span class="sig-paren">(</span><em>from_=None</em>, <em>to_=None</em>, <em>item_path=None</em>, <em>top=10000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.get_changesets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.get_changesets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.get_gitrepositories">
+<code class="descname">get_gitrepositories</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.get_gitrepositories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.get_gitrepositories" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.get_gitrepository">
+<code class="descname">get_gitrepository</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.get_gitrepository"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.get_gitrepository" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.get_project">
+<code class="descname">get_project</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.get_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.get_project" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.get_projects">
+<code class="descname">get_projects</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.get_projects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.get_projects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.get_tfs_object">
+<code class="descname">get_tfs_object</code><span class="sig-paren">(</span><em>uri</em>, <em>payload=None</em>, <em>object_class=&lt;class 'tfs.resources.TFSObject'&gt;</em>, <em>project=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.get_tfs_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.get_tfs_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send requests and return any object in TFS</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.get_workitem">
+<code class="descname">get_workitem</code><span class="sig-paren">(</span><em>id_</em>, <em>fields=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.get_workitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.get_workitem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.get_workitems">
+<code class="descname">get_workitems</code><span class="sig-paren">(</span><em>work_items_ids</em>, <em>fields=None</em>, <em>batch_size=50</em>, <em>expand='all'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.get_workitems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.get_workitems" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.run_query">
+<code class="descname">run_query</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.run_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.run_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.run_wiql">
+<code class="descname">run_wiql</code><span class="sig-paren">(</span><em>query</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.run_wiql"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.run_wiql" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSAPI.update_workitem">
+<code class="descname">update_workitem</code><span class="sig-paren">(</span><em>work_item_id</em>, <em>update_data</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSAPI.update_workitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSAPI.update_workitem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tfshttpclient">
+<h3>TFSHTTPClient<a class="headerlink" href="#tfshttpclient" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="tfs.TFSHTTPClient">
+<em class="property">class </em><code class="descclassname">tfs.</code><code class="descname">TFSHTTPClient</code><span class="sig-paren">(</span><em>base_url</em>, <em>project</em>, <em>user</em>, <em>password</em>, <em>pat</em>, <em>verify=False</em>, <em>timeout=None</em>, <em>auth_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSHTTPClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSHTTPClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="staticmethod">
+<dt id="tfs.TFSHTTPClient.get_collection_and_project">
+<em class="property">static </em><code class="descname">get_collection_and_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSHTTPClient.get_collection_and_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSHTTPClient.get_collection_and_project" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSHTTPClient.send_get">
+<code class="descname">send_get</code><span class="sig-paren">(</span><em>uri</em>, <em>payload=None</em>, <em>project=False</em>, <em>json=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSHTTPClient.send_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSHTTPClient.send_get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSHTTPClient.send_patch">
+<code class="descname">send_patch</code><span class="sig-paren">(</span><em>uri</em>, <em>data</em>, <em>headers</em>, <em>payload=None</em>, <em>project=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSHTTPClient.send_patch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSHTTPClient.send_patch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.TFSHTTPClient.send_post">
+<code class="descname">send_post</code><span class="sig-paren">(</span><em>uri</em>, <em>data</em>, <em>headers</em>, <em>payload=None</em>, <em>project=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/connection.html#TFSHTTPClient.send_post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSHTTPClient.send_post" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="resources">
+<h2>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="tfsobject">
+<h3>TFSObject<a class="headerlink" href="#tfsobject" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="tfs.TFSObject">
+<em class="property">class </em><code class="descclassname">tfs.</code><code class="descname">TFSObject</code><span class="sig-paren">(</span><em>data=None</em>, <em>tfs=None</em>, <em>uri=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#TFSObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="tfs.TFSObject.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>key</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#TFSObject.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSObject.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="workitem">
+<h3>Workitem<a class="headerlink" href="#workitem" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="tfs.Workitem">
+<em class="property">class </em><code class="descclassname">tfs.</code><code class="descname">Workitem</code><span class="sig-paren">(</span><em>data=None</em>, <em>tfs=None</em>, <em>uri=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#Workitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.Workitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tfs.resources.TFSObject</span></code></p>
+<dl class="method">
+<dt id="tfs.Workitem.add_relations_raw">
+<code class="descname">add_relations_raw</code><span class="sig-paren">(</span><em>relations_raw</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#Workitem.add_relations_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.Workitem.add_relations_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add attachments, related (work item) links and/or hyperlinks</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>relations_raw</strong> – List of relations. Each relation is a dict with the following keys: rel, url, attributes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tfs.Workitem.attachments">
+<code class="descname">attachments</code><a class="headerlink" href="#tfs.Workitem.attachments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tfs.Workitem.child_ids">
+<code class="descname">child_ids</code><a class="headerlink" href="#tfs.Workitem.child_ids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tfs.Workitem.childs">
+<code class="descname">childs</code><a class="headerlink" href="#tfs.Workitem.childs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tfs.Workitem.field_names">
+<code class="descname">field_names</code><a class="headerlink" href="#tfs.Workitem.field_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tfs.Workitem.find_in_relation">
+<code class="descname">find_in_relation</code><span class="sig-paren">(</span><em>relation_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#Workitem.find_in_relation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.Workitem.find_in_relation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get relation by typename. Auto add</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>relation_type</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tfs.Workitem.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>key</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#Workitem.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.Workitem.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tfs.Workitem.history">
+<code class="descname">history</code><a class="headerlink" href="#tfs.Workitem.history" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tfs.Workitem.parent">
+<code class="descname">parent</code><a class="headerlink" href="#tfs.Workitem.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tfs.Workitem.parent_id">
+<code class="descname">parent_id</code><a class="headerlink" href="#tfs.Workitem.parent_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tfs.Workitem.revisions">
+<code class="descname">revisions</code><a class="headerlink" href="#tfs.Workitem.revisions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="attachment">
+<h3>Attachment<a class="headerlink" href="#attachment" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="tfs.Attachment">
+<em class="property">class </em><code class="descclassname">tfs.</code><code class="descname">Attachment</code><span class="sig-paren">(</span><em>data=None</em>, <em>tfs=None</em>, <em>uri=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#Attachment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.Attachment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tfs.resources.TFSObject</span></code></p>
+<dl class="method">
+<dt id="tfs.Attachment.download">
+<code class="descname">download</code><span class="sig-paren">(</span><em>path='.'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#Attachment.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.Attachment.download" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="changeset">
+<h3>Changeset<a class="headerlink" href="#changeset" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="tfs.Changeset">
+<em class="property">class </em><code class="descclassname">tfs.</code><code class="descname">Changeset</code><span class="sig-paren">(</span><em>data=None</em>, <em>tfs=None</em>, <em>uri=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#Changeset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.Changeset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tfs.resources.TFSObject</span></code></p>
+<dl class="attribute">
+<dt id="tfs.Changeset.workitems">
+<code class="descname">workitems</code><a class="headerlink" href="#tfs.Changeset.workitems" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="projects">
+<h3>Projects<a class="headerlink" href="#projects" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="tfs.Projects">
+<em class="property">class </em><code class="descclassname">tfs.</code><code class="descname">Projects</code><span class="sig-paren">(</span><em>data=None</em>, <em>tfs=None</em>, <em>uri=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#Projects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.Projects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tfs.resources.TFSObject</span></code></p>
+<dl class="attribute">
+<dt id="tfs.Projects.team">
+<code class="descname">team</code><a class="headerlink" href="#tfs.Projects.team" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tfsquery">
+<h3>TFSQuery<a class="headerlink" href="#tfsquery" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="tfs.TFSQuery">
+<em class="property">class </em><code class="descclassname">tfs.</code><code class="descname">TFSQuery</code><span class="sig-paren">(</span><em>data=None</em>, <em>tfs=None</em>, <em>uri=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#TFSQuery"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.TFSQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tfs.resources.TFSObject</span></code></p>
+<dl class="attribute">
+<dt id="tfs.TFSQuery.workitems">
+<code class="descname">workitems</code><a class="headerlink" href="#tfs.TFSQuery.workitems" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="wiql">
+<h3>Wiql<a class="headerlink" href="#wiql" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="tfs.Wiql">
+<em class="property">class </em><code class="descclassname">tfs.</code><code class="descname">Wiql</code><span class="sig-paren">(</span><em>data=None</em>, <em>tfs=None</em>, <em>uri=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tfs/resources.html#Wiql"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tfs.Wiql" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tfs.resources.TFSObject</span></code></p>
+<p>Work Item Query Language</p>
+<dl class="attribute">
+<dt id="tfs.Wiql.workitem_ids">
+<code class="descname">workitem_ids</code><a class="headerlink" href="#tfs.Wiql.workitem_ids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tfs.Wiql.workitems">
+<code class="descname">workitems</code><a class="headerlink" href="#tfs.Wiql.workitems" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">TFS</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="others.html">Other usages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribution.html">Contribution</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#connection">Connection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tfsapi">TFSAPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tfshttpclient">TFSHTTPClient</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#resources">Resources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tfsobject">TFSObject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workitem">Workitem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#attachment">Attachment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changeset">Changeset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#projects">Projects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tfsquery">TFSQuery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#wiql">Wiql</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/devopshq/tfs">GitHub</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, DevOpsHQ (devopshq).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

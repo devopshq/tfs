@@ -1,0 +1,309 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Examples &#8212; TFS  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced usage" href="advanced.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="create-connection">
+<h2>Create connection<a class="headerlink" href="#create-connection" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tfs</span> <span class="k">import</span> <span class="n">TFSAPI</span>
+
+<span class="n">user</span><span class="o">=</span><span class="s2">&quot;username&quot;</span>
+<span class="n">password</span><span class="o">=</span><span class="s2">&quot;password&quot;</span>
+
+<span class="c1"># Use DefaultCollection</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">TFSAPI</span><span class="p">(</span><span class="s2">&quot;https://tfs.tfs.ru/tfs/&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+<span class="c1"># Use CustomCollection</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">TFSAPI</span><span class="p">(</span><span class="s2">&quot;https://tfs.tfs.ru/tfs/&quot;</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="s2">&quot;DefaultCollection&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+<span class="c1"># Set path to ProjectName in project parameter</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">TFSAPI</span><span class="p">(</span><span class="s2">&quot;https://tfs.tfs.ru/tfs/&quot;</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="s2">&quot;DefaultCollection/ProjectName&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+<span class="n">workitem</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_workitem</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="c1"># Test connection with Workitem id</span>
+</pre></div>
+</div>
+<div class="section" id="authorization">
+<h3>Authorization<a class="headerlink" href="#authorization" title="Permalink to this headline">¶</a></h3>
+<p>You can use a password in <code class="docutils literal notranslate"><span class="pre">password</span></code> field or a <a class="reference external" href="https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts">personal access token</a> in <code class="docutils literal notranslate"><span class="pre">pat</span></code> field.
+If both are given at the same time the <code class="docutils literal notranslate"><span class="pre">password</span></code> field will be ignored and the
+personal access token will be used instead.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># DEFAULT - Use HTTP Basic Auth</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">TFSAPI</span><span class="p">(</span><span class="s2">&quot;https://tfs.tfs.ru/tfs/&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+<span class="c1"># HTTP Basic Auth with personal access token</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">TFSAPI</span><span class="p">(</span><span class="s2">&quot;https://tfs.tfs.ru/tfs/&quot;</span><span class="p">,</span> <span class="n">pat</span><span class="o">=</span><span class="n">personal_access_token</span><span class="p">)</span>
+
+<span class="c1"># Use NTLM authorization</span>
+<span class="kn">from</span> <span class="nn">requests_ntlm</span> <span class="k">import</span> <span class="n">HttpNtlmAuth</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">TFSAPI</span><span class="p">(</span><span class="s2">&quot;https://tfs.tfs.ru/tfs/&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">auth_type</span><span class="o">=</span><span class="n">HttpNtlmAuth</span><span class="p">)</span>
+
+<span class="c1"># Use HttpNegotiateAuth for single-sign-on with Kerberos</span>
+<span class="c1"># see more https://github.com/brandond/requests-negotiate-sspi</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="kn">from</span> <span class="nn">requests_negotiate_sspi</span> <span class="k">import</span> <span class="n">HttpNegotiateAuth</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">TFSAPI</span><span class="p">(</span><span class="s2">&quot;https://tfs.tfs.ru/tfs/&quot;</span><span class="p">,</span> <span class="n">auth_type</span><span class="o">=</span><span class="n">HttpNegotiateAuth</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="timeout-connection">
+<h3>Timeout connection<a class="headerlink" href="#timeout-connection" title="Permalink to this headline">¶</a></h3>
+<p>You can set CONNECT and READ timeouts (<a class="reference external" href="http://docs.python-requests.org/en/master/user/advanced/#timeouts">read more</a>)</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tfs</span> <span class="k">import</span> <span class="n">TFSAPI</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">TFSAPI</span><span class="p">(</span><span class="s2">&quot;https://tfs.tfs.ru/tfs/&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">connect_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">read_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="work-items">
+<span id="workitems"></span><h2>Work Items<a class="headerlink" href="#work-items" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># For single Workitem</span>
+<span class="n">workitem</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_workitem</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># For multiple</span>
+<span class="n">workitem</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_workitems</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span><span class="mi">101</span><span class="p">,</span><span class="mi">102</span><span class="p">])</span> <span class="c1"># list</span>
+<span class="n">workitem</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_workitems</span><span class="p">(</span><span class="s2">&quot;100,101,102&quot;</span><span class="p">)</span> <span class="c1"># string separated with comma</span>
+
+<span class="c1"># Get all fields</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">workitem</span><span class="o">.</span><span class="n">field_names</span><span class="p">)</span>
+
+<span class="c1"># Case insensitive. Remove space in field name</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">workitem</span><span class="p">[</span><span class="s1">&#39;assignedTo&#39;</span><span class="p">])</span>
+
+<span class="c1"># Workitem Parent Workitem</span>
+<span class="n">parent</span> <span class="o">=</span> <span class="n">workitem</span><span class="o">.</span><span class="n">parent</span>
+<span class="k">if</span> <span class="n">parent</span><span class="p">:</span> <span class="c1"># Parent is None if Workitem hasn&#39;t Parent link</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Workitem with id=</span><span class="si">{}</span><span class="s2"> have parent=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">workitem</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+
+<span class="c1"># Workitem Childs Workitem</span>
+<span class="n">childs</span> <span class="o">=</span> <span class="n">workitem</span><span class="o">.</span><span class="n">childs</span>
+<span class="k">if</span> <span class="n">childs</span><span class="p">:</span> <span class="c1"># Child is empty list if Workitem hasn&#39;t Child link</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Workitem with id=</span><span class="si">{}</span><span class="s2"> have Childs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">workitem</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">childs</span><span class="p">])))</span>
+
+<span class="c1"># Workitem revisions</span>
+<span class="n">revisions</span> <span class="o">=</span> <span class="n">workitem</span><span class="o">.</span><span class="n">revisions</span>
+</pre></div>
+</div>
+<div class="section" id="create-or-copy-workitem">
+<h3>Create or copy workitem<a class="headerlink" href="#create-or-copy-workitem" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create new bug</span>
+<span class="n">workitem</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_workitem</span><span class="p">(</span><span class="s1">&#39;Bug&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create new task with some fields (use field reference names, e.g. System.*)</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;System.Title&#39;</span><span class="p">:</span> <span class="s1">&#39;My task&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;System.Description&#39;</span><span class="p">:</span> <span class="s1">&#39;My description&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;System.AssignedTo&#39;</span><span class="p">:</span> <span class="s1">&#39;John Doe&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;MyCompany.MyCustomField&#39;</span><span class="p">:</span> <span class="s1">&#39;MyCustomValue&#39;</span><span class="p">}</span>
+<span class="n">workitem</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_workitem</span><span class="p">(</span><span class="s1">&#39;Task&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="n">fields</span><span class="p">)</span>
+
+<span class="c1"># Copy with links and attachments and without sending notifications</span>
+<span class="n">new_wi</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">copy_workitem</span><span class="p">(</span><span class="n">workitem</span><span class="p">,</span> <span class="n">with_links_and_attachments</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">suppress_notifications</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="update-workitem">
+<span id="id3"></span><h3>Update workitem<a class="headerlink" href="#update-workitem" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update field</span>
+<span class="n">workitem</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Complete&#39;</span>
+
+<span class="c1"># Add comment</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">workitem</span><span class="o">.</span><span class="n">history</span><span class="p">)</span>
+<span class="n">workitem</span><span class="p">[</span><span class="s1">&#39;History&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Omg, it is a good issue!&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">workitem</span><span class="o">.</span><span class="n">history</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="workitem-attachments">
+<h3>Workitem attachments<a class="headerlink" href="#workitem-attachments" title="Permalink to this headline">¶</a></h3>
+<p>If a workitem has attachments, you can download and get info about them</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">attachments</span> <span class="o">=</span> <span class="n">workitem</span><span class="o">.</span><span class="n">attachments</span>
+<span class="n">attachment</span> <span class="o">=</span> <span class="n">attachments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1"># Internal TFS UID</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">attachment</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+<span class="c1"># Filename</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">attachment</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="c1"># TFS Download URL</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">attachment</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+
+<span class="c1"># You can download file to folder</span>
+<span class="n">attachment</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;/home/user/folder&#39;</span><span class="p">)</span>
+
+<span class="c1"># All raw data</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">attachment</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="run-saved-queries">
+<span id="id4"></span><h2>Run Saved Queries<a class="headerlink" href="#run-saved-queries" title="Permalink to this headline">¶</a></h2>
+<p>You can run Saved Queries and get Workitems</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set path to ProjectName in project parameter</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">TFSAPI</span><span class="p">(</span><span class="s2">&quot;https://tfs.tfs.ru/tfs/&quot;</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="s2">&quot;DefaultCollection/ProjectName&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+<span class="c1"># Run New query 1 in Shared Queries folder</span>
+<span class="n">query</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span><span class="s1">&#39;Shared Queries/New query 1&#39;</span><span class="p">)</span>
+<span class="c1"># You can also use query GUID</span>
+<span class="n">query</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span><span class="s1">&#39;7d123e4af-f52e-4c0d-a220-b5cceffa8f5e&#39;</span><span class="p">)</span>
+
+<span class="c1"># result content raw data</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">result</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+
+<span class="c1"># Get all found workitems</span>
+<span class="n">workitems</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">workitems</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="run-wiql">
+<span id="id5"></span><h2>Run WIQL<a class="headerlink" href="#run-wiql" title="Permalink to this headline">¶</a></h2>
+<p>You can run <a class="reference external" href="https://msdn.microsoft.com/en-us/library/bb130198(v=vs.90).aspx">Work Item Query Language</a></p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set path to ProjectName in project parameter</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">TFSAPI</span><span class="p">(</span><span class="s2">&quot;https://tfs.tfs.ru/tfs/&quot;</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="s2">&quot;DefaultCollection/ProjectName&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+<span class="c1"># Run custom query</span>
+<span class="c1">### NOTE: Fields in SELECT really ignored, wiql return Work Items with all fields</span>
+<span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;SELECT</span>
+<span class="s2">    [System.Id],</span>
+<span class="s2">    [System.WorkItemType],</span>
+<span class="s2">    [System.Title],</span>
+<span class="s2">    [System.ChangedDate]</span>
+<span class="s2">FROM workitems</span>
+<span class="s2">WHERE</span>
+<span class="s2">    [System.WorkItemType] = &#39;Bug&#39;</span>
+<span class="s2">ORDER BY [System.ChangedDate]&quot;&quot;&quot;</span>
+
+<span class="n">wiql</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run_wiql</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+<span class="c1"># Get found Work Item ids</span>
+<span class="n">ids</span> <span class="o">=</span> <span class="n">wiql</span><span class="o">.</span><span class="n">workitem_ids</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Found WI with ids=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ids</span><span class="p">)))</span>
+
+<span class="c1"># Get RAW query data - python dict</span>
+<span class="n">raw</span> <span class="o">=</span> <span class="n">wiql</span><span class="o">.</span><span class="n">result</span>
+
+<span class="c1"># Get all found workitems</span>
+<span class="n">workitems</span> <span class="o">=</span> <span class="n">wiql</span><span class="o">.</span><span class="n">workitems</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">workitems</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Title&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>You can add extra <a class="reference external" href="https://docs.microsoft.com/en-us/rest/api/vsts/wit/wiql/query%20by%20wiql?view=vsts-rest-4.1#uri-parameters">URI parameters</a> as a dictionary (only works for parameters
+that come at the end of the link):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">wiql</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;$top&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;timePrecision&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;api-version&#39;</span><span class="p">:</span> <span class="s1">&#39;1.0&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">TFS</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#create-connection">Create connection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#authorization">Authorization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#timeout-connection">Timeout connection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#work-items">Work Items</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#create-or-copy-workitem">Create or copy workitem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-workitem">Update workitem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workitem-attachments">Workitem attachments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#run-saved-queries">Run Saved Queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-wiql">Run WIQL</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="others.html">Other usages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribution.html">Contribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/devopshq/tfs">GitHub</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, DevOpsHQ (devopshq).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/examples.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

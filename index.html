@@ -1,0 +1,163 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Microsoft TFS Python Library (TFS API Python client) &#8212; TFS  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="microsoft-tfs-python-library-tfs-api-python-client">
+<h1>Microsoft TFS Python Library (TFS API Python client)<a class="headerlink" href="#microsoft-tfs-python-library-tfs-api-python-client" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://travis-ci.org/devopshq/tfs"><img alt="Build Status" src="https://travis-ci.org/devopshq/tfs.svg" /></a> <a class="reference external" href="https://devopshq.github.io/tfs/"><img alt="Documentation Status" src="https://img.shields.io/readthedocs/pip.svg" /></a> <a class="reference external" href="https://www.codacy.com/app/tim55667757/tfs/dashboard"><img alt="Code Quality" src="https://api.codacy.com/project/badge/Grade/a533e2d46b9b471893b4991e89649212" /></a> <a class="reference external" href="https://www.codacy.com/app/tim55667757/tfs/dashboard"><img alt="Code Quality" src="https://api.codacy.com/project/badge/Coverage/a533e2d46b9b471893b4991e89649212" /></a> <a class="reference external" href="https://pypi.python.org/pypi/dohq-tfs"><img alt="PyPI" src="https://img.shields.io/pypi/v/dohq-tfs.svg" /></a> <a class="reference external" href="https://github.com/devopshq/tfs/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/pypi/l/vspheretools.svg" /></a></p>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Microsoft Team Foundation Server Python Library is a Microsoft TFS API Python client
+that can work with Microsoft TFS workflow and workitems.</p>
+</div>
+<div class="section" id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<p>This python library allows:</p>
+<ol class="arabic simple">
+<li>Get <a class="reference internal" href="examples.html#workitems"><span class="std std-ref">work Items (WI)</span></a></li>
+<li>Set <a class="reference internal" href="examples.html#update-workitem"><span class="std std-ref">WI fields</span></a></li>
+<li>Run <a class="reference internal" href="examples.html#run-saved-queries"><span class="std std-ref">WI search queries</span></a></li>
+<li>Run <a class="reference internal" href="examples.html#run-wiql"><span class="std std-ref">WIQL</span></a></li>
+<li>Work with <a class="reference internal" href="others.html#tfs-changesets"><span class="std std-ref">TFVC changesets</span></a></li>
+<li>Work with <a class="reference internal" href="others.html#tfs-projects"><span class="std std-ref">TFS Projects</span></a></li>
+<li><dl class="first docutils">
+<dt><a class="reference internal" href="advanced.html#advanced"><span class="std std-ref">Advanced usage</span></a> - what is <a class="reference internal" href="api.html#tfs.TFSObject" title="tfs.TFSObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">tfs.TFSObject</span></code></a>,</dt>
+<dd>find and add with Workitem relations,
+links, and information about <a class="reference internal" href="api.html#tfs.TFSHTTPClient" title="tfs.TFSHTTPClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">tfs.TFSHTTPClient</span></code></a></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Some <a class="reference internal" href="others.html#other-usages"><span class="std std-ref">other objects available</span></a> -</dt>
+<dd><code class="xref py py-class docutils literal notranslate"><span class="pre">tfs.Changesets</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tfs.Project</span></code>, <cite>Team</cite></dd>
+</dl>
+</li>
+</ol>
+</div>
+<div class="section" id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>If you cannot create or update a work item, here are some possible reasons:</p>
+<ul class="simple">
+<li>check if the account you use has <strong>enough permissions</strong> in the collection/project</li>
+<li>make sure you <strong>follow your workflow</strong>, work items might have required fields
+or any other sort of restrictions</li>
+<li>verify that the api version <a class="reference external" href="https://docs.microsoft.com/en-us/vsts/integrate/concepts/rest-api-versioning">fits your team foundation server version</a></li>
+</ul>
+<p>If neither of these helped your case - <a class="reference external" href="https://github.com/devopshq/tfs/issues">look through our issues list</a>.</p>
+<p>If there is no similar issue - <a class="reference external" href="https://github.com/devopshq/tfs/issues/new">create one</a>.</p>
+</div>
+<div class="section" id="guide">
+<h2>Guide<a class="headerlink" href="#guide" title="Permalink to this headline">¶</a></h2>
+<p>If you use this library, <a class="reference external" href="https://help.github.com/articles/about-stars/">put a star</a> on <a class="reference external" href="https://github.com/devopshq/tfs">this repository</a>.
+This motivates us and other developers to develop the library :)</p>
+</div>
+<div class="section" id="compatibility">
+<h2>Compatibility<a class="headerlink" href="#compatibility" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Tested with <strong>Python.3.4</strong></li>
+<li>TFS 2015</li>
+<li>TFS 2017</li>
+</ul>
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">TFS</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="others.html">Other usages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribution.html">Contribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/devopshq/tfs">GitHub</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, DevOpsHQ (devopshq).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

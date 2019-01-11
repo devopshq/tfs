@@ -1,0 +1,502 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>tfs.connection &#8212; TFS  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for tfs.connection</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="k">import</span> <span class="n">quote</span>
+
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">requests.auth</span> <span class="k">import</span> <span class="n">HTTPBasicAuth</span>
+
+<span class="kn">from</span> <span class="nn">tfs.resources</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># noqa</span>
+
+
+<span class="k">def</span> <span class="nf">batch</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;batch&quot; function that would take as input an iterable and return an iterable of iterables</span>
+<span class="sd">    https://stackoverflow.com/a/8290508/6753144</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">len_</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ndx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">len_</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">iterable</span><span class="p">[</span><span class="n">ndx</span><span class="p">:</span><span class="nb">min</span><span class="p">(</span><span class="n">ndx</span> <span class="o">+</span> <span class="n">n</span><span class="p">,</span> <span class="n">len_</span><span class="p">)]</span>
+
+
+<div class="viewcode-block" id="TFSAPI"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI">[docs]</a><span class="k">class</span> <span class="nc">TFSAPI</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_url</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="s2">&quot;DefaultCollection&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">auth_type</span><span class="o">=</span><span class="n">HTTPBasicAuth</span><span class="p">,</span>
+                 <span class="n">connect_timeout</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">read_timeout</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class must be used to get first object from TFS</span>
+
+<span class="sd">        :param server_url: url to TFS server, e.g. https://tfs.example.com/</span>
+<span class="sd">        :param project: Collection or Collection\\Project</span>
+<span class="sd">        :param user: username, or DOMAIN\\username</span>
+<span class="sd">        :param password: password</span>
+<span class="sd">        :param pat: personal access token</span>
+<span class="sd">        :param verify: True|False - verify HTTPS cert</span>
+<span class="sd">        :param connect_timeout: Requests CONNECTION timeout, sec or None</span>
+<span class="sd">        :param read_timeout: Requests READ timeout, sec or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">auth_type</span> <span class="ow">is</span> <span class="n">HTTPBasicAuth</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">user</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;User name and password or personal access token must be specified!&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rest_client</span> <span class="o">=</span> <span class="n">TFSHTTPClient</span><span class="p">(</span><span class="n">server_url</span><span class="p">,</span>
+                                         <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+                                         <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">pat</span><span class="o">=</span><span class="n">pat</span><span class="p">,</span>
+                                         <span class="n">verify</span><span class="o">=</span><span class="n">verify</span><span class="p">,</span>
+                                         <span class="n">timeout</span><span class="o">=</span><span class="p">(</span><span class="n">connect_timeout</span><span class="p">,</span> <span class="n">read_timeout</span><span class="p">),</span>
+                                         <span class="n">auth_type</span><span class="o">=</span><span class="n">auth_type</span><span class="p">,</span>
+                                         <span class="p">)</span>
+
+<div class="viewcode-block" id="TFSAPI.get_tfs_object"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.get_tfs_object">[docs]</a>    <span class="k">def</span> <span class="nf">get_tfs_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_class</span><span class="o">=</span><span class="n">TFSObject</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Send requests and return any object in TFS &quot;&quot;&quot;</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_client</span><span class="o">.</span><span class="n">send_get</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
+
+        <span class="c1"># For list results</span>
+        <span class="k">if</span> <span class="s1">&#39;value&#39;</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">:</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+            <span class="n">objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">object_class</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">objects</span> <span class="o">=</span> <span class="n">object_class</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">objects</span></div>
+
+    <span class="k">def</span> <span class="nf">__get_workitems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">work_items_ids</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="n">ids_string</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">work_items_ids</span><span class="p">))</span>
+        <span class="n">expand</span> <span class="o">=</span> <span class="s1">&#39;&amp;$expand=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">expand</span><span class="p">)</span> <span class="k">if</span> <span class="n">expand</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">fields_string</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&amp;fields=&#39;</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fields</span><span class="p">))</span> <span class="k">if</span> <span class="n">fields</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">workitems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tfs_object</span><span class="p">(</span>
+            <span class="s1">&#39;wit/workitems?ids=</span><span class="si">{ids}{fields}{expand}</span><span class="s1">&amp;api-version=1.0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">ids_string</span><span class="p">,</span>
+                                                                             <span class="n">fields</span><span class="o">=</span><span class="n">fields_string</span><span class="p">,</span>
+                                                                             <span class="n">expand</span><span class="o">=</span><span class="n">expand</span><span class="p">),</span>
+            <span class="n">object_class</span><span class="o">=</span><span class="n">Workitem</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">workitems</span>
+
+<div class="viewcode-block" id="TFSAPI.get_workitem"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.get_workitem">[docs]</a>    <span class="k">def</span> <span class="nf">get_workitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">id_</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_workitems</span><span class="p">(</span><span class="n">id_</span><span class="p">,</span> <span class="n">fields</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TFSAPI.get_workitems"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.get_workitems">[docs]</a>    <span class="k">def</span> <span class="nf">get_workitems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">work_items_ids</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">work_items_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">work_items_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">work_items_ids</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">work_items_ids</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">work_items_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">work_items_ids</span><span class="p">]</span>
+
+        <span class="n">workitems</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">work_items_batch</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">work_items_ids</span><span class="p">),</span> <span class="n">batch_size</span><span class="p">):</span>
+            <span class="n">work_items_batch_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_workitems</span><span class="p">(</span><span class="n">work_items_batch</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="n">fields</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="n">expand</span><span class="p">)</span>
+            <span class="n">workitems</span> <span class="o">+=</span> <span class="n">work_items_batch_info</span>
+        <span class="k">return</span> <span class="n">workitems</span></div>
+
+<div class="viewcode-block" id="TFSAPI.get_changeset"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.get_changeset">[docs]</a>    <span class="k">def</span> <span class="nf">get_changeset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_changesets</span><span class="p">(</span><span class="n">from_</span><span class="o">=</span><span class="n">id_</span><span class="p">,</span> <span class="n">to_</span><span class="o">=</span><span class="n">id_</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TFSAPI.get_changesets"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.get_changesets">[docs]</a>    <span class="k">def</span> <span class="nf">get_changesets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">item_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;$top&#39;</span><span class="p">:</span> <span class="n">top</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">from_</span> <span class="ow">and</span> <span class="n">to_</span><span class="p">:</span>
+            <span class="n">from_</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">from_</span><span class="p">)</span>
+            <span class="n">to_</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">to_</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">from_</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">to_</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;searchCriteria.fromId&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">from_</span>
+                <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;searchCriteria.toId&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;from_ and to_ must be valid TFS changeset IDs!&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">item_path</span><span class="p">:</span>
+            <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;searchCriteria.itemPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">item_path</span>
+        <span class="n">changesets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tfs_object</span><span class="p">(</span><span class="s1">&#39;tfvc/changesets&#39;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">object_class</span><span class="o">=</span><span class="n">Changeset</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">changesets</span></div>
+
+<div class="viewcode-block" id="TFSAPI.get_projects"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.get_projects">[docs]</a>    <span class="k">def</span> <span class="nf">get_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tfs_object</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="n">object_class</span><span class="o">=</span><span class="n">Projects</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TFSAPI.get_project"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.get_project">[docs]</a>    <span class="k">def</span> <span class="nf">get_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tfs_object</span><span class="p">(</span><span class="s1">&#39;projects/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">object_class</span><span class="o">=</span><span class="n">Projects</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TFSAPI.update_workitem"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.update_workitem">[docs]</a>    <span class="k">def</span> <span class="nf">update_workitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">work_item_id</span><span class="p">,</span> <span class="n">update_data</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_client</span><span class="o">.</span><span class="n">send_patch</span><span class="p">(</span><span class="s1">&#39;wit/workitems/</span><span class="si">{id}</span><span class="s1">?api-version=1.0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">work_item_id</span><span class="p">),</span>
+                                          <span class="n">data</span><span class="o">=</span><span class="n">update_data</span><span class="p">,</span>
+                                          <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json-patch+json&#39;</span><span class="p">},</span>
+                                          <span class="n">payload</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">raw</span></div>
+
+<div class="viewcode-block" id="TFSAPI.run_query"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.run_query">[docs]</a>    <span class="k">def</span> <span class="nf">run_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">quote</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tfs_object</span><span class="p">(</span><span class="s1">&#39;wit/queries</span><span class="si">{path}</span><span class="s1">?api-version=2.2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">),</span>
+                                    <span class="n">project</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                    <span class="n">object_class</span><span class="o">=</span><span class="n">TFSQuery</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">query</span></div>
+
+<div class="viewcode-block" id="TFSAPI.run_wiql"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.run_wiql">[docs]</a>    <span class="k">def</span> <span class="nf">run_wiql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span> <span class="p">}</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="s1">&#39;api-version&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s1">&#39;api-version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1.0&#39;</span>
+        <span class="n">wiql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_client</span><span class="o">.</span><span class="n">send_post</span><span class="p">(</span><span class="s1">&#39;wit/wiql&#39;</span><span class="p">,</span>
+                                          <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                                          <span class="n">project</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                          <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">},</span>
+                                          <span class="n">payload</span><span class="o">=</span><span class="n">params</span>
+                                          <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Wiql</span><span class="p">(</span><span class="n">wiql</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TFSAPI.download_file"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.download_file">[docs]</a>    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="c1"># TODO: Use download in stream, not in memory</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_client</span><span class="o">.</span><span class="n">send_get</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TFSAPI.get_gitrepositories"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.get_gitrepositories">[docs]</a>    <span class="k">def</span> <span class="nf">get_gitrepositories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tfs_object</span><span class="p">(</span><span class="s1">&#39;git/repositories&#39;</span><span class="p">,</span> <span class="n">object_class</span><span class="o">=</span><span class="n">GitRepository</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TFSAPI.get_gitrepository"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.get_gitrepository">[docs]</a>    <span class="k">def</span> <span class="nf">get_gitrepository</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tfs_object</span><span class="p">(</span><span class="s1">&#39;git/repositories/</span><span class="si">{name}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="n">project</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">object_class</span><span class="o">=</span><span class="n">GitRepository</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__create_workitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validate_only</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bypass_rules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">suppress_notifications</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">api_version</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create work item. Param description: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create</span>
+
+<span class="sd">        :param project: Name of the target project. The same project is used by default.</span>
+<span class="sd">        :return: Raw JSON of the work item created</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="s1">&#39;wit/workitems/$</span><span class="si">{type}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">type_</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;api-version&#39;</span><span class="p">:</span> <span class="n">api_version</span><span class="p">,</span> <span class="s1">&#39;validateOnly&#39;</span><span class="p">:</span> <span class="n">validate_only</span><span class="p">,</span> <span class="s1">&#39;bypassRules&#39;</span><span class="p">:</span> <span class="n">bypass_rules</span><span class="p">,</span>
+                  <span class="s1">&#39;suppressNotifications&#39;</span><span class="p">:</span> <span class="n">suppress_notifications</span><span class="p">}</span>
+
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json-patch+json&#39;</span><span class="p">}</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_client</span><span class="o">.</span><span class="n">send_post</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">raw</span>
+
+<div class="viewcode-block" id="TFSAPI.create_workitem"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.create_workitem">[docs]</a>    <span class="k">def</span> <span class="nf">create_workitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">relations_raw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validate_only</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bypass_rules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">suppress_notifications</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">api_version</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create work item. Doc: https://docs.microsoft.com/en-us/rest/api/vsts/wit/work%20items/create</span>
+
+<span class="sd">        :param type_: Work item</span>
+<span class="sd">        :param fields: Dictionary containing field values</span>
+<span class="sd">        :param relations_raw: List containing relations which are dict(rel, url[, attributes])</span>
+<span class="sd">        :param validate_only: When True, do not actually create a work item, a dry run of sorts</span>
+<span class="sd">        :param bypass_rules: When True, can bypass restrictions like &lt;ALLOWEDVALUES&gt; and such</span>
+<span class="sd">        :param suppress_notifications: When true, notifications are [supposedly] not sent</span>
+<span class="sd">        :param api_version: API version to use</span>
+<span class="sd">        :return: WorkItem instance of a newly created WI</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># fields</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">op</span><span class="o">=</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;/fields/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span> \
+            <span class="k">if</span> <span class="n">fields</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="c1"># relations</span>
+        <span class="k">if</span> <span class="n">relations_raw</span><span class="p">:</span>
+            <span class="n">body</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">dict</span><span class="p">(</span><span class="n">op</span><span class="o">=</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;/relations/-&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">relation</span><span class="p">)</span> <span class="k">for</span> <span class="n">relation</span> <span class="ow">in</span> <span class="n">relations_raw</span><span class="p">])</span>
+
+        <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__create_workitem</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">validate_only</span><span class="p">,</span> <span class="n">bypass_rules</span><span class="p">,</span> <span class="n">suppress_notifications</span><span class="p">,</span>
+                                     <span class="n">api_version</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Workitem</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__adjusted_area_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adapt area or iteration path from the old TeamProject to the current one. Used when copying work items from</span>
+<span class="sd">        different projects.</span>
+<span class="sd">        :param value: Old area/iteration path value.</span>
+<span class="sd">        :return: Value with the project part replaced.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">actual_area</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">actual_area</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_client</span><span class="o">.</span><span class="n">project</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">actual_area</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TFSAPI.copy_workitem"><a class="viewcode-back" href="../../api.html#tfs.TFSAPI.copy_workitem">[docs]</a>    <span class="k">def</span> <span class="nf">copy_workitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workitem</span><span class="p">,</span> <span class="n">with_links_and_attachments</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">from_another_project</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">target_area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">target_iteration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">validate_only</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">bypass_rules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">suppress_notifications</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">api_version</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a copy of a work item</span>
+
+<span class="sd">        :param workitem: Source workitem</span>
+<span class="sd">        :param with_links_and_attachments: When True, all relations are copied</span>
+<span class="sd">        :param from_another_project: When True, certain fields are not copied</span>
+<span class="sd">        :param target_type: When specified, the copy will have this type instead of the source one</span>
+<span class="sd">        :param target_area: When specified, the copy will have this area instead of the source one</span>
+<span class="sd">        :param target_iteration: When specified, the copy will have this iteration instead of the source one</span>
+<span class="sd">        :param validate_only: When True, do not actually create a work item, a dry run of sorts</span>
+<span class="sd">        :param bypass_rules: When True, can bypass restrictions like &lt;ALLOWEDVALUES&gt; and such</span>
+<span class="sd">        :param suppress_notifications: When true, notifications are [supposedly] not sent</span>
+<span class="sd">        :param api_version: API version to use</span>
+<span class="sd">        :return: WorkItem instance of a newly created copy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">workitem</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">)</span>
+        <span class="n">type_</span> <span class="o">=</span> <span class="n">target_type</span> <span class="k">if</span> <span class="n">target_type</span> <span class="k">else</span> <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;System.WorkItemType&#39;</span><span class="p">]</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;api-version&#39;</span><span class="p">:</span> <span class="n">api_version</span><span class="p">,</span> <span class="s1">&#39;validateOnly&#39;</span><span class="p">:</span> <span class="n">validate_only</span><span class="p">,</span> <span class="s1">&#39;bypassRules&#39;</span><span class="p">:</span> <span class="n">bypass_rules</span><span class="p">,</span>
+                  <span class="s1">&#39;suppressNotifications&#39;</span><span class="p">:</span> <span class="n">suppress_notifications</span><span class="p">}</span>
+
+        <span class="c1"># When copy from another project, adjust AreaPath and IterationPath and do not copy identifying fields</span>
+        <span class="k">if</span> <span class="n">from_another_project</span><span class="p">:</span>
+            <span class="n">no_copy_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;System.TeamProject&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.AreaPath&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.IterationPath&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.Id&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.AreaId&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.NodeName&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.AreaLevel1&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.AreaLevel2&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.AreaLevel3&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.AreaLevel4&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.Rev&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.AutorizedDate&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.RevisedDate&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.IterationId&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.IterationLevel1&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.IterationLevel2&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.IterationLevel4&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.CreatedDate&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.CreatedBy&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.ChangedDate&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.ChangedBy&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.AuthorizedAs&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.AuthorizedDate&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;System.Watermark&#39;</span><span class="p">]</span>
+
+            <span class="n">fields</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">workitem</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">no_copy_fields</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">fields</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+            <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;System.AreaPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_area</span> \
+                <span class="k">if</span> <span class="n">target_area</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">__adjusted_area_iteration</span><span class="p">(</span><span class="n">workitem</span><span class="p">[</span><span class="s1">&#39;AreaPath&#39;</span><span class="p">])</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;System.IterationPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_iteration</span> \
+                <span class="k">if</span> <span class="n">target_iteration</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">__adjusted_area_iteration</span><span class="p">(</span><span class="n">workitem</span><span class="p">[</span><span class="s1">&#39;IterationPath&#39;</span><span class="p">])</span>
+
+        <span class="n">relations</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">wi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_workitem</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="n">validate_only</span><span class="p">,</span> <span class="n">bypass_rules</span><span class="p">,</span>
+                                  <span class="n">suppress_notifications</span><span class="p">,</span>
+                                  <span class="n">api_version</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">with_links_and_attachments</span><span class="p">:</span>
+            <span class="n">wi</span><span class="o">.</span><span class="n">add_relations_raw</span><span class="p">(</span><span class="n">workitem</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;relations&#39;</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wi</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">TFSClientError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="TFSHTTPClient"><a class="viewcode-back" href="../../api.html#tfs.TFSHTTPClient">[docs]</a><span class="k">class</span> <span class="nc">TFSHTTPClient</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">pat</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auth_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">base_url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+            <span class="n">base_url</span> <span class="o">+=</span> <span class="s1">&#39;/&#39;</span>
+
+        <span class="n">collection</span><span class="p">,</span> <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_collection_and_project</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="n">collection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="n">project</span>
+        <span class="c1"># Remove part after / in project-name, like DefaultCollection/MyProject =&gt; DefaultCollection</span>
+        <span class="c1"># API responce only in Project, without subproject</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/_apis/&#39;</span> <span class="o">%</span> <span class="n">collection</span>
+        <span class="k">if</span> <span class="n">project</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_url_prj</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">/_apis/&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_url_prj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">http_session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pat</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">pat</span>
+            <span class="n">pat_base64</span> <span class="o">=</span> <span class="n">b</span><span class="s1">&#39;Basic &#39;</span> <span class="o">+</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">pat</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">http_session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="n">pat_base64</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="n">auth_type</span><span class="p">()</span> <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">auth_type</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">http_session</span><span class="o">.</span><span class="n">auth</span> <span class="o">=</span> <span class="n">auth</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_verify</span> <span class="o">=</span> <span class="n">verify</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verify</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">requests.packages.urllib3.exceptions</span> <span class="k">import</span> <span class="n">InsecureRequestWarning</span>
+            <span class="n">requests</span><span class="o">.</span><span class="n">packages</span><span class="o">.</span><span class="n">urllib3</span><span class="o">.</span><span class="n">disable_warnings</span><span class="p">(</span><span class="n">InsecureRequestWarning</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TFSHTTPClient.get_collection_and_project"><a class="viewcode-back" href="../../api.html#tfs.TFSHTTPClient.get_collection_and_project">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_collection_and_project</span><span class="p">(</span><span class="n">project</span><span class="p">):</span>
+        <span class="n">splitted_project</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">collection</span> <span class="o">=</span> <span class="n">splitted_project</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitted_project</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">project</span> <span class="o">=</span> <span class="n">splitted_project</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># If not space</span>
+            <span class="k">if</span> <span class="n">project</span><span class="p">:</span>
+                <span class="n">project</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">collection</span><span class="p">,</span> <span class="n">project</span></div>
+
+<div class="viewcode-block" id="TFSHTTPClient.send_get"><a class="viewcode-back" href="../../api.html#tfs.TFSHTTPClient.send_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">json</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TFSHTTPClient.send_post"><a class="viewcode-back" href="../../api.html#tfs.TFSHTTPClient.send_post">[docs]</a>    <span class="k">def</span> <span class="nf">send_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_request</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TFSHTTPClient.send_patch"><a class="viewcode-back" href="../../api.html#tfs.TFSHTTPClient.send_patch">[docs]</a>    <span class="k">def</span> <span class="nf">send_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_request</span><span class="p">(</span><span class="s1">&#39;PATCH&#39;</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__send_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send request</span>
+
+<span class="sd">        :param method:</span>
+<span class="sd">        :param uri:</span>
+<span class="sd">        :param data:</span>
+<span class="sd">        :param headers:</span>
+<span class="sd">        :param payload:</span>
+<span class="sd">        :param project:</span>
+<span class="sd">            False - add only collection to uri</span>
+<span class="sd">            True - add Collection/Project to url, some api need it</span>
+<span class="sd">            e.g. WIQL: https://www.visualstudio.com/en-us/docs/integrate/api/wit/wiql</span>
+<span class="sd">        :param json:</span>
+<span class="sd">            True - try to convert response to python-object</span>
+<span class="sd">            False - get as is</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__prepare_uri</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">http_session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verify</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                                              <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;PATCH&#39;</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">http_session</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verify</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                                               <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">http_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verify</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                                             <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">json</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TFSClientError</span><span class="p">(</span><span class="s1">&#39;TFS API returned HTTP </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;error&#39;</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">else</span> <span class="n">response</span><span class="o">.</span><span class="n">reason</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">result</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TFSClientError</span><span class="p">(</span><span class="s1">&#39;Response is not json: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span>
+
+    <span class="k">def</span> <span class="nf">__prepare_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert URI to URL</span>
+
+<span class="sd">        :param project:</span>
+<span class="sd">        :param uri:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Add get from non-standart collection,</span>
+        <span class="c1"># e.g. workItemTypes: https://www.visualstudio.com/en-us/docs/integrate/api/wit/work-item-types</span>
+        <span class="k">if</span> <span class="n">uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;https&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">):</span>
+            <span class="c1"># If we use URL (full path)</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">uri</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Add prefix to uri</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_url_prj</span> <span class="k">if</span> <span class="n">project</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url</span><span class="p">)</span> <span class="o">+</span> <span class="n">uri</span>
+        <span class="k">return</span> <span class="n">url</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">TFS</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../others.html">Other usages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contribution.html">Contribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/devopshq/tfs">GitHub</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, DevOpsHQ (devopshq).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
