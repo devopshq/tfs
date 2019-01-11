@@ -20,6 +20,7 @@ git checkout --orphan gh-pages
 rm -rf !(.git|.gitignore) | echo "something wrong, but continue"
 
 cp -r $CURR_DIR/_build/html/* .
+touch .nojekyll
 
 git add -A
 git commit -m "published"
