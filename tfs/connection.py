@@ -21,7 +21,7 @@ def batch(iterable, n=1):
 class TFSAPI:
     def __init__(self, server_url, project="DefaultCollection", user=None, password=None, pat=None, verify=False,
                  auth_type=HTTPBasicAuth,
-                 connect_timeout=20, read_timeout=180, ):
+                 connect_timeout=20, read_timeout=180):
         """
         This class must be used to get first object from TFS
 
@@ -45,28 +45,66 @@ class TFSAPI:
                                          auth_type=auth_type,
                                          )
 
-    def get_tfs_object(self, uri, payload=None, object_class=TFSObject, project=False):
-        """ Send requests and return any object in TFS """
-        raw = self.rest_client.send_get(uri=uri, payload=payload, project=project)
+    def get_tfs_resource(self, uri, underProject=None, payload=None):
+        """ Return any object in TFS by the uri """
+        raw = self.get_json(uri=uri, payload=payload, underProject=underProject)
 
         # For list results
         if 'value' in raw:
             raw = raw['value']
-            objects = [object_class(x, self, uri) for x in raw]
+            uri = raw[0].get('url', '') if raw else ''
+            tfs_class = class_for_resource(uri)
+            return [tfs_class(self, x) for x in raw]
         else:
-            objects = object_class(raw, self, uri)
+            return class_for_resource(raw['url'])(self, raw)
 
-        return objects
+    def _find_resource(self, resource_class, ids=None):
+        """
+        Find resource by name and ids
+        """
+        resource = resource_class(self)
+        if ids is not None:
+            resource._find(ids)
+        return resource
+
+    def get_json(self, uri, payload=None, underProject=None):
+        """ Get resource from known location or try both locations
+            (under collection and under collection/project)
+
+        :param uri: uri of he resource
+        :param payload: additional query attributes
+        :param underProject: base resource location selector
+        """
+        if underProject is not None:
+            return self.rest_client.send_get(uri, payload=payload, project=underProject)
+        else:
+            try:
+                return self.rest_client.send_get(uri, payload=payload, project=True)
+            except:
+                return self.rest_client.send_get(uri, payload=payload, project=False)
+
+    def substitute_ids(self, uri, ids):
+        """ Substitute id placeholders in the uri
+
+        :param uri: uri with id placeholders
+        :type uri: str
+        :param ids: ids to replace placeholders in the uri
+        :type ids: Union[Tuple[str, str], int, str]
+        """
+        if isinstance(ids, tuple):
+            return uri.format(*ids)
+        
+        return uri.format(ids)
 
     def __get_workitems(self, work_items_ids, fields=None, expand='all'):
         ids_string = ','.join(map(str, work_items_ids))
         expand = '&$expand={}'.format(expand) if expand else ''
         fields_string = ('&fields=' + ','.join(fields)) if fields else ""
-        workitems = self.get_tfs_object(
+        workitems = self.get_tfs_resource(
             'wit/workitems?ids={ids}{fields}{expand}&api-version=1.0'.format(ids=ids_string,
                                                                              fields=fields_string,
                                                                              expand=expand),
-            object_class=Workitem)
+            underProject=False)
         return workitems
 
     def get_workitem(self, id_, fields=None):
@@ -85,8 +123,8 @@ class TFSAPI:
             workitems += work_items_batch_info
         return workitems
 
-    def get_changeset(self, id_):
-        return self.get_changesets(from_=id_, to_=id_)[0]
+    def get_changeset(self, id):
+        return self._find_resource(Changeset, ids=id)
 
     def get_changesets(self, from_=None, to_=None, item_path=None, top=10000):
         payload = {'$top': top}
@@ -102,15 +140,48 @@ class TFSAPI:
 
         if item_path:
             payload['searchCriteria.itemPath'] = item_path
-        changesets = self.get_tfs_object('tfvc/changesets', payload=payload, object_class=Changeset)
+        changesets = self.get_tfs_resource('tfvc/changesets', underProject=True, payload=payload)
         return changesets
 
+    @PendingDeprecationWarning
     def get_projects(self):
-        return self.get_tfs_object('projects', object_class=Projects)
+        return self.projects()
 
+    @PendingDeprecationWarning
     def get_project(self, name):
-        return self.get_tfs_object('projects/{}'.format(name), object_class=Projects)
+        return self.project(name)
 
+    def projects(self):
+        """ List of all projects """
+        return self.get_tfs_resource('projects', underProject=False)
+
+    def project(self, id):
+        """ Get project by id """
+        return self._find_resource(Project, id)
+
+    def teams(self, projectId):
+        """ List of teams under the project
+
+        :param projectId: id of the project
+        """
+        return self.get_tfs_resource('projects/{}/teams'.format(projectId), underProject=False)
+
+    def builds(self):
+        return self.get_tfs_resource('build/Builds', underProject=True)
+
+    def build(self, id):
+        """ Get build by id
+
+        :param id: id of the build
+        :return: Build class
+        """
+        return self._find_resource(Build, ids=id)
+
+    def definitions(self):
+        """ List of build definitions """
+        return self.get_tfs_resource('build/Definitions', underProject=True)
+
+    # not a resource
     def update_workitem(self, work_item_id, update_data, params=None):
         raw = self.rest_client.send_patch('wit/workitems/{id}?api-version=1.0'.format(id=work_item_id),
                                           data=update_data,
@@ -119,12 +190,20 @@ class TFSAPI:
         return raw
 
     def run_query(self, path):
+        """ Get query definition by path
+            and get Wiql of this query results in the self.result
+        """
         if path and not path.startswith('/'):
             path = '/' + quote(path)
-        query = self.get_tfs_object('wit/queries{path}?api-version=2.2'.format(path=path),
-                                    project=True,
-                                    object_class=TFSQuery)
-        return query
+        return self._find_resource(TFSQuery, ids=path)
+
+    def run_saved_query(self, id):
+        """ Run saved query by query id
+
+        :param id: id of the query to run
+        :return: instance of the Wiql object with query results
+        """
+        return self._find_resource(Wiql, ids=id)
 
     def run_wiql(self, query, params=None):
         data = {"query": query, }
@@ -138,7 +217,7 @@ class TFSAPI:
                                           headers={'Content-Type': 'application/json'},
                                           payload=params
                                           )
-        return Wiql(wiql, self)
+        return Wiql(self, wiql)
 
     def download_file(self, uri, filename):
         # TODO: Use download in stream, not in memory
@@ -147,11 +226,10 @@ class TFSAPI:
             file.write(r.content)
 
     def get_gitrepositories(self):
-        return self.get_tfs_object('git/repositories', object_class=GitRepository)
+        return self.get_tfs_resource('git/repositories', underProject=False)
 
     def get_gitrepository(self, name):
-        return self.get_tfs_object('git/repositories/{name}'.format(name=name), project=True,
-                                   object_class=GitRepository)
+        return self._find_resource(GitRepository, ids=name)
 
     def __create_workitem(self, type_, data=None, validate_only=None, bypass_rules=None,
                           suppress_notifications=None,
@@ -337,15 +415,15 @@ class TFSHTTPClient:
         return collection, project
 
     def send_get(self, uri, payload=None, project=False, json=True):
-        return self.__send_request('GET', uri, None, payload=payload, project=project, json=json)
+        return self.__send_request('GET', uri, None, payload=payload, underProject=project, json=json)
 
     def send_post(self, uri, data, headers, payload=None, project=False):
-        return self.__send_request('POST', uri, data, headers, payload=payload, project=project)
+        return self.__send_request('POST', uri, data, headers, payload=payload, underProject=project)
 
     def send_patch(self, uri, data, headers, payload=None, project=False):
-        return self.__send_request('PATCH', uri, data, headers, payload=payload, project=project)
+        return self.__send_request('PATCH', uri, data, headers, payload=payload, underProject=project)
 
-    def __send_request(self, method, uri, data, headers=None, payload=None, project=False, json=True):
+    def __send_request(self, method, uri, data, headers=None, payload=None, underProject=False, json=True):
         """
         Send request
 
@@ -354,7 +432,7 @@ class TFSHTTPClient:
         :param data:
         :param headers:
         :param payload:
-        :param project:
+        :param underProject:
             False - add only collection to uri
             True - add Collection/Project to url, some api need it
             e.g. WIQL: https://www.visualstudio.com/en-us/docs/integrate/api/wit/wiql
@@ -363,7 +441,7 @@ class TFSHTTPClient:
             False - get as is
         :return:
         """
-        url = self.__prepare_uri(uri=uri, project=project)
+        url = self.__prepare_uri(uri=uri, underProject=underProject)
 
         if method == 'POST':
             response = self.http_session.post(url, json=data, verify=self._verify, headers=headers, params=payload,
@@ -390,20 +468,18 @@ class TFSHTTPClient:
         else:
             return response
 
-    def __prepare_uri(self, project, uri):
+    def __prepare_uri(self, underProject, uri):
         """
         Convert URI to URL
 
-        :param project:
-        :param uri:
-        :return:
+        :param underProject: if url need to have project name in it then True
+        :param uri: relative uri or the full http url of the resource
+        :return: full url to the resource
         """
-        # TODO: Add get from non-standart collection,
-        # e.g. workItemTypes: https://www.visualstudio.com/en-us/docs/integrate/api/wit/work-item-types
-        if uri.startswith('https') or uri.startswith('http'):
+        if uri.startswith('http'):
             # If we use URL (full path)
             url = uri
         else:
             # Add prefix to uri
-            url = (self._url_prj if project else self._url) + uri
+            url = (self._url_prj if underProject else self._url) + uri
         return url
