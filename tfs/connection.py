@@ -47,7 +47,7 @@ class TFSAPI:
 
     def get_tfs_resource(self, uri, underProject=None, payload=None):
         """ Return any object in TFS by the uri """
-        raw = self.get_json(uri=uri, payload=payload, underProject=underProject)
+        raw = self.get_json(uri=uri, underProject=underProject, payload=payload)
 
         # For list results
         if 'value' in raw:
@@ -67,13 +67,13 @@ class TFSAPI:
             resource._find(ids)
         return resource
 
-    def get_json(self, uri, payload=None, underProject=None):
+    def get_json(self, uri, underProject=None, payload=None):
         """ Get resource from known location or try both locations
             (under collection and under collection/project)
 
         :param uri: uri of he resource
-        :param payload: additional query attributes
         :param underProject: base resource location selector
+        :param payload: additional query attributes
         """
         if underProject is not None:
             return self.rest_client.send_get(uri, payload=payload, project=underProject)
@@ -140,7 +140,7 @@ class TFSAPI:
 
         if item_path:
             payload['searchCriteria.itemPath'] = item_path
-        changesets = self.get_tfs_resource('tfvc/changesets', underProject=True, payload=payload)
+        changesets = self.get_tfs_resource('tfvc/changesets', underProject=False, payload=payload)
         return changesets
 
     @PendingDeprecationWarning

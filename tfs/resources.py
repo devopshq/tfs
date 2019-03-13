@@ -11,7 +11,7 @@ from six import iteritems
 
 
 class TFSObject(object):
-    def __init__(self, data=None, tfs=None, uri='', projectBased=None):
+    def __init__(self, data=None, tfs=None, uri='', underProject=None):
         """
         Base tfs recource object initialization
 
@@ -20,13 +20,13 @@ class TFSObject(object):
         :type tfs: TFSAPI
         :param uri: uri of resource
         :type uri: str
-        :param projectBased: resource is under the project in the path
+        :param underProject: resource is under the project in the path
         """
         # TODO: CaseInsensitive Dict
 
         self.tfs = tfs
         self.uri = uri
-        self._projectBased = projectBased
+        self._underProject = underProject
         self.data = data
         # list of resources from _links property to expose as attributes
         self._links_attrs = []
@@ -62,7 +62,7 @@ class TFSObject(object):
         :param name:
         :return: mapped or unknown tfs object
         """
-        if name in self.data.get('_links', {}):
+        if self.data and name in self.data.get('_links', {}):
             return self.__get_object_by_links(name)
         raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, name))
 
@@ -105,7 +105,7 @@ class UnknownTfsObject(TFSObject):
         """
         # list of fields to exclude from resource translation and assign as a raw json value
         self.raw_attrs = ['_links']
-        super().__init__(raw, tfs, uri=uri, projectBased=underProject)
+        super().__init__(raw, tfs, uri=uri, underProject=underProject)
         if raw:
             self._parse_raw(raw)
 
@@ -124,7 +124,7 @@ class UnknownTfsObject(TFSObject):
         :param uri: uri of the resource to get
         :type uri: str
         """
-        result = self.tfs.get_json(uri, self._projectBased)
+        result = self.tfs.get_json(uri, underProject=self._underProject)
         self._parse_raw(result)
 
     def _parse_raw(self, raw):
@@ -146,8 +146,8 @@ class Workitem(UnknownTfsObject):
         # We don't need use wi['System.History'], we use simple wi['History']
         self._system_prefix = 'System.'
 
-        super().__init__(tfs, raw, 'wit/workItems/{0}', False)
-        self._links_attrs.extend(['workItemHistory', 'workItemRevisions', 'workItemType'])
+        super().__init__(tfs, raw, 'wit/workItems/{0}', underProject=False)
+        self._links_attrs.extend(['workItemHistory', 'workItemRevisions', 'workItemType', 'workItemUpdates'])
 
     def _parse_raw(self, raw):
         self.raw_attrs.extend(['fields'])
@@ -285,6 +285,10 @@ class Workitem(UnknownTfsObject):
 class Attachment(UnknownTfsObject):
     def __init__(self, tfs=None, raw=None):
         super().__init__(tfs, raw, 'wit/attachments/{0}', underProject=False)
+
+    def _parse_raw(self, raw):
+        super()._parse_raw(raw)
+
         self.id = self.url.split('/')[-1]  # Get UUID from url
         self.name = self.attributes.name
 
@@ -295,11 +299,15 @@ class Attachment(UnknownTfsObject):
 
 class Changeset(UnknownTfsObject):
     def __init__(self, tfs, raw=None):
-        super().__init__(tfs, raw, uri="tfvc/changesets/{0}", underProject=True)
+        super().__init__(tfs, raw, uri="tfvc/changesets/{0}", underProject=False)
+
+    def _parse_raw(self, raw):
+        super()._parse_raw(raw)
+        self.id = self.changesetId
 
     @property
     def workitems(self):
-        wi_links = self.tfs.get_tfs_resource('tfvc/changesets/{}/workItems'.format(self.changesetId),
+        wi_links = self.tfs.get_tfs_resource('tfvc/changesets/{}/workItems'.format(self.id),
                                              underProject=False)
         ids = [x.id for x in wi_links]
         workitems = self.tfs.get_workitems(ids)
@@ -315,10 +323,9 @@ class TFSQuery(UnknownTfsObject):
         super()._parse_raw(raw)
 
         ## run saved query using WIQL
-        if raw:
-            self.result = self.tfs.run_saved_query(self.id)
-            self.columns = tuple(i['referenceName'] for i in self.result['columns'])
-            self.column_names = tuple(i['name'] for i in self.result['columns'])
+        self.result = self.tfs.run_saved_query(self.id)
+        self.columns = tuple(i['referenceName'] for i in self.result['columns'])
+        self.column_names = tuple(i['name'] for i in self.result['columns'])
 
     @property
     def workitems(self):
@@ -351,7 +358,7 @@ class GitRepository(UnknownTfsObject):
 
 class Project(UnknownTfsObject):
     def __init__(self, tfs, raw=None):
-        super().__init__(tfs, raw, "projects/{0}", False)
+        super().__init__(tfs, raw, "projects/{0}", underProject=False)
 
     @property
     def teams(self):

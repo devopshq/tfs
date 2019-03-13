@@ -32,10 +32,11 @@ This python library allows:
 #. Work with :ref:`TFVC changesets <tfs-changesets>`
 #. Work with :ref:`TFS Projects <tfs-projects>`
 #. :ref:`Advanced usage <advanced>` - what is :py:class:`tfs.TFSObject`,
-    find and add with Workitem relations,
-    links, and information about :py:class:`tfs.TFSHTTPClient`
+   find and add with Workitem relations,
+   links, and information about :py:class:`tfs.TFSHTTPClient`
 #. Some :ref:`other objects available <other_usages>` -
-    :py:class:`tfs.Changesets`, :py:class:`tfs.Project`, `Team`
+   :py:class:`tfs.Changeset`, :py:class:`tfs.Project`, :py:class:`tfs.Team`,
+   :py:class:`tfs.Workitem`
 
 Troubleshooting
 ***************

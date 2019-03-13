@@ -64,7 +64,7 @@ class TestTFSAPI:
 
     @pytest.mark.httpretty
     def test_get_workitems_with_int(self, tfsapi):
-        workitems = tfsapi.get_workitems(work_items_ids=100)
+        workitems = tfsapi.get_workitems(work_items_ids=[100,101])
 
         assert len(workitems) == 2
         assert workitems[0].id == 100
@@ -93,25 +93,24 @@ class TestTFSAPI:
 
     @pytest.mark.httpretty
     def test_get_projects(self, tfsapi):
-        projects = tfsapi.get_projects()
+        projects = tfsapi.projects()
 
         assert len(projects) == 1
         assert projects[0]['name'] == 'ProjectName'
 
     @pytest.mark.httpretty
     def test_get_project(self, tfsapi):
-        projects = tfsapi.get_project('ProjectName')
+        project = tfsapi.project('ProjectName')
 
-        assert len(projects) == 1
-        assert projects[0]['name'] == 'ProjectName'
+        assert project.name == 'ProjectName'
 
     @pytest.mark.httpretty
     def test_get_teams(self, tfsapi):
-        projects = tfsapi.get_projects()
-        team = projects[0].team
+        projects = tfsapi.projects()
+        teams = projects[0].teams
 
-        assert isinstance(team, TFSObject)
-        assert team['name'] == 'ProjectName'
+        assert isinstance(teams[0], Team)
+        assert teams[1]['name'] == 'TeamPink'
 
     @pytest.mark.httpretty
     def test_get_gitrepositories(self, tfsapi):
