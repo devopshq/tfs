@@ -80,7 +80,7 @@ class TFSAPI:
         else:
             try:
                 return self.rest_client.send_get(uri, payload=payload, project=True)
-            except:
+            except Exception:
                 return self.rest_client.send_get(uri, payload=payload, project=False)
 
     def substitute_ids(self, uri, ids):
@@ -93,7 +93,7 @@ class TFSAPI:
         """
         if isinstance(ids, tuple):
             return uri.format(*ids)
-        
+
         return uri.format(ids)
 
     def __get_workitems(self, work_items_ids, fields=None, expand='all'):

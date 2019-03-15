@@ -152,7 +152,7 @@ class Workitem(UnknownTfsObject):
     def _parse_raw(self, raw):
         self.raw_attrs.extend(['fields'])
         super()._parse_raw(raw)
-        
+
         if not self.id:
             self.id = self.url.split('/')[-1]
         if self.fields:
@@ -322,7 +322,7 @@ class TFSQuery(UnknownTfsObject):
     def _parse_raw(self, raw):
         super()._parse_raw(raw)
 
-        ## run saved query using WIQL
+        # run saved query using WIQL
         self.result = self.tfs.run_saved_query(self.id)
         self.columns = tuple(i['referenceName'] for i in self.result['columns'])
         self.column_names = tuple(i['name'] for i in self.result['columns'])
@@ -352,9 +352,11 @@ class Wiql(UnknownTfsObject):
     def workitems(self):
         return self.tfs.get_workitems(self.workitem_ids)
 
+
 class GitRepository(UnknownTfsObject):
     def __init__(self, tfs, raw=None):
         super().__init__(tfs, raw, "git/repositories/{0}", underProject=False)
+
 
 class Project(UnknownTfsObject):
     def __init__(self, tfs, raw=None):
@@ -364,17 +366,21 @@ class Project(UnknownTfsObject):
     def teams(self):
         return self.tfs.teams(projectId=self.id)
 
+
 class Team(UnknownTfsObject):
     def __init__(self, tfs, raw=None):
         super().__init__(tfs, raw, "projects/{0}/teams/{1}", underProject=False)
+
 
 class Build(UnknownTfsObject):
     def __init__(self, tfs, raw=None):
         super().__init__(tfs, raw, "build/Builds/{0}", underProject=True)
 
+
 class Definition(UnknownTfsObject):
     def __init__(self, tfs, raw=None):
         super().__init__(tfs, raw, "build/Definitions/{0}", underProject=True)
+
 
 class Identity(UnknownTfsObject):
     def __init__(self, tfs, raw=None):
@@ -383,6 +389,7 @@ class Identity(UnknownTfsObject):
 #################################################################################
 # Utilities
 #################################################################################
+
 
 def raw2resource(raw, top=None, tfs=None):
     """ Convert a raw valie into a TFTObject object.
@@ -424,6 +431,7 @@ def raw2resource(raw, top=None, tfs=None):
             setattr(top, i, j)
     return top
 
+
 resource_class_map = {
     r'wit/attachments/[^/]+$': Attachment,
     r'build/Builds/[^/]+$': Build,
@@ -438,12 +446,14 @@ resource_class_map = {
     r'wit/workItems/[^/]+$': Workitem
 }
 
+
 def class_for_resource(path):
     for resource in resource_class_map:
         if re.search(resource, path):
             return resource_class_map[resource]
     else:
         return UnknownTfsObject
+
 
 class TopLevelWrapper(object):
     def __init__(self, raw):
