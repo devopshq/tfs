@@ -84,6 +84,15 @@ class TestTFSAPI:
         assert changeset.id == 10
 
     @pytest.mark.httpretty
+    def test_run_query(self, tfsapi):
+        query = tfsapi.run_query('My Queries/AssignedToMe')
+
+        assert isinstance(query, TFSQuery)
+        assert isinstance(query.result, Wiql)
+        assert query.name == 'AssignedToMe'
+        assert query.path == 'My Queries/AssignedToMe'
+
+    @pytest.mark.httpretty
     def test_get_wiql(self, tfsapi):
         wiql_query = "SELECT *"
         wiql = tfsapi.run_wiql(wiql_query)
@@ -93,20 +102,33 @@ class TestTFSAPI:
 
     @pytest.mark.httpretty
     def test_get_projects(self, tfsapi):
-        projects = tfsapi.projects()
+        projects = tfsapi.get_projects()
+
+        assert len(projects) == 1
+        assert projects[0]['name'] == 'ProjectName'
+
+    @pytest.mark.httpretty
+    def test_projects(self, tfsapi):
+        projects = tfsapi.projects
 
         assert len(projects) == 1
         assert projects[0]['name'] == 'ProjectName'
 
     @pytest.mark.httpretty
     def test_get_project(self, tfsapi):
+        project = tfsapi.get_project('ProjectName')
+
+        assert project.name == 'ProjectName'
+
+    @pytest.mark.httpretty
+    def test_project(self, tfsapi):
         project = tfsapi.project('ProjectName')
 
         assert project.name == 'ProjectName'
 
     @pytest.mark.httpretty
     def test_get_teams(self, tfsapi):
-        projects = tfsapi.projects()
+        projects = tfsapi.projects
         teams = projects[0].teams
 
         assert isinstance(teams[0], Team)

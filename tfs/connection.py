@@ -143,14 +143,15 @@ class TFSAPI:
         changesets = self.get_tfs_resource('tfvc/changesets', underProject=False, payload=payload)
         return changesets
 
-    @PendingDeprecationWarning
     def get_projects(self):
-        return self.projects()
+        """ Deprecated. Use projects instead """
+        return self.projects
 
-    @PendingDeprecationWarning
     def get_project(self, name):
+        """ Deprecated. Use project instead"""
         return self.project(name)
 
+    @property
     def projects(self):
         """ List of all projects """
         return self.get_tfs_resource('projects', underProject=False)
