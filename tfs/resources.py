@@ -106,6 +106,7 @@ class UnknownTfsObject(TFSObject):
         """
         # list of fields to exclude from resource translation and assign as a raw json value
         self.raw_attrs = ['_links']
+        self._clone_delete = ['id', '_links']
         # indicates object is a brief version of the full one (commonly in the list result)
         # so to operate on it you need to get a full one
         self._listVersion = listVersion
@@ -113,7 +114,7 @@ class UnknownTfsObject(TFSObject):
         if raw:
             self._parse_raw(raw)
 
-    def update(self, values={}):
+    def update(self, values=None):
         """
         Update object data using json from values
         only specified keys will be updated
@@ -127,27 +128,38 @@ class UnknownTfsObject(TFSObject):
         if not isinstance(values, dict):
             return self
 
-        for key, value in values.items():
-            updateDictNode(self.data, key, value)
+        updateDict(self.data, values)
 
         result = self.tfs.rest_client.send_put(self.url, data=self.data)
         # TODO restore clean object state
         self._parse_raw(result)
         return self
 
-    def deleteAttr(self, attrName=None):
+    def deleteAttrs(self, *attrs):
         """ Delete attribute from both data and object
 
         :param attrName: name of the attribute
         :type attrName: str
         """
-        if not attrName:
+        if not attrs:
             return self
 
-        self.data.pop(attrName, None)
-        if hasattr(self, attrName):
-            delattr(self, attrName)
+        for attr in attrs:
+            self.data.pop(attr, None)
+            if hasattr(self, attr):
+                delattr(self, attr)
         return self
+
+    def clone(self, values):
+        """  Clone resource 
+        """
+        data = updateDict(deepcopy(self.data), values)
+        
+        clone = self.__class__(self.tfs, data)
+        attrToDel = list(set(self._clone_delete) - set(values.keys()))
+        clone.deleteAttrs(*attrToDel)
+
+        return clone
 
     def _find(self, ids):
         """ Fills up the resource based on the resource's id.
@@ -420,6 +432,13 @@ class Build(UnknownTfsObject):
 class Definition(UnknownTfsObject):
     def __init__(self, tfs, raw=None, listVersion=False):
         super().__init__(tfs, raw, "build/Definitions/{0}", underProject=True, listVersion=listVersion)
+        self._clone_delete.extend(['authoredBy', 'createdDate', 'comment', 'revision'])
+
+    def clone(self, data=None):
+        if data is None: data = {}
+        if 'name' not in data:
+            data['name'] = self.name + '_clone'
+        return super().clone(data)
 
 
 class Identity(UnknownTfsObject):
@@ -498,6 +517,12 @@ def class_for_resource(path):
 class TopLevelWrapper(object):
     def __init__(self, raw):
         __bases__ = raw  # noqa
+
+
+def updateDict(target, updates):
+    for key, value in updates.items():
+        updateDictNode(target, key, value)
+    return target
 
 
 def updateDictNode(node, key, value):
