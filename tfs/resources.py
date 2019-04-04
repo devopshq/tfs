@@ -449,7 +449,7 @@ resource_class_map = {
 
 def class_for_resource(path):
     for resource in resource_class_map:
-        if re.search(resource, path):
+        if path and re.search(resource, path):
             return resource_class_map[resource]
     else:
         return UnknownTfsObject

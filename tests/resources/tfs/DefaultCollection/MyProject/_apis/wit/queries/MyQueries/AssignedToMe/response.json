@@ -1,0 +1,33 @@
+{
+  "id": "fd4f2f90-8922-4fe7-b215-e8a3a5a03e91",
+  "name": "AssignedToMe",
+  "path": "MyQueries/AssignedToMe",
+  "createdBy": {
+    "id": "c828fb02-f458-4a9a-a52e-e5aeb410d625",
+    "name": "Alexey Burov <example\\aburov>",
+    "url": null
+  },
+  "createdDate": "2017-07-13T07:59:18.617Z",
+  "lastModifiedBy": {
+    "id": "c828fb02-f458-4a9a-a52e-e5aeb410d625",
+    "name": "Alexey Burov <example\\aburov>",
+    "url": null
+  },
+  "lastModifiedDate": "2017-07-13T07:59:29.537Z",
+  "isPublic": false,
+  "_links": {
+    "self": {
+      "href": "https://tfs.example.com/tfs/DefaultCollection/a39deefd-52ea-420e-a6e6-db9045784dcd/_apis/wit/queries/fd4f2f90-8922-4fe7-b215-e8a3a5a03e91"
+    },
+    "html": {
+      "href": "https://tfs.example.com/tfs/web/qr.aspx?pguid=a39deefd-52ea-420e-a6e6-db9045784dcd&qid=fd4f2f90-8922-4fe7-b215-e8a3a5a03e91"
+    },
+    "parent": {
+      "href": "https://tfs.example.com/tfs/DefaultCollection/a39deefd-52ea-420e-a6e6-db9045784dcd/_apis/wit/queries/b584f57a-2700-4982-99c3-55d481af5485"
+    },
+    "wiql": {
+      "href": "https://tfs.example.com/tfs/DefaultCollection/a39deefd-52ea-420e-a6e6-db9045784dcd/_apis/wit/wiql/fd4f2f90-8922-4fe7-b215-e8a3a5a03e91"
+    }
+  },
+  "url": "https://tfs.example.com/tfs/DefaultCollection/a39deefd-52ea-420e-a6e6-db9045784dcd/_apis/wit/queries/fd4f2f90-8922-4fe7-b215-e8a3a5a03e91"
+}

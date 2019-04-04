@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import pytest
-import httpretty
 import re
 
+import httpretty
+import pytest
+
 from tfs import *
-from tests.conftest import request_callback_get
+from tests import conftest
 
 
 class TestTFSAPI:
@@ -14,7 +15,7 @@ class TestTFSAPI:
             authorization = request.headers.get('Authorization')
             assert authorization == "Basic OmtsNWt0bnR3M2V6dnh0aGl0YzVhZTR1YmdzZWRpMnFrcWh6cWNuZ2hnNzV0azJuNHJnZmE="
 
-            code, headers, response = request_callback_get(request, uri, headers)
+            code, headers, response = conftest.request_callback_get(request, uri, headers)
             return code, headers, response
 
         httpretty.register_uri(httpretty.GET, re.compile(r"http://tfs.tfs.ru(.*)"),
@@ -25,7 +26,7 @@ class TestTFSAPI:
 
         repos = client.get_gitrepositories()
         name = repos[0].data['name']
-        assert name == 'AnotherRepository'\
+        assert name == 'AnotherRepository'
 
     @httpretty.activate
     def test_get_gitrepositories_with_pat_and_password(self):
@@ -34,7 +35,7 @@ class TestTFSAPI:
             authorization = request.headers.get('Authorization')
             assert authorization == "Basic OmtsNWt0bnR3M2V6dnh0aGl0YzVhZTR1YmdzZWRpMnFrcWh6cWNuZ2hnNzV0azJuNHJnZmE="
 
-            code, headers, response = request_callback_get(request, uri, headers)
+            code, headers, response = conftest.request_callback_get(request, uri, headers)
             return code, headers, response
 
         httpretty.register_uri(httpretty.GET, re.compile(r"http://tfs.tfs.ru(.*)"),
@@ -157,6 +158,15 @@ class TestTFSAPI:
         new_area = '{}\\Area1'.format(new_project)
 
         assert api._TFSAPI__adjusted_area_iteration(old_area) == new_area
+
+    @pytest.mark.httpretty
+    def test_wit_queries_myqueries_empty(self, tfsapi):
+        # Get id from first file and get workitem from second by id
+        # tests/resources/tfs/DefaultCollection/_apis/wit/queries/MyQueries/AssignedToMe/response.json
+        # tests/resources/tfs/DefaultCollection/_apis/wit/wiql/fd4f2f90-8922-4fe7-b215-e8a3a5a03e91/response.json
+        wis = tfsapi.run_query('MyQueries/AssignedToMe')
+        assert len(wis.workitems) == 2
+        pass
 
 
 class TestHTTPClient:
