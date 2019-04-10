@@ -25,7 +25,7 @@ class TFSObject(object):
         # TODO: CaseInsensitive Dict
 
         self.tfs = tfs
-        self.uri = uri
+        self._uri = uri
         self._underProject = underProject
         self.data = data
         # list of resources from _links property to expose as attributes
@@ -161,13 +161,25 @@ class UnknownTfsObject(TFSObject):
 
         return clone
 
+    def create(self, uri=None):
+        """ Create new instance of the object from the current self.data state
+        """
+        if uri is None:
+            uri = self._uri
+            pos = uri.rfind('/{')
+            if pos > -1:
+                uri = uri[:pos]
+        result = self.tfs.rest_client.send_post(uri, data=self.data, project=self._underProject)
+        self._parse_raw(result)
+        return self
+
     def _find(self, ids):
         """ Fills up the resource based on the resource's id.
 
         :param ids: ids to replace id placeholders in the uri
         :type ids: Union[Tuple[str, str], int, str]
         """
-        uri = self.tfs.substitute_ids(self.uri, ids)
+        uri = self.tfs.substitute_ids(self._uri, ids)
         self._load(uri)
 
     def _load(self, uri):
