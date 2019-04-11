@@ -49,7 +49,7 @@ class TestWorkitem(object):
             "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/100"
         }"""
         data_ = json.loads(data_str)
-        wi = Workitem(data_, tfsapi)
+        wi = Workitem(tfsapi, data_)
         yield wi
 
     @pytest.fixture()
@@ -104,19 +104,28 @@ class TestWorkitem(object):
               "self": {
                 "href": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/100"
               },
-              "html": {
-                "href": "http:\/\/tfs.tfs.ru\/tfs\/web\/wi.aspx?pcguid=9cd4a217-5ab5-4e09-8116-ec8a6141e5a5&id=100"
+              "workItemUpdates": {
+                "href": "http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/workItems/309/updates"
               },
               "workItemRevisions": {
                 "href": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workitems\/100\/revisions"
               },
               "workItemHistory": {
                 "href": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/wit\/workItems\/100\/history"
+              },
+              "html": {
+                "href": "http:\/\/tfs.tfs.ru\/tfs\/web\/wi.aspx?pcguid=9cd4a217-5ab5-4e09-8116-ec8a6141e5a5&id=100"
+              },
+              "workItemType": {
+                "href": "http://tfs.tfs.ru/tfs/DefaultCollection/6ce954b1-ce1f-45d1-b94d-e6bf2464ba2c/_apis/wit/workItemTypes/Product%20Backlog%20Item"
+              },
+              "fields": {
+                "href": "http://tfs.tfs.ru/tfs/DefaultCollection/_apis/wit/fields"
               }
             }
         }"""
         data_ = json.loads(data_str)
-        wi = Workitem(data_, tfsapi)
+        wi = Workitem(tfsapi, data_)
         yield wi
 
     def test_workitem_id(self, workitem):
@@ -159,7 +168,6 @@ class TestWorkitem(object):
     def test_find_in_relation(self, workitem):
         assert len(workitem.find_in_relation('Hierarchy-Reverse')) == 1, 'Can not find in relation some link'
 
-
     def test_attachment(self, workitem):
         assert len(workitem.attachments) == 1
         attach = workitem.attachments[0]
@@ -167,7 +175,7 @@ class TestWorkitem(object):
         assert attach.name == '.gitignore'
 
     def test_dir_links(self, workitem):
-        properties_must_be = ['workItemHistory', 'workItemRevisions', 'self', 'html']
+        properties_must_be = ['workItemHistory', 'workItemRevisions', 'workItemType', 'workItemUpdates']
         properties = dir(workitem)
         for property_name in properties_must_be:
             assert property_name in properties, "Workitem object must has attribute '{}'".format(property_name)
@@ -189,36 +197,53 @@ class TestWorkitem(object):
 
 class TestChangeset(object):
     @pytest.fixture()
-    def changeset(self):
-        data_str = r"""{
-          "changesetId": 10,
-          "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/tfvc\/changesets\/18736",
+    def changeset(self, tfsapi):
+        data_str = """{
+          "changesetId": 16,
+          "url": "http://tfs.tfs.ru/DefaultCollection/_apis/tfvc/changesets/16",
           "author": {
-            "id": "831299d4-f278-4858-a188-d1edae64125d",
-            "displayName": "\u041c\u0438\u0445\u0430\u0438\u043b \u041f\u043e\u043b\u044c\u0433\u0443\u043d",
-            "uniqueName": "DOMAIN\\MIvanov",
-            "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/831299d4-f278-4858-a188-d1edae64125d",
-            "imageUrl": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=831299d4-f278-4858-a188-d1edae64125d"
+            "id": "8c8c7d32-6b1b-47f4-b2e9-30b477b5ab3d",
+            "displayName": "Chuck Reinhart",
+            "uniqueName": "fabrikamfiber3@hotmail.com",
+            "url": "http://tfs.tfs.ru/DefaultCollection/_apis/Identities/8c8c7d32-6b1b-47f4-b2e9-30b477b5ab3d",
+            "imageUrl": "http://tfs.tfs.ru/DefaultCollection/_api/_common/identityImage?id=8c8c7d32-6b1b-47f4-b2e9-30b477b5ab3d"
           },
           "checkedInBy": {
-            "id": "dc115031-b185-421e-a58d-b2b19903f51a",
-            "displayName": "deploy",
-            "uniqueName": "DOMAIN\\deploy",
-            "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/dc115031-b185-421e-a58d-b2b19903f51a",
-            "imageUrl": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=dc115031-b185-421e-a58d-b2b19903f51a"
+            "id": "8c8c7d32-6b1b-47f4-b2e9-30b477b5ab3d",
+            "displayName": "Chuck Reinhart",
+            "uniqueName": "fabrikamfiber3@hotmail.com",
+            "url": "http://tfs.tfs.ru/DefaultCollection/_apis/Identities/8c8c7d32-6b1b-47f4-b2e9-30b477b5ab3d",
+            "imageUrl": "http://tfs.tfs.ru/DefaultCollection/_api/_common/identityImage?id=8c8c7d32-6b1b-47f4-b2e9-30b477b5ab3d"
           },
-          "createdDate": "2017-06-30T15:43:41.71Z",
-          "comment": "My Comment"
+          "createdDate": "2014-03-24T20:21:02.727Z",
+          "comment": "My Comment",
+          "_links": {
+            "self": {
+              "href": "http://tfs.tfs.ru/DefaultCollection/_apis/tfvc/changesets/16"
+            },
+            "changes": {
+              "href": "http://tfs.tfs.ru/DefaultCollection/_apis/tfvc/changesets/16/changes"
+            },
+            "workItems": {
+              "href": "http://tfs.tfs.ru/DefaultCollection/_apis/tfvc/changesets/16/workItems"
+            },
+            "author": {
+              "href": "http://tfs.tfs.ru/DefaultCollection/_apis/Identities/8c8c7d32-6b1b-47f4-b2e9-30b477b5ab3d"
+            },
+            "checkedInBy": {
+              "href": "http://tfs.tfs.ru/DefaultCollection/_apis/Identities/8c8c7d32-6b1b-47f4-b2e9-30b477b5ab3d"
+            }
+          }
         }"""
         data_ = json.loads(data_str)
-        cs = Changeset(data_)
+        cs = Changeset(tfsapi, data_)
         yield cs
 
-    def test_changeset_id(self, changeset):
-        assert changeset.id == 10
-
     def test_changeset_fields(self, changeset):
-        assert changeset['comment'] == "My Comment"
+        assert changeset.id == 16
+        assert changeset.comment == "My Comment"
+        assert isinstance(changeset.author, Identity)
+        assert changeset.author.displayName == "Chuck Reinhart"
 
     def test_changeset_fields_get(self, changeset):
         assert changeset.get('comment') == "My Comment"
@@ -253,17 +278,17 @@ class TestTFSQuery:
           "isPublic": true,
           "_links": {
             "self": {
-              "href": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/9d639e22-e9a9-49d7-8b40-ef94d9607bdb\/_apis\/wit\/queries\/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+              "href": "http://tfs.tfs.ru/tfs/DefaultCollection/9d639e22-e9a9-49d7-8b40-ef94d9607bdb/_apis/wit/queries/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
             },
             "html": {
-              "href": "http:\/\/tfs.tfs.ru\/tfs\/web\/qr.aspx?pguid=9d639e22-e9a9-49d7-8b40-ef94d9607bdb&qid=cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+              "href": "http://tfs.tfs.ru/tfs/web/qr.aspx?pguid=9d639e22-e9a9-49d7-8b40-ef94d9607bdb&qid=cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
             }
           },
-          "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/9d639e22-e9a9-49d7-8b40-ef94d9607bdb\/_apis\/wit\/queries\/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
+          "url": "http://tfs.tfs.ru/tfs/DefaultCollection/9d639e22-e9a9-49d7-8b40-ef94d9607bdb/_apis/wit/queries/cbbcdcaa-377f-42f7-a544-4d9507f2aa22"
         }
         """
         data_ = json.loads(data_str)
-        cs = TFSQuery(data_, tfsapi)
+        cs = TFSQuery(tfsapi, data_)
         yield cs
 
     @pytest.mark.httpretty
@@ -339,12 +364,13 @@ class TestWiql(object):
           "queryType": "flat"
         }"""
         data_ = json.loads(data_str)
-        wiql = Wiql(data_, tfsapi)
+        wiql = Wiql(tfsapi, data_)
         yield wiql
 
     @pytest.fixture()
     def wiql_empty(self, tfsapi):
-        data_str = r"""{
+        data_str = r"""
+        {
           "queryResultType": "workItem",
           "columns": [
             {
@@ -387,12 +413,13 @@ class TestWiql(object):
           "queryType": "flat"
         }"""
         data_ = json.loads(data_str)
-        wiql = Wiql(data_, tfsapi)
+        wiql = Wiql(tfsapi, data_)
         yield wiql
 
     def test_wiql(self, wiql):
-        assert wiql.id is None
-        assert wiql["queryResultType"] == "workItem"
+        with pytest.raises(AttributeError):
+            wiql.id = wiql.id
+        assert wiql.queryResultType == "workItem"
 
     def test_get_wiql_workitem_ids(self, wiql):
         assert wiql.workitem_ids == [100, 101]
