@@ -1,0 +1,20 @@
+{
+  "changesetId": 10,
+  "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/tfvc\/changesets\/18736",
+  "author": {
+    "id": "831299d4-f278-4858-a188-d1edae64125d",
+    "displayName": "\u041c\u0438\u0445\u0430\u0438\u043b \u041f\u043e\u043b\u044c\u0433\u0443\u043d",
+    "uniqueName": "DOMAIN\\MIvanov",
+    "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/831299d4-f278-4858-a188-d1edae64125d",
+    "imageUrl": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=831299d4-f278-4858-a188-d1edae64125d"
+  },
+  "checkedInBy": {
+    "id": "dc115031-b185-421e-a58d-b2b19903f51a",
+    "displayName": "deploy",
+    "uniqueName": "DOMAIN\\deploy",
+    "url": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_apis\/Identities\/dc115031-b185-421e-a58d-b2b19903f51a",
+    "imageUrl": "http:\/\/tfs.tfs.ru\/tfs\/DefaultCollection\/_api\/_common\/identityImage?id=dc115031-b185-421e-a58d-b2b19903f51a"
+  },
+  "createdDate": "2017-06-30T15:43:41.71Z",
+  "comment": "Merge Main into R16.1 (PdqlAssetId)"
+}

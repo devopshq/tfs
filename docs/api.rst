@@ -39,10 +39,15 @@ Changeset
 
 .. autoclass:: Changeset
 
-Projects
---------
+Project
+-------
 
-.. autoclass:: Projects
+.. autoclass:: Project
+
+Team
+----
+
+.. autoclass:: Team
 
 TFSQuery
 --------
