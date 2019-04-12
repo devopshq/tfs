@@ -35,5 +35,5 @@ def tfs_server_mock():
 
 @pytest.fixture()
 def tfsapi():
-    client = TFSAPI("http://tfs.tfs.ru/tfs", 'DefaultCollection', 'username', 'password')
+    client = TFSAPI("http://tfs.tfs.ru/tfs", 'DefaultCollection/MyProject', 'username', 'password')
     yield client
