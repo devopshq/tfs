@@ -169,6 +169,7 @@ class TestTFSAPI:
         assert len(wis.workitems) == 2
         pass
 
+    @pytest.mark.httpretty
     def test_get_definitions_by_name(self, tfsapi):
         definitions = tfsapi.definitions('release_*')
 
