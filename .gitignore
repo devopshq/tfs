@@ -10,7 +10,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-build/
+**/build/*
 develop-eggs/
 dist/
 downloads/
@@ -37,6 +37,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
+!tests/resources/**/build/*
 htmlcov/
 .tox/
 .coverage
