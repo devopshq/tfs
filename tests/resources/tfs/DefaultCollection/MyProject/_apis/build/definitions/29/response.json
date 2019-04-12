@@ -125,7 +125,7 @@
     "revision": 1,
     "id": 29,
     "name": "myDefinition",
-    "url": "http://tfs.tfs.ru/tfs/DefaultCollection/6ce954b1-ce1f-45d1-b94d-e6bf2464ba2c/_apis/build/Definitions/29",
+    "url": "http://tfs.tfs.ru/tfs/DefaultCollection/6ce954b1-ce1f-45d1-b94d-e6bf2464ba2c/_apis/build/definitions/29",
     "project": {
       "id": "6ce954b1-ce1f-45d1-b94d-e6bf2464ba2c",
       "name": "Fabrikam-Fiber-Git",
