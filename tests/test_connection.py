@@ -100,6 +100,7 @@ class TestTFSAPI:
 
         assert isinstance(wiql, Wiql)
         assert wiql.workitem_ids == [100, 101]
+        assert httpretty.last_request().headers['Content-Type'] == 'application/json'
 
     @pytest.mark.httpretty
     def test_get_projects(self, tfsapi):
@@ -191,9 +192,32 @@ class TestTFSAPI:
     @pytest.mark.httpretty
     def test_definition_clone(self, tfsapi):
         definition = tfsapi.definition(29)
-        clone = definition.clone()
+        data = {'comment': 'we need a clone'}
+        clone = definition.clone(data)
 
         assert clone.name == definition.name + '_clone'
+        assert clone.comment == data['comment']
+
+    @pytest.mark.httpretty
+    def test_definition_update(self, tfsapi):
+        definition = tfsapi.definition(29)
+        data = {'repository': {'defaultBranch': "refs/heads/featureBranch"}}
+        definition.update(data)
+
+        assert definition.repository.defaultBranch == data['repository']['defaultBranch']
+        assert httpretty.last_request().method == "PUT"
+        assert httpretty.last_request().headers['Content-Type'] == 'application/json'
+
+    @pytest.mark.httpretty
+    def test_definition_create(self, tfsapi):
+        definition = tfsapi.definition(29)
+        data = {'name': 'new definition name', 'comment': 'save the clone'}
+        clone = definition.clone(data)
+        result = clone.create()
+
+        assert result.name == data['name']
+        assert result.comment == data['comment']
+        assert httpretty.last_request().method == "POST"
 
 class TestHTTPClient:
     def test__get_collection(self):

@@ -225,7 +225,6 @@ class TFSAPI:
         wiql = self.rest_client.send_post('wit/wiql',
                                           data=data,
                                           project=True,
-                                          headers={'Content-Type': 'application/json'},
                                           payload=params
                                           )
         return Wiql(self, wiql)
@@ -429,7 +428,7 @@ class TFSHTTPClient:
     def send_get(self, uri, payload=None, project=False, json=True):
         return self.__send_request('GET', uri, None, payload=payload, underProject=project, json=json)
 
-    def send_post(self, uri, data, headers, payload=None, project=False):
+    def send_post(self, uri, data, headers=None, payload=None, project=False):
         return self.__send_request('POST', uri, data, headers, payload=payload, underProject=project)
 
     def send_put(self, uri, data, headers=None, payload=None, project=False):
@@ -463,20 +462,24 @@ class TFSHTTPClient:
         if self.api_version and payload.get('api-version') is None:
             payload['api-version'] = self.api_version
 
+        if headers is None:
+            headers = {}
+        if headers.get('Content-Type') is None:
+            headers['Content-Type'] = 'application/json'
+
         if method == 'POST':
             response = self.http_session.post(url, json=data, verify=self._verify, headers=headers, params=payload,
                                               timeout=self.timeout)
-        if method == 'PUT':
+        elif method == 'PUT':
             response = self.http_session.put(url, json=data, verify=self._verify, headers=headers, params=payload,
                                               timeout=self.timeout)
         elif method == 'PATCH':
             response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers, params=payload,
                                                timeout=self.timeout)
         else:
-            headers = {'Content-Type': 'application/json'}
             response = self.http_session.get(url, headers=headers, verify=self._verify, params=payload,
                                              timeout=self.timeout)
-            response.raise_for_status()
+        response.raise_for_status()
 
         if self.api_version is None:
             api_type = response.headers['Content-Type'].split('; ')[-1].split('=')
