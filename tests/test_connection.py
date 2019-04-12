@@ -168,6 +168,32 @@ class TestTFSAPI:
         assert len(wis.workitems) == 2
         pass
 
+    def test_get_definitions_by_name(self, tfsapi):
+        definitions = tfsapi.definitions('release_*')
+
+        assert httpretty.last_request().querystring['name'] == ['release_*']
+        assert len(definitions) == 5
+        assert isinstance(definitions[0], Definition)
+        with pytest.raises(Exception):
+            definitions[0].update()
+
+    @pytest.mark.httpretty
+    def test_definition_remove_attr(self, tfsapi):
+        definition = tfsapi.definition(29)
+        definition.deleteAttrs('triggers', 'comment')
+
+        assert isinstance(definition, Definition)
+        assert 'triggers' not in definition.data
+        assert 'comment' not in definition.data
+        assert not hasattr(definition, 'triggers')
+        assert not hasattr(definition, 'comment')
+
+    @pytest.mark.httpretty
+    def test_definition_clone(self, tfsapi):
+        definition = tfsapi.definition(29)
+        clone = definition.clone()
+
+        assert clone.name == definition.name + '_clone'
 
 class TestHTTPClient:
     def test__get_collection(self):

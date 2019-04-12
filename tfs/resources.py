@@ -13,7 +13,7 @@ from six import iteritems
 class TFSObject(object):
     def __init__(self, data=None, tfs=None, uri='', underProject=None):
         """
-        Base tfs recource object initialization
+        Base tfs resource object initialization
 
         :param data: raw content of the resource
         :param tfs: ``TFSAPI`` instance
@@ -92,22 +92,74 @@ class TFSObject(object):
 class UnknownTfsObject(TFSObject):
     """ Not yet known Resource from TFS. """
 
-    def __init__(self, tfs, raw=None, uri='unknownResource', underProject=None):
+    def __init__(self, tfs, raw=None, uri='unknownResource', underProject=None, listVersion=True):
         """
 
         :param tfs: instance of :class:`TFSAPI`
         :type tfs: TFSAPI
         :param raw: raw json content of the resource
         :type raw: str
-        :param uri: uri of the recource
+        :param uri: uri of the resource
         :type uri: str
         :param underProject: indicates that resource located under the project path, None if location is unknown
+        :param listVersion: indicates list version of the object
         """
         # list of fields to exclude from resource translation and assign as a raw json value
         self.raw_attrs = ['_links']
+        self._clone_delete = ['id', '_links']
+        # indicates object is a brief version of the full one (commonly in the list result)
+        # so to operate on it you need to get a full one
+        self._listVersion = listVersion
         super().__init__(raw, tfs, uri=uri, underProject=underProject)
         if raw:
             self._parse_raw(raw)
+
+    def update(self, values=None):
+        """
+        Update object data using json from values
+        only specified keys will be updated
+        if key value is a list - it will be replaced
+
+        :param values: json structure to be merged with object's current state
+        """
+        if self._listVersion:
+            raise Exception('You can\'t use list version of the object to update')
+
+        if not isinstance(values, dict):
+            return self
+
+        updateDict(self.data, values)
+
+        result = self.tfs.rest_client.send_put(self.url, data=self.data)
+        # TODO restore clean object state
+        self._parse_raw(result)
+        return self
+
+    def deleteAttrs(self, *attrs):
+        """ Delete attribute from both data and object
+
+        :param attrName: name of the attribute
+        :type attrName: str
+        """
+        if not attrs:
+            return self
+
+        for attr in attrs:
+            self.data.pop(attr, None)
+            if hasattr(self, attr):
+                delattr(self, attr)
+        return self
+
+    def clone(self, values):
+        """  Clone resource 
+        """
+        data = updateDict(deepcopy(self.data), values)
+        
+        clone = self.__class__(self.tfs, data)
+        attrToDel = list(set(self._clone_delete) - set(values.keys()))
+        clone.deleteAttrs(*attrToDel)
+
+        return clone
 
     def _find(self, ids):
         """ Fills up the resource based on the resource's id.
@@ -139,14 +191,14 @@ class UnknownTfsObject(TFSObject):
 
 
 class Workitem(UnknownTfsObject):
-    def __init__(self, tfs=None, raw=None):
+    def __init__(self, tfs=None, raw=None, listVersion=True):
         self.id = None
         self.fields = None
         # Use prefix in automatically lookup.
         # We don't need use wi['System.History'], we use simple wi['History']
         self._system_prefix = 'System.'
 
-        super().__init__(tfs, raw, 'wit/workItems/{0}', underProject=False)
+        super().__init__(tfs, raw, 'wit/workItems/{0}', underProject=False, listVersion=listVersion)
         self._links_attrs.extend(['workItemHistory', 'workItemRevisions', 'workItemType', 'workItemUpdates'])
 
     def _parse_raw(self, raw):
@@ -283,8 +335,8 @@ class Workitem(UnknownTfsObject):
 
 
 class Attachment(UnknownTfsObject):
-    def __init__(self, tfs=None, raw=None):
-        super().__init__(tfs, raw, 'wit/attachments/{0}', underProject=False)
+    def __init__(self, tfs=None, raw=None, listVersion=True):
+        super().__init__(tfs, raw, 'wit/attachments/{0}', underProject=False, listVersion=listVersion)
 
     def _parse_raw(self, raw):
         super()._parse_raw(raw)
@@ -298,8 +350,8 @@ class Attachment(UnknownTfsObject):
 
 
 class Changeset(UnknownTfsObject):
-    def __init__(self, tfs, raw=None):
-        super().__init__(tfs, raw, uri="tfvc/changesets/{0}", underProject=False)
+    def __init__(self, tfs, raw=None, listVersion=False):
+        super().__init__(tfs, raw, uri="tfvc/changesets/{0}", underProject=False, listVersion=listVersion)
 
     def _parse_raw(self, raw):
         super()._parse_raw(raw)
@@ -315,8 +367,8 @@ class Changeset(UnknownTfsObject):
 
 
 class TFSQuery(UnknownTfsObject):
-    def __init__(self, tfs=None, raw=None):
-        super().__init__(tfs, raw, uri='wit/queries{0}?api-version=2.2', underProject=True)
+    def __init__(self, tfs=None, raw=None, listVersion=False):
+        super().__init__(tfs, raw, uri='wit/queries{0}?api-version=2.2', underProject=True, listVersion=listVersion)
         self._workitems = None
 
     def _parse_raw(self, raw):
@@ -339,8 +391,8 @@ class Wiql(UnknownTfsObject):
     Work Item Query Language
     """
 
-    def __init__(self, tfs=None, raw=None):
-        super().__init__(tfs, raw, 'wit/wiql/{0}?api-version=2.2', underProject=True)
+    def __init__(self, tfs=None, raw=None, listVersion=True):
+        super().__init__(tfs, raw, 'wit/wiql/{0}?api-version=2.2', underProject=True, listVersion=listVersion)
         self.result = self.data
 
     @property
@@ -354,13 +406,13 @@ class Wiql(UnknownTfsObject):
 
 
 class GitRepository(UnknownTfsObject):
-    def __init__(self, tfs, raw=None):
-        super().__init__(tfs, raw, "git/repositories/{0}", underProject=False)
+    def __init__(self, tfs, raw=None, listVersion=False):
+        super().__init__(tfs, raw, "git/repositories/{0}", underProject=False, listVersion=listVersion)
 
 
 class Project(UnknownTfsObject):
-    def __init__(self, tfs, raw=None):
-        super().__init__(tfs, raw, "projects/{0}", underProject=False)
+    def __init__(self, tfs, raw=None, listVersion=False):
+        super().__init__(tfs, raw, "projects/{0}", underProject=False, listVersion=listVersion)
 
     @property
     def teams(self):
@@ -368,23 +420,30 @@ class Project(UnknownTfsObject):
 
 
 class Team(UnknownTfsObject):
-    def __init__(self, tfs, raw=None):
-        super().__init__(tfs, raw, "projects/{0}/teams/{1}", underProject=False)
+    def __init__(self, tfs, raw=None, listVersion=False):
+        super().__init__(tfs, raw, "projects/{0}/teams/{1}", underProject=False, listVersion=listVersion)
 
 
 class Build(UnknownTfsObject):
-    def __init__(self, tfs, raw=None):
-        super().__init__(tfs, raw, "build/Builds/{0}", underProject=True)
+    def __init__(self, tfs, raw=None, listVersion=False):
+        super().__init__(tfs, raw, "build/Builds/{0}", underProject=True, listVersion=listVersion)
 
 
 class Definition(UnknownTfsObject):
-    def __init__(self, tfs, raw=None):
-        super().__init__(tfs, raw, "build/Definitions/{0}", underProject=True)
+    def __init__(self, tfs, raw=None, listVersion=False):
+        super().__init__(tfs, raw, "build/Definitions/{0}", underProject=True, listVersion=listVersion)
+        self._clone_delete.extend(['authoredBy', 'createdDate', 'comment', 'revision'])
+
+    def clone(self, data=None):
+        if data is None: data = {}
+        if 'name' not in data:
+            data['name'] = self.name + '_clone'
+        return super().clone(data)
 
 
 class Identity(UnknownTfsObject):
-    def __init__(self, tfs, raw=None):
-        super().__init__(tfs, raw, 'Identities/{0}', underProject=False)
+    def __init__(self, tfs, raw=None, listVersion=False):
+        super().__init__(tfs, raw, 'Identities/{0}', underProject=False, listVersion=listVersion)
 
 #################################################################################
 # Utilities
@@ -408,7 +467,7 @@ def raw2resource(raw, top=None, tfs=None):
             if isinstance(top, UnknownTfsObject) and i in top.raw_attrs:
                 setattr(top, i, j)
             elif 'url' in j:
-                resource = class_for_resource(j['url'])(tfs, j)
+                resource = class_for_resource(j['url'])(tfs=tfs, raw=j, listVersion=False)
                 setattr(top, i, resource)
             else:
                 setattr(
@@ -419,7 +478,7 @@ def raw2resource(raw, top=None, tfs=None):
                 if isinstance(seq_elem, dict):
                     if 'url' in seq_elem:
                         resource = class_for_resource(seq_elem['url'])(
-                            tfs, seq_elem)
+                            tfs=tfs, raw=seq_elem, listVersion=True)
                         seq_list.append(resource)
                     else:
                         seq_list.append(
@@ -458,3 +517,20 @@ def class_for_resource(path):
 class TopLevelWrapper(object):
     def __init__(self, raw):
         __bases__ = raw  # noqa
+
+
+def updateDict(target, updates):
+    for key, value in updates.items():
+        updateDictNode(target, key, value)
+    return target
+
+
+def updateDictNode(node, key, value):
+    if isinstance(value, dict):
+        if node.get(key) is None:
+            node[key] = {}
+        for k, v in value.items():
+            updateDictNode(node[key], k, v)
+    else:
+        # TODO how to update/add specific items in the list?
+        node[key] = value
