@@ -151,10 +151,10 @@ class UnknownTfsObject(TFSObject):
         return self
 
     def clone(self, values):
-        """  Clone resource 
+        """  Clone resource
         """
         data = updateDict(deepcopy(self.data), values)
-        
+
         clone = self.__class__(self.tfs, data)
         attrToDel = list(set(self._clone_delete) - set(values.keys()))
         clone.deleteAttrs(*attrToDel)
@@ -243,7 +243,7 @@ class Workitem(UnknownTfsObject):
 
         # try to automatically add prefix
         key = self._add_prefix(key)
-        return self.fields[key]
+        return self.fields.get(key)
 
     def _add_prefix(self, key):
         if key.startswith(self._system_prefix):
@@ -447,7 +447,8 @@ class Definition(UnknownTfsObject):
         self._clone_delete.extend(['authoredBy', 'createdDate', 'comment', 'revision'])
 
     def clone(self, data=None):
-        if data is None: data = {}
+        if data is None:
+            data = {}
         if 'name' not in data:
             data['name'] = self.name + '_clone'
         return super().clone(data)

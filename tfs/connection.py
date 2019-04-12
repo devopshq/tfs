@@ -186,7 +186,7 @@ class TFSAPI:
         :return: list of :class:`Definition` object
          """
         if nameFilter:
-             payload = {'name': nameFilter}
+            payload = {'name': nameFilter}
         return self.get_tfs_resource('build/Definitions', underProject=True, payload=payload)
 
     def definition(self, id):
@@ -472,7 +472,7 @@ class TFSHTTPClient:
                                               timeout=self.timeout)
         elif method == 'PUT':
             response = self.http_session.put(url, json=data, verify=self._verify, headers=headers, params=payload,
-                                              timeout=self.timeout)
+                                             timeout=self.timeout)
         elif method == 'PATCH':
             response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers, params=payload,
                                                timeout=self.timeout)

@@ -65,7 +65,7 @@ class TestTFSAPI:
 
     @pytest.mark.httpretty
     def test_get_workitems_with_int(self, tfsapi):
-        workitems = tfsapi.get_workitems(work_items_ids=[100,101])
+        workitems = tfsapi.get_workitems(work_items_ids=[100, 101])
 
         assert len(workitems) == 2
         assert workitems[0].id == 100
@@ -219,6 +219,7 @@ class TestTFSAPI:
         assert result.name == data['name']
         assert result.comment == data['comment']
         assert httpretty.last_request().method == "POST"
+
 
 class TestHTTPClient:
     def test__get_collection(self):

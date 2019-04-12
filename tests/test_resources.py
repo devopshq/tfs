@@ -134,10 +134,12 @@ class TestWorkitem(object):
     def test_workitem_fields(self, workitem):
         assert workitem['Reason'] == "New"
         assert workitem['AreaPath'] == "Test Agile"
+        assert workitem['Tags'] is None
 
     def test_workitem_fields_with_prefix(self, workitem):
         assert workitem['System.Reason'] == "New"
         assert workitem['System.AreaPath'] == "Test Agile"
+        assert workitem['System.Tags'] is None
 
     def test_workitem_fields_custom(self, workitem):
         assert workitem['Custom.Bug.Type'] == "Manual Test Case"
@@ -180,7 +182,7 @@ class TestWorkitem(object):
         for property_name in properties_must_be:
             assert property_name in properties, "Workitem object must has attribute '{}'".format(property_name)
 
-    # Started failing without related changes at 
+    # Started failing without related changes at
     # https://travis-ci.org/devopshq/tfs/builds/378607508?utm_source=github_status&utm_medium=notification
     # @pytest.mark.httpretty
     # def test_wi_revisions(self, workitem):
