@@ -439,3 +439,10 @@ class TestWiql(object):
 
     def test_wiql_result(self, wiql):
         assert wiql._data == wiql.result
+
+
+class TestUtilities(object):
+    def test_class_for_resource_is_case_insensitive(self):
+        obj = class_for_resource('bUiLd/DeFiNiTiOnS/123')
+
+        assert obj is Definition

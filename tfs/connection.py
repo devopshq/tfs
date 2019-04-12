@@ -168,7 +168,7 @@ class TFSAPI:
         return self.get_tfs_resource('projects/{}/teams'.format(projectId), underProject=False)
 
     def builds(self):
-        return self.get_tfs_resource('build/Builds', underProject=True)
+        return self.get_tfs_resource('build/builds', underProject=True)
 
     def build(self, id):
         """ Get build by id
@@ -187,7 +187,7 @@ class TFSAPI:
          """
         if nameFilter:
             payload = {'name': nameFilter}
-        return self.get_tfs_resource('build/Definitions', underProject=True, payload=payload)
+        return self.get_tfs_resource('build/definitions', underProject=True, payload=payload)
 
     def definition(self, id):
         return self._find_resource(Definition, ids=id)

@@ -438,12 +438,12 @@ class Team(UnknownTfsObject):
 
 class Build(UnknownTfsObject):
     def __init__(self, tfs, raw=None, listVersion=False):
-        super().__init__(tfs, raw, "build/Builds/{0}", underProject=True, listVersion=listVersion)
+        super().__init__(tfs, raw, "build/builds/{0}", underProject=True, listVersion=listVersion)
 
 
 class Definition(UnknownTfsObject):
     def __init__(self, tfs, raw=None, listVersion=False):
-        super().__init__(tfs, raw, "build/Definitions/{0}", underProject=True, listVersion=listVersion)
+        super().__init__(tfs, raw, "build/definitions/{0}", underProject=True, listVersion=listVersion)
         self._clone_delete.extend(['authoredBy', 'createdDate', 'comment', 'revision'])
 
     def clone(self, data=None):
@@ -506,11 +506,11 @@ def raw2resource(raw, top=None, tfs=None):
 
 resource_class_map = {
     r'wit/attachments/[^/]+$': Attachment,
-    r'build/Builds/[^/]+$': Build,
+    r'build/builds/[^/]+$': Build,
     r'tfvc/changesets/[^/]+$': Changeset,
-    r'build/Definitions/[^/]+$': Definition,
+    r'build/definitions/[^/]+$': Definition,
     r'git/repositories/[^/]+$': GitRepository,
-    r'Identities/[^/]+$': Identity,
+    r'identities/[^/]+$': Identity,
     r'projects/[^/]+$': Project,
     r'wit/queries/.+$': TFSQuery,
     r'projects/[^/]+/teams/[^/]+$': Team,
@@ -521,7 +521,7 @@ resource_class_map = {
 
 def class_for_resource(path):
     for resource in resource_class_map:
-        if path and re.search(resource, path):
+        if path and re.search(resource, path, re.IGNORECASE):
             return resource_class_map[resource]
     else:
         return UnknownTfsObject
