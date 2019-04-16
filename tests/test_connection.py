@@ -65,7 +65,7 @@ class TestTFSAPI:
 
     @pytest.mark.httpretty
     def test_get_workitems_with_int(self, tfsapi):
-        workitems = tfsapi.get_workitems(work_items_ids=[100,101])
+        workitems = tfsapi.get_workitems(work_items_ids=[100, 101])
 
         assert len(workitems) == 2
         assert workitems[0].id == 100
@@ -100,6 +100,7 @@ class TestTFSAPI:
 
         assert isinstance(wiql, Wiql)
         assert wiql.workitem_ids == [100, 101]
+        assert httpretty.last_request().headers['Content-Type'] == 'application/json'
 
     @pytest.mark.httpretty
     def test_get_projects(self, tfsapi):
@@ -167,6 +168,57 @@ class TestTFSAPI:
         wis = tfsapi.run_query('MyQueries/AssignedToMe')
         assert len(wis.workitems) == 2
         pass
+
+    @pytest.mark.httpretty
+    def test_get_definitions_by_name(self, tfsapi):
+        definitions = tfsapi.definitions('release_*')
+
+        assert httpretty.last_request().querystring['name'] == ['release_*']
+        assert len(definitions) == 5
+        assert isinstance(definitions[0], Definition)
+        with pytest.raises(Exception):
+            definitions[0].update()
+
+    @pytest.mark.httpretty
+    def test_definition_remove_attr(self, tfsapi):
+        definition = tfsapi.definition(29)
+        definition.deleteAttrs('triggers', 'comment')
+
+        assert isinstance(definition, Definition)
+        assert 'triggers' not in definition.data
+        assert 'comment' not in definition.data
+        assert not hasattr(definition, 'triggers')
+        assert not hasattr(definition, 'comment')
+
+    @pytest.mark.httpretty
+    def test_definition_clone(self, tfsapi):
+        definition = tfsapi.definition(29)
+        data = {'comment': 'we need a clone'}
+        clone = definition.clone(data)
+
+        assert clone.name == definition.name + '_clone'
+        assert clone.comment == data['comment']
+
+    @pytest.mark.httpretty
+    def test_definition_update(self, tfsapi):
+        definition = tfsapi.definition(29)
+        data = {'repository': {'defaultBranch': "refs/heads/featureBranch"}}
+        definition.update(data)
+
+        assert definition.repository.defaultBranch == data['repository']['defaultBranch']
+        assert httpretty.last_request().method == "PUT"
+        assert httpretty.last_request().headers['Content-Type'] == 'application/json'
+
+    @pytest.mark.httpretty
+    def test_definition_create(self, tfsapi):
+        definition = tfsapi.definition(29)
+        data = {'name': 'new definition name', 'comment': 'save the clone'}
+        clone = definition.clone(data)
+        result = clone.create()
+
+        assert result.name == data['name']
+        assert result.comment == data['comment']
+        assert httpretty.last_request().method == "POST"
 
 
 class TestHTTPClient:

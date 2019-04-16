@@ -52,17 +52,17 @@ class TFSAPI:
         # For list results
         if 'value' in raw:
             raw = raw['value']
-            uri = raw[0].get('url', '') if raw else ''
-            tfs_class = class_for_resource(uri)
-            return [tfs_class(self, x) for x in raw]
+            url = raw[0].get('url', '') if raw else ''
+            tfs_class = class_for_resource(url)
+            return [tfs_class(tfs=self, raw=x, listVersion=True) for x in raw]
         else:
-            return class_for_resource(raw['url'])(self, raw)
+            return class_for_resource(raw['url'])(tfs=self, raw=raw, listVersion=False)
 
     def _find_resource(self, resource_class, ids=None):
         """
         Find resource by name and ids
         """
-        resource = resource_class(self)
+        resource = resource_class(tfs=self)
         if ids is not None:
             resource._find(ids)
         return resource
@@ -168,7 +168,7 @@ class TFSAPI:
         return self.get_tfs_resource('projects/{}/teams'.format(projectId), underProject=False)
 
     def builds(self):
-        return self.get_tfs_resource('build/Builds', underProject=True)
+        return self.get_tfs_resource('build/builds', underProject=True)
 
     def build(self, id):
         """ Get build by id
@@ -178,9 +178,19 @@ class TFSAPI:
         """
         return self._find_resource(Build, ids=id)
 
-    def definitions(self):
-        """ List of build definitions """
-        return self.get_tfs_resource('build/Definitions', underProject=True)
+    def definitions(self, nameFilter=None):
+        """ List of build definitions
+
+        :param name: Filters to definitions whose names equal this value.
+                     Use ``*`` as a wildcard, ex: 'Release_11.*' or 'Release_*_11.0'
+        :return: list of :class:`Definition` object
+         """
+        if nameFilter:
+            payload = {'name': nameFilter}
+        return self.get_tfs_resource('build/definitions', underProject=True, payload=payload)
+
+    def definition(self, id):
+        return self._find_resource(Definition, ids=id)
 
     # not a resource
     def update_workitem(self, work_item_id, update_data, params=None):
@@ -215,7 +225,6 @@ class TFSAPI:
         wiql = self.rest_client.send_post('wit/wiql',
                                           data=data,
                                           project=True,
-                                          headers={'Content-Type': 'application/json'},
                                           payload=params
                                           )
         return Wiql(self, wiql)
@@ -395,6 +404,7 @@ class TFSHTTPClient:
             auth = auth_type() if user is None and password is None else auth_type(user, password)
             self.http_session.auth = auth
 
+        self.api_version = None
         self.timeout = timeout
         self._verify = verify
         if not self._verify:
@@ -418,8 +428,11 @@ class TFSHTTPClient:
     def send_get(self, uri, payload=None, project=False, json=True):
         return self.__send_request('GET', uri, None, payload=payload, underProject=project, json=json)
 
-    def send_post(self, uri, data, headers, payload=None, project=False):
+    def send_post(self, uri, data, headers=None, payload=None, project=False):
         return self.__send_request('POST', uri, data, headers, payload=payload, underProject=project)
+
+    def send_put(self, uri, data, headers=None, payload=None, project=False):
+        return self.__send_request('PUT', uri, data, headers, payload=payload, underProject=project)
 
     def send_patch(self, uri, data, headers, payload=None, project=False):
         return self.__send_request('PATCH', uri, data, headers, payload=payload, underProject=project)
@@ -444,17 +457,34 @@ class TFSHTTPClient:
         """
         url = self.__prepare_uri(uri=uri, underProject=underProject)
 
+        if payload is None:
+            payload = {}
+        if self.api_version and payload.get('api-version') is None:
+            payload['api-version'] = self.api_version
+
+        if headers is None:
+            headers = {}
+        if headers.get('Content-Type') is None:
+            headers['Content-Type'] = 'application/json'
+
         if method == 'POST':
             response = self.http_session.post(url, json=data, verify=self._verify, headers=headers, params=payload,
                                               timeout=self.timeout)
+        elif method == 'PUT':
+            response = self.http_session.put(url, json=data, verify=self._verify, headers=headers, params=payload,
+                                             timeout=self.timeout)
         elif method == 'PATCH':
             response = self.http_session.patch(url, json=data, verify=self._verify, headers=headers, params=payload,
                                                timeout=self.timeout)
         else:
-            headers = {'Content-Type': 'application/json'}
             response = self.http_session.get(url, headers=headers, verify=self._verify, params=payload,
                                              timeout=self.timeout)
-            response.raise_for_status()
+        response.raise_for_status()
+
+        if self.api_version is None:
+            api_type = response.headers['Content-Type'].split('; ')[-1].split('=')
+            if api_type[0] == 'api-version':
+                self.api_version = api_type[1]
 
         if json:
             try:

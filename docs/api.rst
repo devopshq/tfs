@@ -58,3 +58,8 @@ Wiql
 ----
 
 .. autoclass:: Wiql
+
+Definition
+----------
+
+.. autoclass:: Definition
