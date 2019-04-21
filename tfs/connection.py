@@ -192,6 +192,25 @@ class TFSAPI:
     def definition(self, id):
         return self._find_resource(Definition, ids=id)
 
+    def runs(self, top=None):
+        if top is None:
+            top = 100
+        payload = {'$top': top}
+
+        return self.get_tfs_resource('test/runs', underProject=True, payload=payload)
+
+    def run(self, id):
+        return self._find_resource(Run, ids=id)
+
+    def results(self, runId, top=None):
+        if top is None:
+            top = 100
+        payload = {'$top': top}
+        return self.get_tfs_resource('test/runs/{}/results'.format(runId), underProject=True, payload=payload)
+
+    def result(self, runId, resultId):
+        return self._find_resource(Result, ids=(runId, resultId))
+
     # not a resource
     def update_workitem(self, work_item_id, update_data, params=None):
         raw = self.rest_client.send_patch('wit/workitems/{id}?api-version=1.0'.format(id=work_item_id),

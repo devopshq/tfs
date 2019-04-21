@@ -456,7 +456,25 @@ class Definition(UnknownTfsObject):
 
 class Identity(UnknownTfsObject):
     def __init__(self, tfs, raw=None, listVersion=False):
-        super().__init__(tfs, raw, 'Identities/{0}', underProject=False, listVersion=listVersion)
+        super().__init__(tfs, raw, 'identities/{0}', underProject=False, listVersion=listVersion)
+
+
+class Run(UnknownTfsObject):
+    def __init__(self, tfs, raw=None, listVersion=False):
+        super().__init__(tfs, raw, 'test/runs/{}', underProject=True, listVersion=listVersion)
+
+    @property
+    def results(self):
+        return self.tfs.results(runId=self.id)
+
+    def result(self, resultId):
+        return self.tfs.result(runId=self.id, resultId=resultId)
+
+
+class Result(UnknownTfsObject):
+    def __init__(self, tfs, raw=None, listVersion=False):
+        super().__init__(tfs, raw, 'test/runs/{}/results/{}', underProject=True, listVersion=listVersion)
+
 
 #################################################################################
 # Utilities
@@ -505,15 +523,17 @@ def raw2resource(raw, top=None, tfs=None):
 
 
 resource_class_map = {
-    r'wit/attachments/[^/]+$': Attachment,
     r'build/builds/[^/]+$': Build,
-    r'tfvc/changesets/[^/]+$': Changeset,
     r'build/definitions/[^/]+$': Definition,
     r'git/repositories/[^/]+$': GitRepository,
     r'identities/[^/]+$': Identity,
     r'projects/[^/]+$': Project,
-    r'wit/queries/.+$': TFSQuery,
     r'projects/[^/]+/teams/[^/]+$': Team,
+    r'test/runs/[^/]+$': Run,
+    r'test/runs/[^/]+/results/[^/]+$': Result,
+    r'tfvc/changesets/[^/]+$': Changeset,
+    r'wit/attachments/[^/]+$': Attachment,
+    r'wit/queries/.+$': TFSQuery,
     r'wit/wiql/[^/]+': Wiql,
     r'wit/workItems/[^/]+$': Workitem
 }

@@ -151,6 +151,40 @@ class TestTFSAPI:
         assert name == 'AnotherRepository'
 
     @pytest.mark.httpretty
+    def test_get_runs(self, tfsapi):
+        runs = tfsapi.runs(top=39)
+
+        assert len(runs) == 4
+        assert isinstance(runs[0], Run)
+        assert httpretty.last_request().querystring['$top'] == ['39']
+        assert runs
+
+    @pytest.mark.httpretty
+    def test_get_run(self, tfsapi):
+        run = tfsapi.run(1)
+        results = run.results
+        result = run.result(100000)
+
+        assert run.name == 'sprint1 (Manual)'
+        assert len(results) == 3
+        assert result.outcome == 'Passed'
+
+    @pytest.mark.httpretty
+    def test_get_results(self, tfsapi):
+        results = tfsapi.results(1, 26)
+
+        assert results[0].outcome == 'Passed'
+        assert results[1].outcome == 'Failed'
+        assert httpretty.last_request().querystring['$top'] == ['26']
+
+    @pytest.mark.httpretty
+    def test_get_result(self, tfsapi):
+        result = tfsapi.result(1, 100000)
+
+        assert result.outcome == 'Passed'
+        assert result.automatedTestStorage == 'unittestproject1.dll'
+
+    @pytest.mark.httpretty
     def test_adjusted_area_iteration(self):
         new_project = 'NewProject'
         api = TFSAPI("http://tfs.tfs.ru/tfs", 'DefaultCollection/{}'.format(new_project), 'username', 'password')

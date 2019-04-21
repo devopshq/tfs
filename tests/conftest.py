@@ -11,8 +11,8 @@ from tfs import TFSAPI
 
 def request_callback_get(request, uri, headers):
     # Map path from url to a file
-    parsed_url = urlparse(uri)
-    response_file = os.path.normpath('tests/resources{}'.format(parsed_url.path))
+    path = urlparse(uri).path.split('DefaultCollection/')[1]
+    response_file = os.path.normpath('tests/resources/{}'.format(path))
     response_file = os.path.join(response_file, 'response.json')
 
     if os.path.exists(response_file):
@@ -28,7 +28,7 @@ def request_callback_get(request, uri, headers):
 @pytest.fixture(autouse=True)
 def tfs_server_mock():
     for method in (httpretty.GET, httpretty.POST, httpretty.PUT, httpretty.PATCH):
-        httpretty.register_uri(method, re.compile(r"http://tfs.tfs.ru(.*)"),
+        httpretty.register_uri(method, re.compile(r"http://.*/DefaultCollection/.*"),
                                body=request_callback_get,
                                content_type="application/json")
 
