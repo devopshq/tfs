@@ -65,7 +65,7 @@ class TestTFSAPI:
 
     @pytest.mark.httpretty
     def test_get_workitems_with_int(self, tfsapi):
-        workitems = tfsapi.get_workitems(work_items_ids=[100,101])
+        workitems = tfsapi.get_workitems(work_items_ids=[100, 101])
 
         assert len(workitems) == 2
         assert workitems[0].id == 100
@@ -100,6 +100,7 @@ class TestTFSAPI:
 
         assert isinstance(wiql, Wiql)
         assert wiql.workitem_ids == [100, 101]
+        assert httpretty.last_request().headers['Content-Type'] == 'application/json'
 
     @pytest.mark.httpretty
     def test_get_projects(self, tfsapi):
@@ -150,6 +151,40 @@ class TestTFSAPI:
         assert name == 'AnotherRepository'
 
     @pytest.mark.httpretty
+    def test_get_runs(self, tfsapi):
+        runs = tfsapi.runs(top=39)
+
+        assert len(runs) == 4
+        assert isinstance(runs[0], Run)
+        assert httpretty.last_request().querystring['$top'] == ['39']
+        assert runs
+
+    @pytest.mark.httpretty
+    def test_get_run(self, tfsapi):
+        run = tfsapi.run(1)
+        results = run.results
+        result = run.result(100000)
+
+        assert run.name == 'sprint1 (Manual)'
+        assert len(results) == 3
+        assert result.outcome == 'Passed'
+
+    @pytest.mark.httpretty
+    def test_get_results(self, tfsapi):
+        results = tfsapi.results(1, 26)
+
+        assert results[0].outcome == 'Passed'
+        assert results[1].outcome == 'Failed'
+        assert httpretty.last_request().querystring['$top'] == ['26']
+
+    @pytest.mark.httpretty
+    def test_get_result(self, tfsapi):
+        result = tfsapi.result(1, 100000)
+
+        assert result.outcome == 'Passed'
+        assert result.automatedTestStorage == 'unittestproject1.dll'
+
+    @pytest.mark.httpretty
     def test_adjusted_area_iteration(self):
         new_project = 'NewProject'
         api = TFSAPI("http://tfs.tfs.ru/tfs", 'DefaultCollection/{}'.format(new_project), 'username', 'password')
@@ -167,6 +202,57 @@ class TestTFSAPI:
         wis = tfsapi.run_query('MyQueries/AssignedToMe')
         assert len(wis.workitems) == 2
         pass
+
+    @pytest.mark.httpretty
+    def test_get_definitions_by_name(self, tfsapi):
+        definitions = tfsapi.definitions('release_*')
+
+        assert httpretty.last_request().querystring['name'] == ['release_*']
+        assert len(definitions) == 5
+        assert isinstance(definitions[0], Definition)
+        with pytest.raises(Exception):
+            definitions[0].update()
+
+    @pytest.mark.httpretty
+    def test_definition_remove_attr(self, tfsapi):
+        definition = tfsapi.definition(29)
+        definition.deleteAttrs('triggers', 'comment')
+
+        assert isinstance(definition, Definition)
+        assert 'triggers' not in definition.data
+        assert 'comment' not in definition.data
+        assert not hasattr(definition, 'triggers')
+        assert not hasattr(definition, 'comment')
+
+    @pytest.mark.httpretty
+    def test_definition_clone(self, tfsapi):
+        definition = tfsapi.definition(29)
+        data = {'comment': 'we need a clone'}
+        clone = definition.clone(data)
+
+        assert clone.name == definition.name + '_clone'
+        assert clone.comment == data['comment']
+
+    @pytest.mark.httpretty
+    def test_definition_update(self, tfsapi):
+        definition = tfsapi.definition(29)
+        data = {'repository': {'defaultBranch': "refs/heads/featureBranch"}}
+        definition.update(data)
+
+        assert definition.repository.defaultBranch == data['repository']['defaultBranch']
+        assert httpretty.last_request().method == "PUT"
+        assert httpretty.last_request().headers['Content-Type'] == 'application/json'
+
+    @pytest.mark.httpretty
+    def test_definition_create(self, tfsapi):
+        definition = tfsapi.definition(29)
+        data = {'name': 'new definition name', 'comment': 'save the clone'}
+        clone = definition.clone(data)
+        result = clone.create()
+
+        assert result.name == data['name']
+        assert result.comment == data['comment']
+        assert httpretty.last_request().method == "POST"
 
 
 class TestHTTPClient:
