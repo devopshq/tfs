@@ -303,7 +303,7 @@ class TFSAPI:
         raw = self.__create_workitem(type_, body, validate_only, bypass_rules, suppress_notifications,
                                      api_version)
 
-        return Workitem(raw, self)
+        return Workitem(self, raw)
 
     def __adjusted_area_iteration(self, value):
         """

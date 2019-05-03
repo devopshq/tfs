@@ -72,6 +72,14 @@ class TestTFSAPI:
         assert workitems[1].id == 101
 
     @pytest.mark.httpretty
+    def test_create_workitem(self, tfsapi):
+        workitem = tfsapi.create_workitem('Task',
+            {'System.Title': 'JavaScript implementation for Microsoft Account'})
+
+        assert isinstance(workitem, Workitem)
+        assert workitem.id == 298
+
+    @pytest.mark.httpretty
     def test_get_changesets(self, tfsapi):
         changesets = tfsapi.get_changesets(from_=10, to_=14)
 
