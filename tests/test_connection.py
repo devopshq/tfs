@@ -87,6 +87,20 @@ class TestTFSAPI:
         assert changesets[0].id == 10
 
     @pytest.mark.httpretty
+    def test_get_changesets_only_from(self, tfsapi):
+        changesets = tfsapi.get_changesets(from_=12)
+
+        assert len(changesets) == 3
+        assert changesets[0].id == 12
+
+    @pytest.mark.httpretty
+    def test_get_changesets_only_to(self, tfsapi):
+        changesets = tfsapi.get_changesets(to_=11)
+
+        assert len(changesets) == 2
+        assert changesets[0].id == 10
+
+    @pytest.mark.httpretty
     def test_get_changeset(self, tfsapi):
         changeset = tfsapi.get_changeset(10)
 

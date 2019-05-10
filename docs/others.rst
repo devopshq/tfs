@@ -10,8 +10,11 @@ Changesets
 
 ::
 
-    # Get changesets from 1000 to 1002
-    changesets = client.get_changesets(from_=1000, to_=1002)
+    # Get changesets from 1000 to 1002 from a specific path
+    # all of the arguments to get_changesets are optional.
+    # By default only the first 1000 results are returned, but this
+    # can be changed using the top=value argument
+    changesets = client.get_changesets(from_=1000, to_=1002, item_path='$/path/to/folder')
 
     # Get just a particular changeset
     changeset = client.get_changeset(1000)

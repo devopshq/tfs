@@ -129,14 +129,19 @@ class TFSAPI:
     def get_changesets(self, from_=None, to_=None, item_path=None, top=10000):
         payload = {'$top': top}
 
-        if from_ and to_:
+        if from_:
             from_ = str(from_)
-            to_ = str(to_)
-            if from_.isdigit() and to_.isdigit():
+            if from_.isdigit():
                 payload['searchCriteria.fromId'] = from_
+            else:
+                raise ValueError('from_ must be valid TFS changeset IDs!')
+
+        if to_:
+            to_ = str(to_)
+            if to_.isdigit():
                 payload['searchCriteria.toId'] = to_
             else:
-                raise ValueError('from_ and to_ must be valid TFS changeset IDs!')
+                raise ValueError('to_ must be valid TFS changeset IDs!')
 
         if item_path:
             payload['searchCriteria.itemPath'] = item_path
