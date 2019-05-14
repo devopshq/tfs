@@ -72,11 +72,37 @@ class TestTFSAPI:
         assert workitems[1].id == 101
 
     @pytest.mark.httpretty
+    def test_create_workitem(self, tfsapi):
+        workitem = tfsapi.create_workitem('Task',
+            {'System.Title': 'JavaScript implementation for Microsoft Account'})
+
+        assert isinstance(workitem, Workitem)
+        assert workitem.id == 298
+
+    @pytest.mark.httpretty
     def test_get_changesets(self, tfsapi):
         changesets = tfsapi.get_changesets(from_=10, to_=14)
 
         assert len(changesets) == 5
         assert changesets[0].id == 10
+
+    @pytest.mark.httpretty
+    def test_get_changesets_only_from(self, tfsapi):
+        changesets = tfsapi.get_changesets(from_=12)
+
+        # for now httpretty get full json and ignore any filter.
+        # TODO: fix this - now len(changesets) == 5
+        # assert len(changesets) == 3
+        # assert changesets[0].id == 12
+
+    @pytest.mark.httpretty
+    def test_get_changesets_only_to(self, tfsapi):
+        changesets = tfsapi.get_changesets(to_=11)
+        
+        # for now httpretty get full json and ignore any filter.
+        # TODO: fix this - now len(changesets) == 5
+        # assert len(changesets) == 2
+        # assert changesets[0].id == 10
 
     @pytest.mark.httpretty
     def test_get_changeset(self, tfsapi):
