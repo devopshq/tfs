@@ -257,6 +257,14 @@ class Workitem(UnknownTfsObject):
         else:
             return key
 
+    def __contains__(self, key):
+        try:
+            self[key]
+        except KeyError:
+            return False
+        else:
+            return True
+
     @property
     def field_names(self):
         return [self._remove_prefix(x) for x in self.fields]
