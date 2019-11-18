@@ -343,7 +343,7 @@ class Workitem(UnknownTfsObject):
         update_data = [dict(op="add", path=path, value=relation) for relation in copy_raw]
         if update_data:
             raw = self.tfs.update_workitem(self.id, update_data, params)
-            self.__init__(raw, self.tfs)
+            self.__init__(raw=raw, tfs=self.tfs)
 
 
 class Attachment(UnknownTfsObject):
