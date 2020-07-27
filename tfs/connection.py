@@ -397,7 +397,56 @@ class TFSAPI:
         if with_links_and_attachments:
             wi.add_relations_raw(workitem.data.get('relations', {}), params)
         return wi
+    
+    def get_suites(self,test_id):
 
+        return self.get_tfs_resource('test/suites?testCaseId='+str(test_id)+'&api-version=2.0-preview', underProject=False)
+
+    def get_points(self,plan_id,suite_id,test_id):
+
+        return self.get_tfs_resource('test/plans/'+str(plan_id)+'/suites/'+str(suite_id)+'/points?testCaseId='+str(test_id)+'&api-version=2.0', underProject=True)
+    
+    def __create_run(self, data=None, validate_only=None, bypass_rules=None,
+                          suppress_notifications=None,
+                          api_version=1.0):
+        """
+        
+        :param project: Name of the target project. The same project is used by default.
+        :return: Raw JSON of the work item created
+        """
+        
+        uri = 'test/runs'
+        params = {'api-version': api_version, 'validateOnly': validate_only, 'bypassRules': bypass_rules,
+                  'suppressNotifications': suppress_notifications}
+
+        headers = {'Content-Type': 'application/json'}
+        raw = self.rest_client.send_post(uri=uri, data=data, headers=headers, project=True, payload=params)
+        return raw
+
+    def create_run(self,name, plan_id, points_list, relations_raw=None, validate_only=None, bypass_rules=None,
+                        suppress_notifications=None,
+                        api_version=1.0):
+        """
+        
+        :param type_: Work item
+        :param name: Run Title
+        :plan_id: Plan id to run the test from
+        :points_list: Points list of the the runs (you get the points list with using "get_suites" and then using "get_points")
+        :param relations_raw: List containing relations which are dict(rel, url[, attributes])
+        :param validate_only: When True, do not actually create a work item, a dry run of sorts
+        :param bypass_rules: When True, can bypass restrictions like <ALLOWEDVALUES> and such
+        :param suppress_notifications: When true, notifications are [supposedly] not sent
+        :param api_version: API version to use
+        :return: WorkItem instance of a newly created WI
+        """
+
+        
+        body = dict(name=name, plan={'id':int(plan_id)}, pointIds=points_list) 
+
+        raw = self.__create_run( body, validate_only, bypass_rules, suppress_notifications,
+                                     api_version)
+
+        return Workitem(self, raw)
 
 class TFSClientError(Exception):
     pass
