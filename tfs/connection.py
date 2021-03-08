@@ -192,6 +192,8 @@ class TFSAPI:
          """
         if nameFilter:
             payload = {'name': nameFilter}
+        else:
+            payload = None
         return self.get_tfs_resource('build/definitions', underProject=True, payload=payload)
 
     def definition(self, id):
