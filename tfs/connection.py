@@ -186,7 +186,7 @@ class TFSAPI:
     def definitions(self, nameFilter=None):
         """ List of build definitions
 
-        :param name: Filters to definitions whose names equal this value.
+        :param nameFilter: Filters to definitions whose names equal this value.
                      Use ``*`` as a wildcard, ex: 'Release_11.*' or 'Release_*_11.0'
         :return: list of :class:`Definition` object
          """
