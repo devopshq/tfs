@@ -516,7 +516,7 @@ class TFSHTTPClient:
             try:
                 result = response.json()
 
-                if response.status_code != 200:
+                if response.status_code not in (200, 201, 202):
                     raise TFSClientError('TFS API returned HTTP %s (%s)' % (
                         response.status_code, result['error'] if 'error' in result else response.reason))
                 return result
