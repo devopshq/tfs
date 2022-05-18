@@ -62,7 +62,11 @@ setup(
         "HTTPretty",
         "pytest_httpretty",
     ],
-    install_requires=["requests", "requests_ntlm"],
+    install_requires=[
+        "requests",
+        "requests_ntlm",
+        "six",
+    ],
     package_data={
         "": [
             "../LICENSE",
