@@ -4,49 +4,73 @@ import re
 import httpretty
 import pytest
 
-from tfs import *
 from tests import conftest
+from tfs import *
 
 
 class TestTFSAPI:
     @httpretty.activate
     def test_get_gitrepositories_with_pat(self):
         def request_callback_get_pat(request, uri, headers):
-            authorization = request.headers.get('Authorization')
-            assert authorization == "Basic OmtsNWt0bnR3M2V6dnh0aGl0YzVhZTR1YmdzZWRpMnFrcWh6cWNuZ2hnNzV0azJuNHJnZmE="
+            authorization = request.headers.get("Authorization")
+            assert (
+                authorization
+                == "Basic OmtsNWt0bnR3M2V6dnh0aGl0YzVhZTR1YmdzZWRpMnFrcWh6cWNuZ2hnNzV0azJuNHJnZmE="
+            )
 
-            code, headers, response = conftest.request_callback_get(request, uri, headers)
+            code, headers, response = conftest.request_callback_get(
+                request, uri, headers
+            )
             return code, headers, response
 
-        httpretty.register_uri(httpretty.GET, re.compile(r"http://tfs.tfs.ru(.*)"),
-                               body=request_callback_get_pat)
+        httpretty.register_uri(
+            httpretty.GET,
+            re.compile(r"http://tfs.tfs.ru(.*)"),
+            body=request_callback_get_pat,
+        )
 
-        client = TFSAPI("http://tfs.tfs.ru/tfs", 'DefaultCollection',
-                        pat='kl5ktntw3ezvxthitc5ae4ubgsedi2qkqhzqcnghg75tk2n4rgfa')
+        client = TFSAPI(
+            "http://tfs.tfs.ru/tfs",
+            "DefaultCollection",
+            pat="kl5ktntw3ezvxthitc5ae4ubgsedi2qkqhzqcnghg75tk2n4rgfa",
+        )
 
         repos = client.get_gitrepositories()
-        name = repos[0].data['name']
-        assert name == 'AnotherRepository'
+        name = repos[0].data["name"]
+        assert name == "AnotherRepository"
 
     @httpretty.activate
     def test_get_gitrepositories_with_pat_and_password(self):
         # if pat and password are given then it is expected that the password is ignored and the pat header is added
         def request_callback_get_pat(request, uri, headers):
-            authorization = request.headers.get('Authorization')
-            assert authorization == "Basic OmtsNWt0bnR3M2V6dnh0aGl0YzVhZTR1YmdzZWRpMnFrcWh6cWNuZ2hnNzV0azJuNHJnZmE="
+            authorization = request.headers.get("Authorization")
+            assert (
+                authorization
+                == "Basic OmtsNWt0bnR3M2V6dnh0aGl0YzVhZTR1YmdzZWRpMnFrcWh6cWNuZ2hnNzV0azJuNHJnZmE="
+            )
 
-            code, headers, response = conftest.request_callback_get(request, uri, headers)
+            code, headers, response = conftest.request_callback_get(
+                request, uri, headers
+            )
             return code, headers, response
 
-        httpretty.register_uri(httpretty.GET, re.compile(r"http://tfs.tfs.ru(.*)"),
-                               body=request_callback_get_pat)
+        httpretty.register_uri(
+            httpretty.GET,
+            re.compile(r"http://tfs.tfs.ru(.*)"),
+            body=request_callback_get_pat,
+        )
 
-        client = TFSAPI("http://tfs.tfs.ru/tfs", 'DefaultCollection', user='any_user', password='any_password',
-                        pat='kl5ktntw3ezvxthitc5ae4ubgsedi2qkqhzqcnghg75tk2n4rgfa')
+        client = TFSAPI(
+            "http://tfs.tfs.ru/tfs",
+            "DefaultCollection",
+            user="any_user",
+            password="any_password",
+            pat="kl5ktntw3ezvxthitc5ae4ubgsedi2qkqhzqcnghg75tk2n4rgfa",
+        )
 
         repos = client.get_gitrepositories()
-        name = repos[0].data['name']
-        assert name == 'AnotherRepository'
+        name = repos[0].data["name"]
+        assert name == "AnotherRepository"
 
     @pytest.mark.httpretty
     def test_get_workitems(self, tfsapi):
@@ -73,8 +97,9 @@ class TestTFSAPI:
 
     @pytest.mark.httpretty
     def test_create_workitem(self, tfsapi):
-        workitem = tfsapi.create_workitem('Task',
-            {'System.Title': 'JavaScript implementation for Microsoft Account'})
+        workitem = tfsapi.create_workitem(
+            "Task", {"System.Title": "JavaScript implementation for Microsoft Account"}
+        )
 
         assert isinstance(workitem, Workitem)
         assert workitem.id == 298
@@ -98,7 +123,7 @@ class TestTFSAPI:
     @pytest.mark.httpretty
     def test_get_changesets_only_to(self, tfsapi):
         changesets = tfsapi.get_changesets(to_=11)
-        
+
         # for now httpretty get full json and ignore any filter.
         # TODO: fix this - now len(changesets) == 5
         # assert len(changesets) == 2
@@ -112,12 +137,12 @@ class TestTFSAPI:
 
     @pytest.mark.httpretty
     def test_run_query(self, tfsapi):
-        query = tfsapi.run_query('My Queries/AssignedToMe')
+        query = tfsapi.run_query("My Queries/AssignedToMe")
 
         assert isinstance(query, TFSQuery)
         assert isinstance(query.result, Wiql)
-        assert query.name == 'AssignedToMe'
-        assert query.path == 'My Queries/AssignedToMe'
+        assert query.name == "AssignedToMe"
+        assert query.path == "My Queries/AssignedToMe"
 
     @pytest.mark.httpretty
     def test_get_wiql(self, tfsapi):
@@ -126,33 +151,33 @@ class TestTFSAPI:
 
         assert isinstance(wiql, Wiql)
         assert wiql.workitem_ids == [100, 101]
-        assert httpretty.last_request().headers['Content-Type'] == 'application/json'
+        assert httpretty.last_request().headers["Content-Type"] == "application/json"
 
     @pytest.mark.httpretty
     def test_get_projects(self, tfsapi):
         projects = tfsapi.get_projects()
 
         assert len(projects) == 1
-        assert projects[0]['name'] == 'ProjectName'
+        assert projects[0]["name"] == "ProjectName"
 
     @pytest.mark.httpretty
     def test_projects(self, tfsapi):
         projects = tfsapi.projects
 
         assert len(projects) == 1
-        assert projects[0]['name'] == 'ProjectName'
+        assert projects[0]["name"] == "ProjectName"
 
     @pytest.mark.httpretty
     def test_get_project(self, tfsapi):
-        project = tfsapi.get_project('ProjectName')
+        project = tfsapi.get_project("ProjectName")
 
-        assert project.name == 'ProjectName'
+        assert project.name == "ProjectName"
 
     @pytest.mark.httpretty
     def test_project(self, tfsapi):
-        project = tfsapi.project('ProjectName')
+        project = tfsapi.project("ProjectName")
 
-        assert project.name == 'ProjectName'
+        assert project.name == "ProjectName"
 
     @pytest.mark.httpretty
     def test_get_teams(self, tfsapi):
@@ -160,21 +185,21 @@ class TestTFSAPI:
         teams = projects[0].teams
 
         assert isinstance(teams[0], Team)
-        assert teams[1]['name'] == 'TeamPink'
+        assert teams[1]["name"] == "TeamPink"
 
     @pytest.mark.httpretty
     def test_get_gitrepositories(self, tfsapi):
         repos = tfsapi.get_gitrepositories()
-        name = repos[0].data['name']
+        name = repos[0].data["name"]
 
-        assert name == 'AnotherRepository'
+        assert name == "AnotherRepository"
 
     @pytest.mark.httpretty
     def test_get_gitrepository(self, tfsapi):
-        repo = tfsapi.get_gitrepository('AnotherRepository')
-        name = repo.data['name']
+        repo = tfsapi.get_gitrepository("AnotherRepository")
+        name = repo.data["name"]
 
-        assert name == 'AnotherRepository'
+        assert name == "AnotherRepository"
 
     @pytest.mark.httpretty
     def test_get_runs(self, tfsapi):
@@ -182,7 +207,7 @@ class TestTFSAPI:
 
         assert len(runs) == 4
         assert isinstance(runs[0], Run)
-        assert httpretty.last_request().querystring['$top'] == ['39']
+        assert httpretty.last_request().querystring["$top"] == ["39"]
         assert runs
 
     @pytest.mark.httpretty
@@ -191,32 +216,37 @@ class TestTFSAPI:
         results = run.results
         result = run.result(100000)
 
-        assert run.name == 'sprint1 (Manual)'
+        assert run.name == "sprint1 (Manual)"
         assert len(results) == 3
-        assert result.outcome == 'Passed'
+        assert result.outcome == "Passed"
 
     @pytest.mark.httpretty
     def test_get_results(self, tfsapi):
         results = tfsapi.results(1, 26)
 
-        assert results[0].outcome == 'Passed'
-        assert results[1].outcome == 'Failed'
-        assert httpretty.last_request().querystring['$top'] == ['26']
+        assert results[0].outcome == "Passed"
+        assert results[1].outcome == "Failed"
+        assert httpretty.last_request().querystring["$top"] == ["26"]
 
     @pytest.mark.httpretty
     def test_get_result(self, tfsapi):
         result = tfsapi.result(1, 100000)
 
-        assert result.outcome == 'Passed'
-        assert result.automatedTestStorage == 'unittestproject1.dll'
+        assert result.outcome == "Passed"
+        assert result.automatedTestStorage == "unittestproject1.dll"
 
     @pytest.mark.httpretty
     def test_adjusted_area_iteration(self):
-        new_project = 'NewProject'
-        api = TFSAPI("http://tfs.tfs.ru/tfs", 'DefaultCollection/{}'.format(new_project), 'username', 'password')
+        new_project = "NewProject"
+        api = TFSAPI(
+            "http://tfs.tfs.ru/tfs",
+            "DefaultCollection/{}".format(new_project),
+            "username",
+            "password",
+        )
 
-        old_area = 'OldProject\\Area1'
-        new_area = '{}\\Area1'.format(new_project)
+        old_area = "OldProject\\Area1"
+        new_area = "{}\\Area1".format(new_project)
 
         assert api._TFSAPI__adjusted_area_iteration(old_area) == new_area
 
@@ -225,15 +255,14 @@ class TestTFSAPI:
         # Get id from first file and get workitem from second by id
         # tests/resources/tfs/DefaultCollection/_apis/wit/queries/MyQueries/AssignedToMe/response.json
         # tests/resources/tfs/DefaultCollection/_apis/wit/wiql/fd4f2f90-8922-4fe7-b215-e8a3a5a03e91/response.json
-        wis = tfsapi.run_query('MyQueries/AssignedToMe')
+        wis = tfsapi.run_query("MyQueries/AssignedToMe")
         assert len(wis.workitems) == 2
-        pass
 
     @pytest.mark.httpretty
     def test_get_definitions_by_name(self, tfsapi):
-        definitions = tfsapi.definitions('release_*')
+        definitions = tfsapi.definitions("release_*")
 
-        assert httpretty.last_request().querystring['name'] == ['release_*']
+        assert httpretty.last_request().querystring["name"] == ["release_*"]
         assert len(definitions) == 5
         assert isinstance(definitions[0], Definition)
         with pytest.raises(Exception):
@@ -242,57 +271,65 @@ class TestTFSAPI:
     @pytest.mark.httpretty
     def test_definition_remove_attr(self, tfsapi):
         definition = tfsapi.definition(29)
-        definition.deleteAttrs('triggers', 'comment')
+        definition.deleteAttrs("triggers", "comment")
 
         assert isinstance(definition, Definition)
-        assert 'triggers' not in definition.data
-        assert 'comment' not in definition.data
-        assert not hasattr(definition, 'triggers')
-        assert not hasattr(definition, 'comment')
+        assert "triggers" not in definition.data
+        assert "comment" not in definition.data
+        assert not hasattr(definition, "triggers")
+        assert not hasattr(definition, "comment")
 
     @pytest.mark.httpretty
     def test_definition_clone(self, tfsapi):
         definition = tfsapi.definition(29)
-        data = {'comment': 'we need a clone'}
+        data = {"comment": "we need a clone"}
         clone = definition.clone(data)
 
-        assert clone.name == definition.name + '_clone'
-        assert clone.comment == data['comment']
+        assert clone.name == definition.name + "_clone"
+        assert clone.comment == data["comment"]
 
     @pytest.mark.httpretty
     def test_definition_update(self, tfsapi):
         definition = tfsapi.definition(29)
-        data = {'repository': {'defaultBranch': "refs/heads/featureBranch"}}
+        data = {"repository": {"defaultBranch": "refs/heads/featureBranch"}}
         definition.update(data)
 
-        assert definition.repository.defaultBranch == data['repository']['defaultBranch']
+        assert (
+            definition.repository.defaultBranch == data["repository"]["defaultBranch"]
+        )
         assert httpretty.last_request().method == "PUT"
-        assert httpretty.last_request().headers['Content-Type'] == 'application/json'
+        assert httpretty.last_request().headers["Content-Type"] == "application/json"
 
     @pytest.mark.httpretty
     def test_definition_create(self, tfsapi):
         definition = tfsapi.definition(29)
-        data = {'name': 'new definition name', 'comment': 'save the clone'}
+        data = {"name": "new definition name", "comment": "save the clone"}
         clone = definition.clone(data)
         result = clone.create()
 
-        assert result.name == data['name']
-        assert result.comment == data['comment']
+        assert result.name == data["name"]
+        assert result.comment == data["comment"]
         assert httpretty.last_request().method == "POST"
 
 
 class TestHTTPClient:
     def test__get_collection(self):
-        collection, project = TFSHTTPClient.get_collection_and_project('DefaultCollection')
-        assert collection == 'DefaultCollection'
+        collection, project = TFSHTTPClient.get_collection_and_project(
+            "DefaultCollection"
+        )
+        assert collection == "DefaultCollection"
         assert project is None
 
     def test__get_collection_and_project(self):
-        collection, project = TFSHTTPClient.get_collection_and_project('DefaultCollection/Project')
-        assert collection == 'DefaultCollection'
-        assert project == 'Project'
+        collection, project = TFSHTTPClient.get_collection_and_project(
+            "DefaultCollection/Project"
+        )
+        assert collection == "DefaultCollection"
+        assert project == "Project"
 
     def test__get_collection_and_project_and_team(self):
-        collection, project = TFSHTTPClient.get_collection_and_project('DefaultCollection/Project/Team')
-        assert collection == 'DefaultCollection'
-        assert project == 'Project'
+        collection, project = TFSHTTPClient.get_collection_and_project(
+            "DefaultCollection/Project/Team"
+        )
+        assert collection == "DefaultCollection"
+        assert project == "Project"

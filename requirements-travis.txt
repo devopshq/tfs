@@ -1,8 +1,0 @@
-coverage
-codacy-coverage
-pytest==3.1.2
-HTTPretty
-pytest_httpretty
-pypandoc
-requests_ntlm
-flake8
