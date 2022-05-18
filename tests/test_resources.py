@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-
-
 import json
+
 import pytest
+
 from tfs.resources import *
 
 
@@ -132,26 +132,26 @@ class TestWorkitem(object):
         assert workitem.id == 100
 
     def test_workitem_fields(self, workitem):
-        assert workitem['Reason'] == "New"
-        assert workitem['AreaPath'] == "Test Agile"
-        assert workitem['Tags'] is None
+        assert workitem["Reason"] == "New"
+        assert workitem["AreaPath"] == "Test Agile"
+        assert workitem["Tags"] is None
 
     def test_workitem_fields_with_prefix(self, workitem):
-        assert workitem['System.Reason'] == "New"
-        assert workitem['System.AreaPath'] == "Test Agile"
-        assert workitem['System.Tags'] is None
+        assert workitem["System.Reason"] == "New"
+        assert workitem["System.AreaPath"] == "Test Agile"
+        assert workitem["System.Tags"] is None
 
     def test_workitem_fields_custom(self, workitem):
-        assert workitem['Custom.Bug.Type'] == "Manual Test Case"
+        assert workitem["Custom.Bug.Type"] == "Manual Test Case"
 
     @pytest.mark.httpretty
     def test_workitem_field_update(self, workitem):
-        workitem['Reason'] = "Canceled"
-        assert workitem['Reason'] == "Canceled"
+        workitem["Reason"] = "Canceled"
+        assert workitem["Reason"] == "Canceled"
 
     def test_workitem_fields_case_ins(self, workitem):
-        assert workitem['ReaSon'] == "New"
-        assert workitem['AREAPath'] == "Test Agile"
+        assert workitem["ReaSon"] == "New"
+        assert workitem["AREAPath"] == "Test Agile"
 
     def test_workitem_parent_id(self, workitem):
         assert workitem.parent_id == 110
@@ -161,26 +161,35 @@ class TestWorkitem(object):
         assert workitem_with_child_only.child_ids == [10, 11]
 
     def test_workitem_field_russia(self, workitem):
-        assert workitem['russia'] == "Русский язык"
+        assert workitem["russia"] == "Русский язык"
 
     def test_workitem_field_names(self, workitem):
-        assert 'Russia' in workitem.field_names
-        assert 'Title' in workitem.field_names
+        assert "Russia" in workitem.field_names
+        assert "Title" in workitem.field_names
 
     def test_find_in_relation(self, workitem):
-        assert len(workitem.find_in_relation('Hierarchy-Reverse')) == 1, 'Can not find in relation some link'
+        assert (
+            len(workitem.find_in_relation("Hierarchy-Reverse")) == 1
+        ), "Can not find in relation some link"
 
     def test_attachment(self, workitem):
         assert len(workitem.attachments) == 1
         attach = workitem.attachments[0]
         assert isinstance(attach, Attachment)
-        assert attach.name == '.gitignore'
+        assert attach.name == ".gitignore"
 
     def test_dir_links(self, workitem):
-        properties_must_be = ['workItemHistory', 'workItemRevisions', 'workItemType', 'workItemUpdates']
+        properties_must_be = [
+            "workItemHistory",
+            "workItemRevisions",
+            "workItemType",
+            "workItemUpdates",
+        ]
         properties = dir(workitem)
         for property_name in properties_must_be:
-            assert property_name in properties, "Workitem object must has attribute '{}'".format(property_name)
+            assert (
+                property_name in properties
+            ), "Workitem object must has attribute '{}'".format(property_name)
 
     # Started failing without related changes at
     # https://travis-ci.org/devopshq/tfs/builds/378607508?utm_source=github_status&utm_medium=notification
@@ -248,7 +257,7 @@ class TestChangeset(object):
         assert changeset.author.displayName == "Chuck Reinhart"
 
     def test_changeset_fields_get(self, changeset):
-        assert changeset.get('comment') == "My Comment"
+        assert changeset.get("comment") == "My Comment"
 
     @pytest.mark.httpretty
     def test_get_changesets_workitem(self, tfsapi):
@@ -443,6 +452,6 @@ class TestWiql(object):
 
 class TestUtilities(object):
     def test_class_for_resource_is_case_insensitive(self):
-        obj = class_for_resource('bUiLd/DeFiNiTiOnS/123')
+        obj = class_for_resource("bUiLd/DeFiNiTiOnS/123")
 
         assert obj is Definition
