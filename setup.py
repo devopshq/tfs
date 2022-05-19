@@ -14,7 +14,8 @@ setup(
     download_url="https://github.com/devopshq/tfs.git",
     entry_points={},
     classifiers=[
-        "Development Status :: 5 - Production/Stable" "Environment :: Console",
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "License :: OSI Approved :: MIT License",
